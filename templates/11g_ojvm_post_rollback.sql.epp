@@ -1,0 +1,6 @@
+connect / as sysdba
+
+@<%= $home_path %>/sqlpatch/<%= $patch_number %>/postdeinstall.sql
+
+exit
+

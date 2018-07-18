@@ -1,0 +1,7 @@
+# /etc/sudoers.d/oracle
+#
+# THIS FILE IS CONTROLLED BY PUPPET
+# DO NOT EDIT
+#
+S_OEM_Deploy  ALL=(oracle)  NOPASSWD:ALL
+Defaults visiblepw

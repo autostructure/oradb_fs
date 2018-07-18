@@ -1,0 +1,23 @@
+# /etc/systemd/system/oracle-rdbms.service
+# Invoking Oracle scripts to start/shutdown Instances defined in /etc/oratab
+# and starts Listener
+
+[Unit]
+Description=Oracle Database(s) and Listener
+#Requires=network.target
+Requires=rpc-statd.service network.target nfs.service nfs-mountd.service local-fs.target remote-fs.target
+After=syslog.target network.target nfs.service nfs-mountd.service local-fs.target rpc-statd.service remote-fs.target
+
+[Service]
+#Type=forking
+Type=idle
+RemainAfterExit=yes
+Restart=no
+ExecStart=${ORACLE_HOME}/bin/dbstart ${ORACLE_HOME}
+ExecStop=${ORACLE_HOME}/bin/dbshut ${ORACLE_HOME}
+User=oracle
+Group=oinstall
+
+[Install]
+WantedBy=multi-user.target
+

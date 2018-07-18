@@ -1,0 +1,8 @@
+# /etc/oraInst.loc
+#
+# THIS FILE IS CONTROLLED BY PUPPET
+# DO NOT EDIT
+#
+inventory_loc=/opt/oraInventory
+inst_group=oinstall
+

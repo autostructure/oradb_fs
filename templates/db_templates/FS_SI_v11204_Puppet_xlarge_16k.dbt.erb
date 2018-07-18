@@ -1,0 +1,377 @@
+<DatabaseTemplate name="FS_SI_v11204_Puppet_xlarge_16k" description="" version="11.2.0.0.0">
+   <CommonAttributes>
+      <option name="OMS" value="false"/>
+      <option name="JSERVER" value="true"/>
+      <option name="SPATIAL" value="false"/>
+      <option name="IMEDIA" value="true"/>
+      <option name="ORACLE_TEXT" value="true">
+         <tablespace id="SYSAUX"/>
+      </option>
+      <option name="XDB_PROTOCOLS" value="true">
+         <tablespace id="SYSAUX"/>
+      </option>
+      <option name="CWMLITE" value="false">
+         <tablespace id="SYSAUX"/>
+      </option>
+      <option name="EM_REPOSITORY" value="false">
+         <tablespace id="SYSAUX"/>
+      </option>
+      <option name="SAMPLE_SCHEMA" value="false"/>
+      <option name="APEX" value="false"/>
+      <option name="OWB" value="false"/>
+      <option name="DV" value="false"/>
+   </CommonAttributes>
+   <Variables/>
+   <CustomScripts Execute="false"/>
+   <InitParamAttributes>
+      <InitParams>
+         <initParam name="db_create_file_dest" value="<%= @data_file_destination %>"/>
+         <initParam name="db_recovery_file_dest" value="<%= @recovery_area_destination %>"/>
+         <initParam name="audit_file_dest" value="{ORACLE_BASE}/admin/{DB_UNIQUE_NAME}/adump"/>
+         <initParam name="audit_trail" value="os"/>
+         <initParam name="compatible" value="11.2.0.0.0"/>
+         <initParam name="db_block_size" value="16" unit="KB"/>
+         <initParam name="db_name" value="<%= @db_name %>"/>
+         <initParam name="db_domain" value="<%= @db_domain %>"/>
+         <initParam name="db_recovery_file_dest_size" value="10100" unit="MB"/>
+         <initParam name="diagnostic_dest" value="{ORACLE_BASE}"/>
+         <initParam name="dispatchers" value="(PROTOCOL=TCP) (SERVICE={SID}XDB)"/>
+         <initParam name="log_buffer" value="10485760"/>
+         <initParam name="pga_aggregate_target" value="0"/>
+         <initParam name="processes" value="1500"/>
+         <initParam name="remote_login_passwordfile" value="EXCLUSIVE"/>
+         <initParam name="undo_tablespace" value="UNDOTBS1"/>
+         <initParam name="statistics_level" value="TYPICAL"/>
+         <initParam name="lock_sga" value="FALSE"/>
+         <initParam name="db_cache_size" value="0"/>
+         <initParam name="db_cache_advice" value="ON"/>
+         <initParam name="workarea_size_policy" value="AUTO"/>
+         <initParam name="memory_target" value="12288" unit="MB"/>
+         <initParam name="memory_max_target" value="12288" unit="MB"/>
+         <initParam name="shared_pool_size" value="0"/>
+         <initParam name="large_pool_size" value="0"/>
+         <initParam name="java_pool_size" value="0"/>
+         <initParam name="streams_pool_size" value="0"/>
+         <initParam name="global_names" value="TRUE"/>
+         <initParam name="open_cursors" value="1200"/>
+      </InitParams>
+      <MiscParams>
+         <databaseType>MULTIPURPOSE</databaseType>
+         <maxUserConn>20</maxUserConn>
+         <percentageMemTOSGA>40</percentageMemTOSGA>
+         <customSGA>true</customSGA>
+         <characterSet>"<%= @character_set %>"</characterSet>
+         <nationalCharacterSet>"<%= @nationalcharacter_set %>"</nationalCharacterSet>
+         <archiveLogMode>false</archiveLogMode>
+         <initParamFileName>{ORACLE_BASE}/admin/{DB_UNIQUE_NAME}/pfile/init.ora</initParamFileName>
+      </MiscParams>
+      <SPfile useSPFile="true">{ORACLE_HOME}/dbs/spfile{SID}.ora</SPfile>
+   </InitParamAttributes>
+   <StorageAttributes>
+      <ControlfileAttributes id="Controlfile">
+         <maxDatafiles>100</maxDatafiles>
+         <maxLogfiles>16</maxLogfiles>
+         <maxLogMembers>4</maxLogMembers>
+         <maxLogHistory>1</maxLogHistory>
+         <maxInstances>8</maxInstances>
+         <image name="&lt;OMF_CONTROL_0>" filepath="<%= @data_file_destination %>/controlfile/"/>
+         <image name="&lt;OMF_CONTROL_1>" filepath="<%= @recovery_area_destination %>/controlfile/"/>
+      </ControlfileAttributes>
+      <DatafileAttributes id="&lt;OMF_SYSAUX_DATAFILE_0>">
+         <tablespace>SYSAUX</tablespace>
+         <temporary>false</temporary>
+         <online>true</online>
+         <status>0</status>
+         <size unit="MB">600</size>
+         <reuse>true</reuse>
+         <autoExtend>true</autoExtend>
+         <increment unit="MB">100</increment>
+         <maxSize unit="MB">65535</maxSize>
+      </DatafileAttributes>
+      <DatafileAttributes id="&lt;OMF_SYSTEM_DATAFILE_0>">
+         <tablespace>SYSTEM</tablespace>
+         <temporary>false</temporary>
+         <online>true</online>
+         <status>0</status>
+         <size unit="MB">700</size>
+         <reuse>true</reuse>
+         <autoExtend>true</autoExtend>
+         <increment unit="MB">100</increment>
+         <maxSize unit="MB">65535</maxSize>
+      </DatafileAttributes>
+      <DatafileAttributes id="&lt;OMF_TEMP_DATAFILE_0>">
+         <tablespace>TEMP</tablespace>
+         <temporary>false</temporary>
+         <online>true</online>
+         <status>0</status>
+         <size unit="MB">20</size>
+         <reuse>true</reuse>
+         <autoExtend>true</autoExtend>
+         <increment unit="MB">100</increment>
+         <maxSize unit="MB">65535</maxSize>
+      </DatafileAttributes>
+      <DatafileAttributes id="&lt;OMF_UNDOTBS1_DATAFILE_0>">
+         <tablespace>UNDOTBS1</tablespace>
+         <temporary>false</temporary>
+         <online>true</online>
+         <status>0</status>
+         <size unit="MB">200</size>
+         <reuse>true</reuse>
+         <autoExtend>true</autoExtend>
+         <increment unit="MB">100</increment>
+         <maxSize unit="MB">65535</maxSize>
+      </DatafileAttributes>
+      <DatafileAttributes id="&lt;OMF_USERS_DATAFILE_0>">
+         <tablespace>USERS</tablespace>
+         <temporary>false</temporary>
+         <online>true</online>
+         <status>0</status>
+         <size unit="MB">5</size>
+         <reuse>true</reuse>
+         <autoExtend>true</autoExtend>
+         <increment unit="MB">100</increment>
+         <maxSize unit="MB">65535</maxSize>
+      </DatafileAttributes>
+      <DatafileAttributes id="&lt;OMF_LOCAL_DATAFILE_0>">
+         <tablespace>LOCAL</tablespace>
+         <temporary>false</temporary>
+         <online>true</online>
+         <status>0</status>
+         <size unit="MB">100</size>
+         <reuse>true</reuse>
+         <autoExtend>true</autoExtend>
+         <increment unit="MB">100</increment>
+         <maxSize unit="MB">65535</maxSize>
+      </DatafileAttributes>
+      <DatafileAttributes id="&lt;OMF_INDEXES_DATAFILE_0>">
+         <tablespace>INDEXES</tablespace>
+         <temporary>false</temporary>
+         <online>true</online>
+         <status>0</status>
+         <size unit="MB">100</size>
+         <reuse>true</reuse>
+         <autoExtend>true</autoExtend>
+         <increment unit="MB">100</increment>
+         <maxSize unit="MB">65535</maxSize>
+      </DatafileAttributes>
+      <TablespaceAttributes id="SYSAUX">
+         <online>true</online>
+         <offlineMode>1</offlineMode>
+         <readOnly>false</readOnly>
+         <temporary>false</temporary>
+         <defaultTemp>false</defaultTemp>
+         <undo>false</undo>
+         <local>true</local>
+         <blockSize>-1</blockSize>
+         <allocation>1</allocation>
+         <uniAllocSize unit="KB">-1</uniAllocSize>
+         <initSize unit="KB">64</initSize>
+         <increment unit="KB">64</increment>
+         <incrementPercent>50</incrementPercent>
+         <minExtends>1</minExtends>
+         <maxExtends>4096</maxExtends>
+         <minExtendsSize unit="KB">64</minExtendsSize>
+         <logging>true</logging>
+         <recoverable>false</recoverable>
+         <maxFreeSpace>0</maxFreeSpace>
+         <autoSegmentMgmt>true</autoSegmentMgmt>
+         <bigfile>false</bigfile>
+         <datafilesList>
+            <TablespaceDatafileAttributes id="&lt;OMF_SYSAUX_DATAFILE_0>">
+               <id>-1</id>
+            </TablespaceDatafileAttributes>
+         </datafilesList>
+      </TablespaceAttributes>
+      <TablespaceAttributes id="SYSTEM">
+         <online>true</online>
+         <offlineMode>1</offlineMode>
+         <readOnly>false</readOnly>
+         <temporary>false</temporary>
+         <defaultTemp>false</defaultTemp>
+         <undo>false</undo>
+         <local>true</local>
+         <blockSize>-1</blockSize>
+         <allocation>3</allocation>
+         <uniAllocSize unit="KB">-1</uniAllocSize>
+         <initSize unit="KB">64</initSize>
+         <increment unit="KB">64</increment>
+         <incrementPercent>50</incrementPercent>
+         <minExtends>1</minExtends>
+         <maxExtends>-1</maxExtends>
+         <minExtendsSize unit="KB">64</minExtendsSize>
+         <logging>true</logging>
+         <recoverable>false</recoverable>
+         <maxFreeSpace>0</maxFreeSpace>
+         <autoSegmentMgmt>true</autoSegmentMgmt>
+         <bigfile>false</bigfile>
+         <datafilesList>
+            <TablespaceDatafileAttributes id="&lt;OMF_SYSTEM_DATAFILE_0>">
+               <id>-1</id>
+            </TablespaceDatafileAttributes>
+         </datafilesList>
+      </TablespaceAttributes>
+      <TablespaceAttributes id="TEMP">
+         <online>true</online>
+         <offlineMode>1</offlineMode>
+         <readOnly>false</readOnly>
+         <temporary>true</temporary>
+         <defaultTemp>true</defaultTemp>
+         <undo>false</undo>
+         <local>true</local>
+         <blockSize>-1</blockSize>
+         <allocation>1</allocation>
+         <uniAllocSize unit="KB">-1</uniAllocSize>
+         <initSize unit="KB">64</initSize>
+         <increment unit="KB">64</increment>
+         <incrementPercent>0</incrementPercent>
+         <minExtends>1</minExtends>
+         <maxExtends>0</maxExtends>
+         <minExtendsSize unit="KB">64</minExtendsSize>
+         <logging>true</logging>
+         <recoverable>false</recoverable>
+         <maxFreeSpace>0</maxFreeSpace>
+         <autoSegmentMgmt>true</autoSegmentMgmt>
+         <bigfile>false</bigfile>
+         <datafilesList>
+            <TablespaceDatafileAttributes id="&lt;OMF_TEMP_DATAFILE_0>">
+               <id>-1</id>
+            </TablespaceDatafileAttributes>
+         </datafilesList>
+      </TablespaceAttributes>
+      <TablespaceAttributes id="UNDOTBS1">
+         <online>true</online>
+         <offlineMode>1</offlineMode>
+         <readOnly>false</readOnly>
+         <temporary>false</temporary>
+         <defaultTemp>false</defaultTemp>
+         <undo>true</undo>
+         <local>true</local>
+         <blockSize>-1</blockSize>
+         <allocation>1</allocation>
+         <uniAllocSize unit="KB">-1</uniAllocSize>
+         <initSize unit="KB">512</initSize>
+         <increment unit="KB">512</increment>
+         <incrementPercent>50</incrementPercent>
+         <minExtends>8</minExtends>
+         <maxExtends>4096</maxExtends>
+         <minExtendsSize unit="KB">512</minExtendsSize>
+         <logging>true</logging>
+         <recoverable>false</recoverable>
+         <maxFreeSpace>0</maxFreeSpace>
+         <autoSegmentMgmt>true</autoSegmentMgmt>
+         <bigfile>false</bigfile>
+         <datafilesList>
+            <TablespaceDatafileAttributes id="&lt;OMF_UNDOTBS1_DATAFILE_0>">
+               <id>-1</id>
+            </TablespaceDatafileAttributes>
+         </datafilesList>
+      </TablespaceAttributes>
+      <TablespaceAttributes id="USERS">
+         <online>true</online>
+         <offlineMode>1</offlineMode>
+         <readOnly>false</readOnly>
+         <temporary>false</temporary>
+         <defaultTemp>false</defaultTemp>
+         <undo>false</undo>
+         <local>true</local>
+         <blockSize>-1</blockSize>
+         <allocation>1</allocation>
+         <uniAllocSize unit="KB">-1</uniAllocSize>
+         <initSize unit="KB">128</initSize>
+         <increment unit="KB">128</increment>
+         <incrementPercent>0</incrementPercent>
+         <minExtends>1</minExtends>
+         <maxExtends>4096</maxExtends>
+         <minExtendsSize unit="KB">128</minExtendsSize>
+         <logging>true</logging>
+         <recoverable>false</recoverable>
+         <maxFreeSpace>0</maxFreeSpace>
+         <autoSegmentMgmt>true</autoSegmentMgmt>
+         <bigfile>false</bigfile>
+         <datafilesList>
+            <TablespaceDatafileAttributes id="&lt;OMF_USERS_DATAFILE_0>">
+               <id>-1</id>
+            </TablespaceDatafileAttributes>
+         </datafilesList>
+      </TablespaceAttributes>
+      <TablespaceAttributes id="LOCAL">
+         <online>true</online>
+         <offlineMode>1</offlineMode>
+         <readOnly>false</readOnly>
+         <temporary>false</temporary>
+         <defaultTemp>false</defaultTemp>
+         <undo>false</undo>
+         <local>true</local>
+         <blockSize>-1</blockSize>
+         <allocation>1</allocation>
+         <uniAllocSize unit="KB">-1</uniAllocSize>
+         <initSize unit="KB">128</initSize>
+         <increment unit="KB">128</increment>
+         <incrementPercent>0</incrementPercent>
+         <minExtends>1</minExtends>
+         <maxExtends>4096</maxExtends>
+         <minExtendsSize unit="MB">100</minExtendsSize>
+         <logging>true</logging>
+         <recoverable>false</recoverable>
+         <maxFreeSpace>0</maxFreeSpace>
+         <autoSegmentMgmt>true</autoSegmentMgmt>
+         <bigfile>false</bigfile>
+         <datafilesList>
+            <TablespaceDatafileAttributes id="&lt;OMF_LOCAL_DATAFILE_0>">
+               <id>-1</id>
+            </TablespaceDatafileAttributes>
+         </datafilesList>
+      </TablespaceAttributes>
+      <TablespaceAttributes id="INDEXES">
+         <online>true</online>
+         <offlineMode>1</offlineMode>
+         <readOnly>false</readOnly>
+         <temporary>false</temporary>
+         <defaultTemp>false</defaultTemp>
+         <undo>false</undo>
+         <local>true</local>
+         <blockSize>-1</blockSize>
+         <allocation>1</allocation>
+         <uniAllocSize unit="KB">-1</uniAllocSize>
+         <initSize unit="KB">128</initSize>
+         <increment unit="KB">128</increment>
+         <incrementPercent>0</incrementPercent>
+         <minExtends>1</minExtends>
+         <maxExtends>4096</maxExtends>
+         <minExtendsSize unit="MB">100</minExtendsSize>
+         <logging>true</logging>
+         <recoverable>false</recoverable>
+         <maxFreeSpace>0</maxFreeSpace>
+         <autoSegmentMgmt>true</autoSegmentMgmt>
+         <bigfile>false</bigfile>
+         <datafilesList>
+            <TablespaceDatafileAttributes id="&lt;OMF_INDEXES_DATAFILE_0>">
+               <id>-1</id>
+            </TablespaceDatafileAttributes>
+         </datafilesList>
+      </TablespaceAttributes>
+      <RedoLogGroupAttributes id="1">
+         <reuse>false</reuse>
+         <fileSize unit="MB">50</fileSize>
+         <Thread>1</Thread>
+         <member ordinal="0" memberName="OMF_1_REDOLOG_MEMBER_0" filepath="<%= @data_file_destination %>/onlinelog/"/>
+         <member ordinal="1" memberName="OMF_1_REDOLOG_MEMBER_1" filepath="<%= @recovery_area_destination %>/onlinelog/"/>
+      </RedoLogGroupAttributes>
+      <RedoLogGroupAttributes id="2">
+         <reuse>false</reuse>
+         <fileSize unit="MB">50</fileSize>
+         <Thread>1</Thread>
+         <member ordinal="0" memberName="OMF_2_REDOLOG_MEMBER_0" filepath="<%= @data_file_destination %>/onlinelog/"/>
+         <member ordinal="1" memberName="OMF_2_REDOLOG_MEMBER_1" filepath="<%= @recovery_area_destination %>/onlinelog/"/>
+      </RedoLogGroupAttributes>
+      <RedoLogGroupAttributes id="3">
+         <reuse>false</reuse>
+         <fileSize unit="MB">50</fileSize>
+         <Thread>1</Thread>
+         <member ordinal="0" memberName="OMF_3_REDOLOG_MEMBER_0" filepath="<%= @data_file_destination %>/onlinelog/"/>
+         <member ordinal="1" memberName="OMF_3_REDOLOG_MEMBER_1" filepath="<%= @recovery_area_destination %>/onlinelog/"/>
+      </RedoLogGroupAttributes>
+   </StorageAttributes>
+</DatabaseTemplate>
+
+

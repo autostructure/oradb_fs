@@ -1,0 +1,219 @@
+###################
+####Patching Inputs
+###################
+oradb_fs::12_2::available_patches: [ '2017_07jul', '2017_10oct', '2018_01jan' ]
+oradb_fs::12_1::available_patches: [ '2016_10oct', '2017_01jan', '2017_04apr', '2017_07jul', '2017_10oct' ]
+oradb_fs::11_2::available_patches: [ '2016_10oct', '2017_01jan', '2017_04apr', '2017_07jul', '2017_10oct' ]
+
+########################
+#####Minimum Patch Dates
+########################
+#####12.2.0.1
+oradb_fs::12_2::min_patch_date: '2017_07jul'
+#####12.1.0.2
+oradb_fs::12_1::min_patch_date: '2017_07jul'
+######11.2.0.4
+oradb_fs::11_2::min_patch_date: '2017_01jan'
+
+##############
+#####12.2.0.1
+##############
+
+#######2018_01jan
+oradb_fs::12_2::2018_01jan::opatch::opatch_file: 'p6880880_122010_Linux-x86-64.zip' #opatch upgrade zip file
+oradb_fs::12_2::2018_01jan::opatch::opatch_md5sum: '8ddc76c7f708bf43a591bdc1efadc90a' #db md5sum for zip file
+oradb_fs::12_2::2018_01jan::opatch::new_opatch_ver: '12.2.0.1.12' #full patch version of incoming Opatch
+
+oradb_fs::12_2::2018_01jan::db::db_patch_file: 'p27105253_122010_Linux-x86-64.zip' #db patch zip file
+oradb_fs::12_2::2018_01jan::db::db_md5sum: '2aee2a7154090e83afcf218a80d728f3' #db md5sum for zip file
+oradb_fs::12_2::2018_01jan::db::db_patch_version: '12.2.0.1.180116'
+
+oradb_fs::12_2::2018_01jan::ojvm::ojvm_patch_file: 'p27001739_122010_Linux-x86-64.zip' #ojvm patch zip file
+oradb_fs::12_2::2018_01jan::ojvm::ojvm_md5sum: 'eb6defca9fe48e45a58f7f8084498120' #ojvm md5sum for zip file
+oradb_fs::12_2::2018_01jan::ojvm::ojvm_patch_version: '12.2.0.1.180116'
+
+#######2017_10oct
+oradb_fs::12_2::2017_10oct::opatch::opatch_file: 'p6880880_122010_Linux-x86-64.zip' #opatch upgrade zip file
+oradb_fs::12_2::2017_10oct::opatch::opatch_md5sum: '6f8cff9f67ed19f168ef374248025a5a' #db md5sum for zip file
+oradb_fs::12_2::2017_10oct::opatch::new_opatch_ver: '12.2.0.1.10' #full patch version of incoming Opatch
+
+oradb_fs::12_2::2017_10oct::db::db_patch_file: 'p26710464_122010_Linux-x86-64.zip' #db patch zip file
+oradb_fs::12_2::2017_10oct::db::db_md5sum: '0db23af94746d0533d6781d7f9e9b675' #db md5sum for zip file
+oradb_fs::12_2::2017_10oct::db::db_patch_version: '12.2.0.1.171017'
+
+oradb_fs::12_2::2017_10oct::ojvm::ojvm_patch_file: 'p26635944_122010_Linux-x86-64.zip' #ojvm patch zip file
+oradb_fs::12_2::2017_10oct::ojvm::ojvm_md5sum: '5f1ee41bff596c2fd43d2bda850ada17' #ojvm md5sum for zip file
+oradb_fs::12_2::2017_10oct::ojvm::ojvm_patch_version: '12.2.0.1.171017'
+
+#######2017_07jul
+oradb_fs::12_2::2017_07jul::opatch::opatch_file: 'p6880880_122010_Linux-x86-64.zip' #opatch upgrade zip file
+oradb_fs::12_2::2017_07jul::opatch::opatch_md5sum: '185593840ab895b1ea51f6f7213c007e' #db md5sum for zip file
+oradb_fs::12_2::2017_07jul::opatch::new_opatch_ver: '12.2.0.1.9' #full patch version of incoming Opatch
+
+oradb_fs::12_2::2017_07jul::db::db_patch_file: 'p26609817_122010_Linux-x86-64.zip' #db patch zip file
+oradb_fs::12_2::2017_07jul::db::db_md5sum: '2841d384e788a6c3218ef22860a815d7' #db md5sum for zip file
+oradb_fs::12_2::2017_07jul::db::db_patch_version: '12.2.0.1.170814'
+
+oradb_fs::12_2::2017_07jul::ojvm::ojvm_patch_file: 'p25811364_122010_Linux-x86-64.zip' #ojvm patch zip file
+oradb_fs::12_2::2017_07jul::ojvm::ojvm_md5sum: '6c39c655813e7f839648c9607c0da840' #ojvm md5sum for zip file
+oradb_fs::12_2::2017_07jul::ojvm::ojvm_patch_version: '12.2.0.1.170718'
+
+##############
+#####12.1.0.2
+##############
+
+#######2017_10oct
+oradb_fs::12_1::2017_10oct::opatch::opatch_file: 'p6880880_122010_Linux-x86-64.zip' #opatch upgrade zip file
+oradb_fs::12_1::2017_10oct::opatch::opatch_md5sum: '8db975372e66df4e057534fbed82de41' #db md5sum for zip file
+oradb_fs::12_1::2017_10oct::opatch::new_opatch_ver: '12.2.0.1.10' #full patch version of incoming Opatch
+
+oradb_fs::12_1::2017_10oct::db::db_patch_file: 'p26713565_121020_Linux-x86-64.zip' #db patch zip file
+oradb_fs::12_1::2017_10oct::db::db_md5sum: 'e67c355905ce907613868ba89575b78e' #db md5sum for zip file
+oradb_fs::12_1::2017_10oct::db::db_patch_version: '12.1.0.2.171017'
+
+oradb_fs::12_1::2017_10oct::ojvm::ojvm_patch_file: 'p26635845_121020_Linux-x86-64.zip' #ojvm patch zip file
+oradb_fs::12_1::2017_10oct::ojvm::ojvm_md5sum: '2a2067195eda972023013a43aab8daa9' #ojvm md5sum for zip file
+oradb_fs::12_1::2017_10oct::ojvm::ojvm_patch_version: '12.1.0.2.171017'
+
+#######2017_07jul
+oradb_fs::12_1::2017_07jul::opatch::opatch_file: 'p6880880_122010_Linux-x86-64.zip' #opatch upgrade zip file
+oradb_fs::12_1::2017_07jul::opatch::opatch_md5sum: '185593840ab895b1ea51f6f7213c007e' #db md5sum for zip file
+oradb_fs::12_1::2017_07jul::opatch::new_opatch_ver: '12.2.0.1.9' #full patch version of incoming Opatch
+
+oradb_fs::12_1::2017_07jul::db::db_patch_file: 'p26609783_121020_Linux-x86-64.zip' #db patch zip file
+oradb_fs::12_1::2017_07jul::db::db_md5sum: 'a21e3593002124df06eabbd1b233cd6a' #db md5sum for zip file
+oradb_fs::12_1::2017_07jul::db::db_patch_version: '12.1.0.2.170814'
+
+oradb_fs::12_1::2017_07jul::ojvm::ojvm_patch_file: 'p26027162_121020_Linux-x86-64.zip' #ojvm patch zip file
+oradb_fs::12_1::2017_07jul::ojvm::ojvm_md5sum: 'f8b0010d6e9478c3d66b6b4d85cc6797' #ojvm md5sum for zip file
+oradb_fs::12_1::2017_07jul::ojvm::ojvm_patch_version: '12.1.0.2.170718'
+
+#######2017_04apr
+oradb_fs::12_1::2017_04apr::opatch::opatch_file: 'p6880880_121010_Linux-x86-64.zip' #opatch upgrade zip file
+oradb_fs::12_1::2017_04apr::opatch::opatch_md5sum: '8db975372e66df4e057534fbed82de41' #db md5sum for zip file
+oradb_fs::12_1::2017_04apr::opatch::new_opatch_ver: '12.2.0.1.8' #full patch version of incoming Opatch
+
+oradb_fs::12_1::2017_04apr::db::db_patch_file: 'p25171037_121020_Linux-x86-64.zip' #db patch zip file
+oradb_fs::12_1::2017_04apr::db::db_md5sum: 'd75ad029f0774b6656f9b0de32399f52' #db md5sum for zip file
+oradb_fs::12_1::2017_04apr::db::db_patch_version: '12.1.0.2.170418'
+
+oradb_fs::12_1::2017_04apr::ojvm::ojvm_patch_file: 'p25437695_121020_Linux-x86-64.zip' #ojvm patch zip file
+oradb_fs::12_1::2017_04apr::ojvm::ojvm_md5sum: '196e41dd4fae35cbd081766e34b07ef6' #ojvm md5sum for zip file
+oradb_fs::12_1::2017_04apr::ojvm::ojvm_patch_version: '12.1.0.2.170418'
+
+#######2017_01jan
+oradb_fs::12_1::2017_01jan::opatch::opatch_file: 'p6880880_121010_Linux-x86-64.zip' #opatch upgrade zip file
+oradb_fs::12_1::2017_01jan::opatch::opatch_md5sum: '8db975372e66df4e057534fbed82de41' #db md5sum for zip file
+oradb_fs::12_1::2017_01jan::opatch::new_opatch_ver: '12.2.0.1.8' #full patch version of incoming Opatch
+
+oradb_fs::12_1::2017_01jan::db::db_patch_file: 'p24732082_121020_Linux-x86-64.zip' #db patch zip file
+oradb_fs::12_1::2017_01jan::db::db_md5sum: 'b5114f1f2153b0e6a5d94d3c65df2266' #db md5sum for zip file
+oradb_fs::12_1::2017_01jan::db::db_patch_version: '12.1.0.2.170117'
+
+oradb_fs::12_1::2017_01jan::ojvm::ojvm_patch_file: 'p24917972_121020_Linux-x86-64.zip' #ojvm patch zip file
+oradb_fs::12_1::2017_01jan::ojvm::ojvm_md5sum: 'd190cb9aac3cf9cb27c3f511bf1cb7f7' #ojvm md5sum for zip file
+oradb_fs::12_1::2017_01jan::ojvm::ojvm_patch_version: '12.1.0.2.170117'
+
+#######2016_10oct
+oradb_fs::12_1::2016_10oct::opatch::opatch_file: 'p6880880_121010_Linux-x86-64.zip' #opatch upgrade zip file
+oradb_fs::12_1::2016_10oct::opatch::opatch_md5sum: '8db975372e66df4e057534fbed82de41' #db md5sum for zip file
+oradb_fs::12_1::2016_10oct::opatch::new_opatch_ver: '12.2.0.1.8' #full patch version of incoming Opatch
+
+oradb_fs::12_1::2016_10oct::db::db_patch_file: 'p24006101_121020_Linux-x86-64.zip' #db patch zip file
+oradb_fs::12_1::2016_10oct::db::db_md5sum: 'e67c355905ce907613868ba89575b78e' #db md5sum for zip file
+oradb_fs::12_1::2016_10oct::db::db_patch_version: '12.1.0.2.161018'
+
+oradb_fs::12_1::2016_10oct::ojvm::ojvm_patch_file: 'p24315824_121020_Linux-x86-64.zip' #ojvm patch zip file
+oradb_fs::12_1::2016_10oct::ojvm::ojvm_md5sum: '2a2067195eda972023013a43aab8daa9' #ojvm md5sum for zip file
+oradb_fs::12_1::2016_10oct::ojvm::ojvm_patch_version: '12.1.0.2.161018'
+
+##############
+######11.2.0.4
+##############
+
+#######2017_10oct
+oradb_fs::11_2::2017_10oct::opatch::opatch_file: 'p6880880_112000_Linux-x86-64.zip' #opatch upgrade zip file
+oradb_fs::11_2::2017_10oct::opatch::opatch_md5sum: '049e860a1025349741b3f76751f47963' #db md5sum for zip file
+oradb_fs::11_2::2017_10oct::opatch::new_opatch_ver: '11.2.0.3.17' #full patch version of incoming Opatch
+
+oradb_fs::11_2::2017_10oct::db::db_patch_file: 'p26392168_112040_Linux-x86-64.zip' #db patch zip file
+oradb_fs::11_2::2017_10oct::db::db_md5sum: '4c36cc3f7df992a716bb7fe3bf0147d9' #db md5sum for zip file
+oradb_fs::11_2::2017_10oct::db::db_patch_version: '11.2.0.4.171017'
+
+oradb_fs::11_2::2017_10oct::ojvm::ojvm_patch_file: 'p26635834_112040_Linux-x86-64.zip' #ojvm patch zip file
+oradb_fs::11_2::2017_10oct::ojvm::ojvm_md5sum: '9f0334f0997ae6fc04b88ec83682cfc6' #ojvm md5sum for zip file
+oradb_fs::11_2::2017_10oct::ojvm::ojvm_patch_version: '11.2.0.4.171017'
+
+#######2017_07jul
+oradb_fs::11_2::2017_07jul::opatch::opatch_file: 'p6880880_112000_Linux-x86-64.zip' #opatch upgrade zip file
+oradb_fs::11_2::2017_07jul::opatch::opatch_md5sum: '4104c8f3474d51e7bdb079eb43412f34' #db md5sum for zip file
+oradb_fs::11_2::2017_07jul::opatch::new_opatch_ver: '11.2.0.3.16' #full patch version of incoming Opatch
+
+oradb_fs::11_2::2017_07jul::db::db_patch_file: 'p26609445_112040_Linux-x86-64.zip' #db patch zip file
+oradb_fs::11_2::2017_07jul::db::db_md5sum: '52b7a63fc10d57e9ad20cf7443ff997d' #db md5sum for zip file
+oradb_fs::11_2::2017_07jul::db::db_patch_version: '11.2.0.4.170814'
+
+oradb_fs::11_2::2017_07jul::ojvm::ojvm_patch_file: 'p26027154_112040_Linux-x86-64.zip' #ojvm patch zip file
+oradb_fs::11_2::2017_07jul::ojvm::ojvm_md5sum: '2fad4df1cfd2bb82c8378f037964f86a' #ojvm md5sum for zip file
+oradb_fs::11_2::2017_07jul::ojvm::ojvm_patch_version: '11.2.0.4.170718'
+
+#######2017_04apr
+oradb_fs::11_2::2017_04apr::opatch::opatch_file: 'p6880880_112000_Linux-x86-64.zip' #opatch upgrade zip file
+oradb_fs::11_2::2017_04apr::opatch::opatch_md5sum: '5059cc598b65a70ce6709e846f8adaa0' #db md5sum for zip file
+oradb_fs::11_2::2017_04apr::opatch::new_opatch_ver: '11.2.0.3.15' #full patch version of incoming Opatch
+
+oradb_fs::11_2::2017_04apr::db::db_patch_file: 'p24732075_112040_Linux-x86-64.zip' #db patch zip file
+oradb_fs::11_2::2017_04apr::db::db_md5sum: 'fe498c56421f08e56d1da4a5a1c5e6e0' #db md5sum for zip file
+oradb_fs::11_2::2017_04apr::db::db_patch_version: '11.2.0.4.170418'
+
+oradb_fs::11_2::2017_04apr::ojvm::ojvm_patch_file: 'p25434033_112040_Linux-x86-64.zip' #ojvm patch zip file
+oradb_fs::11_2::2017_04apr::ojvm::ojvm_md5sum: '7635c27983bf2e8c9b7c7982f54c2bdd' #ojvm md5sum for zip file
+oradb_fs::11_2::2017_04apr::ojvm::ojvm_patch_version: '11.2.0.4.170418'
+
+#######2017_01jan
+oradb_fs::11_2::2017_01jan::opatch::opatch_file: 'p6880880_112000_Linux-x86-64.zip' #opatch upgrade zip file
+oradb_fs::11_2::2017_01jan::opatch::opatch_md5sum: '5059cc598b65a70ce6709e846f8adaa0' #db md5sum for zip file
+oradb_fs::11_2::2017_01jan::opatch::new_opatch_ver: '11.2.0.3.15' #full patch version of incoming Opatch
+
+oradb_fs::11_2::2017_01jan::db::db_patch_file: 'p24006111_112040_Linux-x86-64.zip' #db patch zip file
+oradb_fs::11_2::2017_01jan::db::db_md5sum: '952458e119946b106e4c8e9e5b25f0a2' #db md5sum for zip file
+oradb_fs::11_2::2017_01jan::db::db_patch_version: '11.2.0.4.161018'
+
+oradb_fs::11_2::2017_01jan::ojvm::ojvm_patch_file: 'p24917954_112040_Linux-x86-64.zip' #ojvm patch zip file
+oradb_fs::11_2::2017_01jan::ojvm::ojvm_md5sum: 'fb0d0ef41439f78355e42df91a088ece' #ojvm md5sum for zip file
+oradb_fs::11_2::2017_01jan::ojvm::ojvm_patch_version: '11.2.0.4.170117'
+
+#######2016_10oct
+oradb_fs::11_2::2016_10oct::opatch::opatch_file: 'p6880880_112000_Linux-x86-64.zip' #opatch upgrade zip file
+oradb_fs::11_2::2016_10oct::opatch::opatch_md5sum: '5059cc598b65a70ce6709e846f8adaa0' #db md5sum for zip file
+oradb_fs::11_2::2016_10oct::opatch::new_opatch_ver: '11.2.0.3.15' #full patch version of incoming Opatch
+
+oradb_fs::11_2::2016_10oct::db::db_patch_file: 'p24006111_112040_Linux-x86-64.zip' #db patch zip file
+oradb_fs::11_2::2016_10oct::db::db_md5sum: '952458e119946b106e4c8e9e5b25f0a2' #db md5sum for zip file
+oradb_fs::11_2::2016_10oct::db::db_patch_version: '11.2.0.4.161018'
+
+oradb_fs::11_2::2016_10oct::ojvm::ojvm_patch_file: 'p24315821_112040_Linux-x86-64.zip' #ojvm patch zip file
+oradb_fs::11_2::2016_10oct::ojvm::ojvm_md5sum: '9e0ab832de4a4e87f26210a0df0f7dc6' #ojvm md5sum for zip file
+oradb_fs::11_2::2016_10oct::ojvm::ojvm_patch_version: '11.2.0.4.161018'
+
+####SW Inputs
+#oradb_fs::ora_sw_dir_path_11204: "/fslink/sysinfra/oracle/media/db/11.2.0.4"
+#oradb_fs::patch_source_dir_11204: "/fslink/sysinfra/oracle/automedia/11204"
+
+#oradb_fs::ora_sw_dir_path_12102: "/fslink/sysinfra/oracle/media/db/12.1.0.2"
+#oradb_fs::patch_source_dir_12102: "/fslink/sysinfra/oracle/automedia/12102"
+
+oradb_fs::ora_sw_dir_path_12201: "/fslink/sysinfra/oracle/media/db/12.2.0.1"
+oradb_fs::patch_source_dir_12201: "/fslink/sysinfra/oracle/automedia/12201"
+
+####DB Inputs
+oradb_fs::valid_node_checking: 'LOCAL'
+oradb_fs::database_type_ee: 'EE'
+oradb_fs::character_set: 'AL32UTF8'
+oradb_fs::national_character_set: 'UTF8'
+oradb_fs::database_type: 'MULTIPURPOSE' #MULTIPURPOSE, DATA_WAREHOUSING, OLTP
+
+####DB inputs
+oradb_fs::ora_db_passwords: 'starfire'
+
+

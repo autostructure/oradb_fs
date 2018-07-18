@@ -1,0 +1,26 @@
+#
+# THIS FILE IS CONTROLLED BY PUPPET
+# DO NOT EDIT
+#
+
+if [ -f ~/.bashrc ]; then
+   . ~/.bashrc
+fi
+
+ORACLE_UNQNAME=<%= $db_name %>; export ORACLE_UNQNAME
+ORACLE_BASE=/opt/oracle; export ORACLE_BASE
+ORACLE_HOME=<%= $db_home %>; export ORACLE_HOME
+ORACLE_TERM=xterm; export ORACLE_TERM
+ORACLE_SID=<%= $db_name %>; export ORACLE_SID
+TNS_ADMIN=$ORACLE_HOME/network/admin; export TNS_ADMIN
+ORA_NLS11=$ORACLE_HOME/nls/data; export ORA_NLS11
+PATH=$PATH:$ORACLE_HOME/bin; export PATH
+LD_LIBRARY_PATH=$ORACLE_HOME/lib; export LD_LIBRARY_PATH
+NLS_DATE_FORMAT="DD-MON-YYYY HH24:MI:SS"; export NLS_DATE_FORMAT
+
+AGENT_CORE=<%= $agent_core %>; export AGENT_CORE
+AGENT_HOME=<%= $agent_home %>; export AGENT_HOME
+
+export TEMP=/tmp
+export TMPDIR=/tmp
+umask 022

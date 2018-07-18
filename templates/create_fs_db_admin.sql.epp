@@ -1,0 +1,231 @@
+connect / as sysdba
+
+SET serveroutput on;
+
+DECLARE
+
+lv_count		number;
+lv_status		varchar2(32);
+lv_default_ts		varchar2(30);
+lv_tmp_ts		varchar2(30);
+lv_profile		varchar2(128);
+lv_ts_exists		boolean := false;
+lv_profile_exists	boolean := false;
+lv_text         	varchar2(30);
+
+pv_debug		boolean :=  <%= $debug %>;
+
+BEGIN
+
+dbms_output.enable(NULL);
+
+  BEGIN
+
+    select count(*) into lv_count 
+    from dba_tablespaces
+    where tablespace_name = 'FS_DB_ADMIN_DATA';
+
+    if lv_count = 0 then
+
+      EXECUTE IMMEDIATE 'CREATE SMALLFILE TABLESPACE fs_db_admin_data DATAFILE LOGGING EXTENT MANAGEMENT LOCAL SEGMENT SPACE MANAGEMENT AUTO'; 
+
+      lv_ts_exists := true;
+
+      if pv_debug = true then
+        dbms_output.put_line('FS_DB_ADMIN_DATA tablespace created successfully');
+      end if;
+
+    else
+
+      lv_ts_exists := true;
+
+      if pv_debug = true then
+        dbms_output.put_line('FS_DB_ADMIN_DATA tablespace already exists'); 
+      end if;
+    end if;
+
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF pv_debug = true THEN 
+        dbms_output.put_line(sqlerrm);
+      END IF;  
+  END;
+
+  BEGIN
+
+    select count(*) into lv_count
+    from dba_profiles
+    where profile='FS_OWNER_PROFILE';
+
+    if lv_count = 0 then
+
+      EXECUTE IMMEDIATE 'create profile fs_owner_profile limit failed_login_attempts 10';
+      lv_profile_exists := true;
+      if pv_debug = true then
+        dbms_output.put_line('FS_OWNER_PROFILE junk profile created');
+      end if;
+    else
+      lv_profile_exists := true;
+      if pv_debug = true then
+        dbms_output.put_line('FS_OWNER_PROFILE profile already exists');
+      end if;
+    end if;
+
+    select count(*) into lv_count
+    from dba_users
+    where username = 'FS_DB_ADMIN';
+
+    if lv_count = 0 and lv_ts_exists = true and lv_profile_exists = true then
+
+      EXECUTE IMMEDIATE 'CREATE USER fs_db_admin IDENTIFIED BY "TEMPORARY_PW_2_use_4_install"
+                         DEFAULT TABLESPACE fs_db_admin_data TEMPORARY TABLESPACE temp
+                         PROFILE FS_OWNER_PROFILE PASSWORD EXPIRE ACCOUNT LOCK
+                         QUOTA UNLIMITED ON fs_db_admin_data';
+
+      EXECUTE IMMEDIATE 'GRANT SELECT ANY DICTIONARY TO fs_db_admin';
+      EXECUTE IMMEDIATE 'GRANT DROP ANY TABLE TO fs_db_admin';
+      EXECUTE IMMEDIATE 'GRANT GRANT ANY OBJECT PRIVILEGE TO fs_db_admin';
+      EXECUTE IMMEDIATE 'GRANT GRANT ANY PRIVILEGE TO fs_db_admin';
+      EXECUTE IMMEDIATE 'GRANT GRANT ANY ROLE TO fs_db_admin';
+      EXECUTE IMMEDIATE 'GRANT CREATE USER TO fs_db_admin';
+      EXECUTE IMMEDIATE 'GRANT ALTER USER TO fs_db_admin';
+      EXECUTE IMMEDIATE 'GRANT DROP USER TO fs_db_admin';
+      EXECUTE IMMEDIATE 'GRANT ANALYZE ANY TO fs_db_admin';
+      EXECUTE IMMEDIATE 'GRANT ALTER ANY INDEX to fs_db_admin';
+
+      if pv_debug = true then
+        dbms_output.put_line('FS_DB_ADMIN user created successfully');
+      end if;
+
+    elsif lv_count != 0 and lv_ts_exists = true and lv_profile_exists = true then
+
+      if pv_debug = true then
+        dbms_output.put_line('FS_DB_ADMIN user already exists'); 
+      end if;
+
+      select ACCOUNT_STATUS, DEFAULT_TABLESPACE, TEMPORARY_TABLESPACE, PROFILE into lv_status, lv_default_ts, lv_tmp_ts,lv_profile
+      from dba_users
+      where username = 'FS_DB_ADMIN';
+
+      lv_text := 'EXPIRED ' || chr(38) || ' LOCKED'; 
+
+      if lv_status != lv_text then
+        EXECUTE IMMEDIATE ('alter user fs_db_admin account lock password expire');
+        if pv_debug = true then
+          dbms_output.put_line('FS_DB_ADMIN user account locked and password expired'); 
+        end if;
+      end if;
+
+      if lv_default_ts != 'FS_DB_ADMIN_DATA' then
+        EXECUTE IMMEDIATE 'alter user fs_db_admin default tablespace fs_db_admin_data';
+        EXECUTE IMMEDIATE 'alter user fs_db_admin quota unlimited on fs_db_admin_data';
+
+        if pv_debug = true then
+          dbms_output.put_line('FS_DB_ADMIN user default tablespace set to fs_db_admin_data'); 
+        end if;
+      end if;
+
+      if lv_tmp_ts != 'TEMP' then
+        EXECUTE IMMEDIATE 'alter user fs_db_admin temporary tablespace temp';
+        if pv_debug = true then
+          dbms_output.put_line('FS_DB_ADMIN user temporary tablespace set to temp'); 
+        end if;
+      end if;
+
+      if lv_profile != 'FS_OWNER_PROFILE' then
+        select count(*) into lv_count
+        from dba_profiles
+        where profile = 'FS_OWNER_PROFILE';
+
+        if lv_count != 0 then
+          EXECUTE IMMEDIATE 'alter user fs_db_admin profile fs_owner_profile';
+          if pv_debug = true then
+            dbms_output.put_line('FS_DB_ADMIN user profile set to fs_owner_profile'); 
+          end if;
+        else
+          if pv_debug = true then
+            dbms_output.put_line('FS_DB_ADMIN user profile not set - profile fs_owner_profile does not exist'); 
+          end if;
+        end if;
+
+      end if;
+
+      select count(*) into lv_count
+      from dba_sys_privs
+      where grantee = 'FS_DB_ADMIN' 
+        and privilege in ('SELECT ANY DICTIONARY', 'DROP ANY TABLE', 'GRANT ANY OBJECT PRIVILEGE', 'GRANT ANY PRIVILEGE',
+                   'GRANT ANY ROLE', 'CREATE USER', 'ALTER USER', 'DROP USER', 'ANALYZE ANY', 'ALTER ANY INDEX');
+
+      if lv_count < 10 then
+        EXECUTE IMMEDIATE 'GRANT SELECT ANY DICTIONARY TO fs_db_admin';
+        EXECUTE IMMEDIATE 'GRANT DROP ANY TABLE TO fs_db_admin';
+        EXECUTE IMMEDIATE 'GRANT GRANT ANY OBJECT PRIVILEGE TO fs_db_admin';
+        EXECUTE IMMEDIATE 'GRANT GRANT ANY PRIVILEGE TO fs_db_admin';
+        EXECUTE IMMEDIATE 'GRANT GRANT ANY ROLE TO fs_db_admin';
+        EXECUTE IMMEDIATE 'GRANT CREATE USER TO fs_db_admin';
+        EXECUTE IMMEDIATE 'GRANT ALTER USER TO fs_db_admin';
+        EXECUTE IMMEDIATE 'GRANT DROP USER TO fs_db_admin';
+        EXECUTE IMMEDIATE 'GRANT ANALYZE ANY TO fs_db_admin';
+        EXECUTE IMMEDIATE 'GRANT ALTER ANY INDEX to fs_db_admin';
+
+        if pv_debug = true then
+          dbms_output.put_line('FS_DB_ADMIN system privilege grants complete'); 
+        end if;
+
+      end if;
+
+      select count(*) into lv_count
+      from dba_tables
+      where table_name ='PATCH_INFO'
+      and owner = 'FS_DB_ADMIN';
+
+      if lv_count = 0 then
+        EXECUTE IMMEDIATE 'create table fs_db_admin.patch_info
+                           (
+                            PATCH_ID NUMBER,
+                            ACTION VARCHAR2(15),
+                            ACTION_TIME TIMESTAMP(6),
+                            DESCRIPTION VARCHAR2(100)
+                           )';
+
+        if pv_debug = true then
+          dbms_output.put_line('FS_DB_ADMIN.PATCH_INFO table created'); 
+        end if;
+      else
+        if pv_debug = true then
+          dbms_output.put_line('FS_DB_ADMIN.PATCH_INFO table already exists'); 
+        end if;
+      end if;
+    else 
+
+      if lv_ts_exists = false then
+        if pv_debug = true then
+          dbms_output.put_line('FS_DB_ADMIN user not created - fs_db_admin_data tablespace does not exist');
+        end if;      
+      end if;
+
+      if lv_profile_exists = false then
+        if pv_debug = true then
+          dbms_output.put_line('FS_DB_ADMIN user not created - fs_owner_profile profile does not exist');
+        end if;      
+      end if;
+
+
+    end if;
+      
+  EXCEPTION
+    WHEN OTHERS THEN
+      if pv_debug = true then
+        dbms_output.put_line(sqlerrm);
+      END IF;  
+  END;
+
+
+EXCEPTION
+  WHEN OTHERS THEN
+    dbms_output.put_line(sqlerrm);
+END;
+/ 
+
+exit
+

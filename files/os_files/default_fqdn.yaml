@@ -1,0 +1,20 @@
+#### Control
+profile::linux_ora_verify::bypass: 'false'
+oradb_fs::ora_platform: ''
+oradb_fs::require_full_orahome_mp: 'false'
+oradb_fs::failover_orahome: 'false' 
+
+#### Miscellaneous RN Info
+oradb::ora_bash_db_name: 'yzzzzzzz'
+oradb::ora_bash_home: '/opt/oracle/product/12.2.0/db_x'
+oradb_fs::agent_core: '/opt/oracle/emagent/agent_13.2.0.0.0'
+oradb_fs::agent_home: '/opt/oracle/emagent/agent_inst'
+oradb_fs::optional_mail_list: 'null'
+
+#### Home 1 Variables
+oradb::ora_home_db_1: '/opt/oracle/product/12.2.0/db_x'
+oradb::ora_patch_path_db_1: 'xx.xx.x'
+oradb::db_port_db_1: 1521
+
+### Database Variables with a variable line for each Oracle SW Home.
+oradb_fs::ora_db_info_list_db_1: [ 'yzzzzzzz:yyyyy_xk:xx:y~y~y~y~y~y~y:xxxx' ]

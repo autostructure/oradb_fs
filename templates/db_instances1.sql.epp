@@ -1,0 +1,11 @@
+ORACLE_BASE=/opt/oracle; export ORACLE_BASE
+
+ORACLE_HOME=<%= $oracle_home %>; export ORACLE_HOME
+
+ORACLE_SID=<%= $db_name %>; export ORACLE_SID
+
+PATH=$PATH:<%= $oracle_home %>/bin; export PATH
+
+LD_LIBRARY_PATH=<%= $oracle_home %>/lib; export LD_LIBRARY_PATH
+
+sqlplus /nolog @<%= $working_dir %>/db_instances2_<%= $db_name %>.sql

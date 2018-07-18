@@ -1,0 +1,10 @@
+# /etc/sudoers.d/oracle_oms
+#
+# THIS FILE IS CONTROLLED BY PUPPET
+# DO NOT EDIT
+#
+##############################
+# Oracle OMS requirements
+##############################
+oracle    ALL=(root) NOPASSWD: /opt/oracle/em13.2.0/middleware/allroot.sh
+

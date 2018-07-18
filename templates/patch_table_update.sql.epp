@@ -1,0 +1,43 @@
+connect / as sysdba
+
+set serveroutput on;
+
+declare
+
+  lv_count      number;
+  pv_debug	boolean := <%= $debug %>;
+
+begin
+
+  select count(*) into lv_count
+  from dba_tables
+  where table_name ='PATCH_INFO'
+  and owner = 'FS_DB_ADMIN';
+
+  if lv_count != 0 then
+
+    insert into fs_db_admin.patch_info (patch_id, action, action_time, description) 
+      values ('<%= $patch_id %>', '<%= $action %>', current_timestamp, '<%= $patch_path %>:<%= $description %>');
+
+    commit;
+
+    if pv_debug = true then
+      dbms_output.put_line('Entry added to fs_db_admin.patch_info for patch <%= $patch_path %>:<%= $patch_id %> '); 
+    end if;
+  else    
+    if pv_debug = true then
+      dbms_output.put_line('FS_DB_ADMIN.PATCH_INFO does not exist - no entry recorded for <%= $patch_path %>:<%= $patch_id %> '); 
+    end if;
+  end if;
+
+  EXCEPTION
+    WHEN OTHERS THEN
+      if pv_debug = true then
+        dbms_output.put_line(sqlerrm);
+      END IF;  
+
+end;
+/
+
+exit
+

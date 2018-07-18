@@ -1,0 +1,38 @@
+define oradb_fs::db_instances (
+ String    $db_name       = undef,
+ String    $working_dir   = undef,
+ String    $oracle_home   = undef,
+ String    $db_instances  = undef,
+)
+{
+ if $db_instances == 'false' {
+  file { "${working_dir}/db_instances1_${db_name}.sql":
+   ensure  => present,
+   content => epp("oradb_fs/db_instances1.sql",
+               { 'db_name'             => $db_name,
+                 'oracle_home'         => $oracle_home,
+                 'working_dir'         => $working_dir}),
+   mode    => '0755',
+   owner   => 'oracle',
+   group   => 'oinstall',
+  } ->
+  file { "${working_dir}/db_instances2_${db_name}.sql":
+   ensure  => present,
+   content => epp("oradb_fs/db_instances2.sql.epp",
+               { 'domain'             => $facts['networking']['domain'],
+                 'hostname'           => $facts['networking']['hostname']}),
+   mode    => '0755',
+   owner   => 'oracle',
+   group   => 'oinstall',
+  } ->
+  exec { "DB instances set up:${oracle_home}:${db_name}":
+   command   => "${working_dir}/db_instances1_${db_name}.sql",
+   user      => 'oracle',
+  }
+ }
+ else {
+  notify {"DB Instances RN was not run against: ${oracle_home} : ${db_name}" :}
+ }
+}
+
+

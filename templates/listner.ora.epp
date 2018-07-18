@@ -1,0 +1,8 @@
+LISTENER=
+  (DESCRIPTION=
+    (ADDRESS_LIST=
+      (ADDRESS=(PROTOCOL=tcp)(HOST=<%= $hostname_f %>)(PORT=<%= $db_port %>))
+      )
+    )
+ADR_BASE_LISTENER = <%= $ora_base %>
+VALID_NODE_CHECKING_REGISTRATION_LISTENER = <%= $valid_node_checking %>

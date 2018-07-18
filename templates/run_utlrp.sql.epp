@@ -1,0 +1,6 @@
+connect / as sysdba
+
+@<%= $home_path %>/rdbms/admin/utlrp.sql
+
+exit
+

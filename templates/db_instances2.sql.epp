@@ -1,0 +1,565 @@
+connect / as sysdba
+
+
+DECLARE
+--
+lv_text		CLOB;
+lv_version	NUMBER;
+lv_count	NUMBER;
+--
+BEGIN
+        --
+        --********************************
+        --* Additional privileges for fs_db_admin
+        --********************************
+        --
+        SELECT count(*) INTO lv_count FROM dba_users WHERE username = 'FS_DB_ADMIN';
+        --
+        IF lv_count = 0 THEN
+                lv_text := 'create user fs_db_admin identified by changetoknownvalue';
+                lv_text := lv_text || ' default tablespace users';
+                lv_text := lv_text || ' temporary tablespace temp';
+                EXECUTE IMMEDIATE lv_text;
+        END IF;
+        --
+        BEGIN
+         SELECT max_bytes INTO lv_count
+         FROM dba_ts_quotas
+         WHERE username = 'FS_DB_ADMIN'
+         AND tablespace_name = 'USERS';
+        
+         IF lv_count != -1
+                lv_text := 'ALTER USER FS_DB_ADMIN QUOTA UNLIMITED ON USERS';
+                EXECUTE IMMEDIATE lv_text;
+         END IF;
+         
+         WHEN OTHERS
+                lv_text := 'ALTER USER FS_DB_ADMIN QUOTA UNLIMITED ON USERS';
+                EXECUTE IMMEDIATE lv_text;
+        END
+	--
+	--********************************
+	--* Build Table fs_db_admin.db_instances
+	--********************************
+	--
+	SELECT count(*) INTO lv_count
+	FROM dba_tables
+	WHERE table_name = 'DB_INSTANCES' AND owner = 'FS_DB_ADMIN';
+	--
+	IF lv_count = 0 THEN
+		lv_text := 'CREATE TABLE fs_db_admin.db_instances ('|| chr(10);
+		lv_text := lv_text||' instance_id                              NUMBER(6)    Not null,'|| chr(10);
+		lv_text := lv_text||' instance_name                            VARCHAR2(24) Not null,'|| chr(10);
+		lv_text := lv_text||' db_server_name                           VARCHAR2(50) Not null,'|| chr(10);
+		lv_text := lv_text||' db_server_domain                         VARCHAR2(50) Not null,'|| chr(10);
+		lv_text := lv_text||' effective_date                           DATE         Not null,'|| chr(10);
+		lv_text := lv_text||' expiration_date                          DATE,'|| chr(10);
+		lv_text := lv_text||' created_by                               VARCHAR2(90) Not null,'|| chr(10);
+		lv_text := lv_text||' created_date                             DATE Not null,'|| chr(10);
+		lv_text := lv_text||' modified_by                              VARCHAR2(90),'|| chr(10);
+		lv_text := lv_text||' modified_date                            DATE'|| chr(10);
+		lv_text := lv_text||')'|| chr(10);
+		lv_text := lv_text||'TABLESPACE USERS';
+		EXECUTE IMMEDIATE lv_text;
+	END IF;
+	--
+	SELECT count(*) INTO lv_count
+	FROM dba_constraints
+	WHERE table_name = 'DB_INSTANCES' AND owner = 'FS_DB_ADMIN' and CONSTRAINT_NAME = 'DB_INSTANCES_PK';
+	--
+	IF lv_count = 0 THEN
+		lv_text := 'ALTER TABLE fs_db_admin.db_instances ADD ('|| chr(10);
+		lv_text := lv_text||'      CONSTRAINT db_instances_pk'|| chr(10);
+		lv_text := lv_text||'      PRIMARY KEY (instance_id)'|| chr(10);
+		lv_text := lv_text||'USING INDEX '|| chr(10);
+		lv_text := lv_text||'PCTFREE  10 '|| chr(10);
+		lv_text := lv_text||')';
+		EXECUTE IMMEDIATE lv_text;
+	END IF;
+	--
+        SELECT count(*) INTO lv_count
+        FROM dba_tab_privs
+        WHERE table_name = 'DB_INSTANCES' AND owner = 'FS_DB_ADMIN' and privilege IN ('INSERT', 'UPDATE', 'DELETE', 'SELECT') and grantee = 'LOGIN_DB_INSTANCES';
+	--
+	IF lv_count < 4 THEN
+		lv_text := 'grant insert,update,delete,select on fs_db_admin.db_instances to login_db_instances';
+		EXECUTE IMMEDIATE lv_text;
+	END IF;
+	--
+	--**************************************
+	--* Build Sequence fs_db_admin.instance_id_seq
+	--**************************************
+	--
+	SELECT count(*) INTO lv_count
+	FROM dba_sequences
+	WHERE SEQUENCE_OWNER = 'FS_DB_ADMIN' and SEQUENCE_NAME = 'INSTANCE_ID_SEQ';
+	--
+	IF lv_count = 0 THEN
+		lv_text := 'create sequence fs_db_admin.instance_id_seq'|| chr(10);
+		lv_text := lv_text||'start with 90000'|| chr(10);
+		lv_text := lv_text||'increment by 1'|| chr(10);
+		lv_text := lv_text||'nocache'|| chr(10);
+		lv_text := lv_text||'nocycle';
+		EXECUTE IMMEDIATE lv_text;
+	END IF;
+	--
+	SELECT count(*) INTO lv_count
+	FROM dba_synonyms
+	WHERE synonym_name = 'INSTANCE_ID_SEQ' AND owner = 'LOGIN_DB_INSTANCES';
+	--
+	IF lv_count = 0 THEN
+		lv_text := 'create synonym login_db_instances.instance_id_seq for fs_db_admin.instance_id_seq';
+		EXECUTE IMMEDIATE lv_text;
+	END IF;
+	--
+	SELECT count(*) INTO lv_count
+	FROM dba_tab_privs
+	WHERE table_name = 'INSTANCE_ID_SEQ' AND owner = 'FS_DB_ADMIN' and grantee = 'LOGIN_DB_INSTANCES';
+	--
+	IF lv_count = 0 THEN
+		lv_text := 'grant select on fs_db_admin.instance_id_seq to login_db_instances';
+		EXECUTE IMMEDIATE lv_text;
+	END IF;
+	--
+	--************************************
+	--* Build Table fs_db_admin.this_db_instance
+	--************************************
+	--
+	SELECT count(*) INTO lv_count
+	FROM dba_tables
+	WHERE table_name = 'THIS_DB_INSTANCE' AND owner = 'FS_DB_ADMIN';
+	--
+	IF lv_count = 0 THEN
+		lv_text := 'CREATE TABLE fs_db_admin.this_db_instance('|| chr(10);
+		lv_text := lv_text||' instance_id                     NUMBER(6)                  NOT NULL,'|| chr(10);
+		lv_text := lv_text||' instance_name                   VARCHAR2(8)                NOT NULL,'|| chr(10);
+		lv_text := lv_text||' db_server_name                  VARCHAR2(255)              NOT NULL,'|| chr(10);
+		lv_text := lv_text||' db_server_domain                VARCHAR2(255)              NOT NULL,'|| chr(10);
+		lv_text := lv_text||' effective_date                  DATE                       NOT NULL,'|| chr(10);
+		lv_text := lv_text||' created_by                      VARCHAR2(30)               NOT NULL,'|| chr(10);
+		lv_text := lv_text||' created_date                    DATE                       NOT NULL,'|| chr(10);
+		lv_text := lv_text||' modified_by                     VARCHAR2(30)               NULL,'|| chr(10);
+		lv_text := lv_text||' modified_date                   DATE                       NULL,'|| chr(10);
+		lv_text := lv_text||' pk_suffix                       CHAR(6)                    NOT NULL'|| chr(10);
+		lv_text := lv_text||')'|| chr(10);
+		lv_text := lv_text||'TABLESPACE USERS';
+		EXECUTE IMMEDIATE lv_text;
+	END IF;
+	--
+	SELECT count(*) INTO lv_count
+	FROM dba_tab_comments
+	WHERE table_name = 'THIS_DB_INSTANCE' AND owner = 'FS_DB_ADMIN';
+	--
+	IF lv_count = 0 THEN
+		lv_text := 'COMMENT ON TABLE fs_db_admin.this_db_instance';
+		lv_text := lv_text||'    IS '||''''||'Version: V4.0, Effective Date: 15-May-2012, Created by: DB Instances Install.'||'''';
+		EXECUTE IMMEDIATE lv_text;
+	END IF;
+	--
+	SELECT count(*) INTO lv_count
+	FROM dba_constraints
+	WHERE table_name = 'THIS_DB_INSTANCE' AND owner = 'FS_DB_ADMIN' and CONSTRAINT_NAME = 'THIS_DB_INSTANCE_PK';
+	--
+	IF lv_count = 0 THEN
+		lv_text := 'ALTER TABLE fs_db_admin.THIS_DB_INSTANCE ADD ('|| chr(10);
+		lv_text := lv_text||'      CONSTRAINT THIS_DB_INSTANCE_PK'|| chr(10);
+		lv_text := lv_text||'      PRIMARY KEY (INSTANCE_ID)'|| chr(10);
+		lv_text := lv_text||'USING INDEX'|| chr(10);
+		lv_text := lv_text||'PCTFREE  10'|| chr(10);
+		lv_text := lv_text||')';
+		EXECUTE IMMEDIATE lv_text;
+	END IF;
+	--
+	SELECT count(*) INTO lv_count
+	FROM dba_triggers
+	WHERE trigger_name = 'THIS_DB_INSTANCE_INSERT' AND owner = 'FS_DB_ADMIN';
+	--
+	IF lv_count = 0 THEN
+		lv_text := 'CREATE OR REPLACE TRIGGER fs_db_admin.this_db_instance_insert'|| chr(10);
+		lv_text := lv_text||'BEFORE INSERT OR UPDATE '|| chr(10);
+		lv_text := lv_text||'ON fs_db_admin.THIS_DB_INSTANCE'|| chr(10);
+		lv_text := lv_text||'FOR EACH ROW'|| chr(10);
+		lv_text := lv_text||'DECLARE'|| chr(10);
+		lv_text := lv_text||'BEGIN'|| chr(10);
+		lv_text := lv_text||'    :new.pk_suffix := substr('||''''||'000000'||''''||'||to_char(:new.instance_id),-6);'|| chr(10);
+		lv_text := lv_text||'    IF INSERTING'|| chr(10);
+		lv_text := lv_text||'    THEN'|| chr(10);
+		lv_text := lv_text||'      delete from fs_db_admin.this_db_instance;'|| chr(10);
+		lv_text := lv_text||'      :new.created_by := user;'|| chr(10);
+		lv_text := lv_text||'      :new.created_date := sysdate;'|| chr(10);
+		lv_text := lv_text||'    ELSE'|| chr(10);
+		lv_text := lv_text||'      :new.modified_by := user;'|| chr(10);
+		lv_text := lv_text||'      :new.modified_date := sysdate;'|| chr(10);
+		lv_text := lv_text||'    END IF;'|| chr(10);
+		lv_text := lv_text||''|| chr(10);
+		lv_text := lv_text||'END;';
+		EXECUTE IMMEDIATE lv_text;
+	END IF;
+	--
+	SELECT count(*) INTO lv_count
+	FROM dba_objects
+	WHERE object_name = 'DB_INSTANCE' AND owner = 'FS_DB_ADMIN' and object_type IN ('PACKAGE', 'PACKAGE BODY');
+	--
+	IF lv_count <2 THEN
+		lv_text := 'CREATE OR REPLACE PACKAGE fs_db_admin.db_instance IS'|| chr(10);
+		lv_text := lv_text||'  --'|| chr(10);
+		lv_text := lv_text||'  -- Set CREATED audit columns on row insert.'|| chr(10);
+		lv_text := lv_text||'  PROCEDURE insert_audit_columns(audit_column_by IN OUT VARCHAR2,'|| chr(10);
+		lv_text := lv_text||'                                 audit_column_in_instance IN OUT NUMBER,'|| chr(10);
+		lv_text := lv_text||'                                 audit_column_date IN OUT DATE);'|| chr(10);
+		lv_text := lv_text||'  /* Insert_Audit_Columns may be used to set the standard GDI audit columns.  It'|| chr(10);
+		lv_text := lv_text||'     has been designed to be called from an insert database trigger as follows:'|| chr(10);
+		lv_text := lv_text||'       DB_Instance.Insert_Audit_Columns ( :new.Created_By ,'|| chr(10);
+		lv_text := lv_text||'                                          :new.Created_In_Instance ,'|| chr(10);
+		lv_text := lv_text||'                                          :new.Created_Date ) ;'|| chr(10);
+		lv_text := lv_text||'     NOTE:  This procedure will only return values for the parameters if'|| chr(10);
+		lv_text := lv_text||'            they are null.  This enables the insert triggers to call the procedure'|| chr(10);
+		lv_text := lv_text||'            without testing for null (the triggers should only be setting'|| chr(10);
+		lv_text := lv_text||'            these values if they are null).'|| chr(10);
+		lv_text := lv_text||'  */';
+		lv_text := lv_text||'pragma restrict_references(Insert_Audit_Columns,WNDS,WNPS);'|| chr(10);
+		lv_text := lv_text||'  --'|| chr(10);
+		lv_text := lv_text||'  -- Set MODIFIED audit columns on row update.'|| chr(10);
+		lv_text := lv_text||'  PROCEDURE update_audit_columns(audit_column_by IN OUT VARCHAR2,'|| chr(10);
+		lv_text := lv_text||'                                 audit_column_in_instance IN OUT NUMBER,'|| chr(10);
+		lv_text := lv_text||'                                 audit_column_date IN OUT date);'|| chr(10);
+		lv_text := lv_text||'  /* Update_Audit_Columns may be used to set the standard GDI audit columns.  It'|| chr(10);
+		lv_text := lv_text||'     has been designed to be called from an insert database trigger as follows:'|| chr(10);
+		lv_text := lv_text||'     Update Trigger code:'|| chr(10);
+		lv_text := lv_text||'       DB_Instance.Update_Audit_Columns ( :new.Modified_By ,'|| chr(10);
+		lv_text := lv_text||'                                          :new.Modified_In_Instance ,'|| chr(10);
+		lv_text := lv_text||'                                          :new.Modified_Date ) ;'|| chr(10);
+		lv_text := lv_text||'  */'|| chr(10);
+		lv_text := lv_text||'pragma restrict_references(Update_Audit_Columns,WNDS,WNPS);'|| chr(10);
+		lv_text := lv_text||'  --'|| chr(10);
+		lv_text := lv_text||'  -- Set vaules for standard audit columns.'|| chr(10);
+		lv_text := lv_text||'  PROCEDURE set_audit_columns(audit_column_by IN OUT VARCHAR2,'|| chr(10);
+		lv_text := lv_text||'                              audit_column_in_instance IN OUT NUMBER,'|| chr(10);
+		lv_text := lv_text||'                              audit_column_date IN OUT DATE);'|| chr(10);
+		lv_text := lv_text||'  /*  Use Insert_Audit Columns or Update_Audit_Columns instead. */'|| chr(10);
+		lv_text := lv_text||'pragma restrict_references(Set_Audit_Columns,WNDS,WNPS);'|| chr(10);
+		lv_text := lv_text||'  --'|| chr(10);
+		lv_text := lv_text||'  -- Get system generated primary key suffix.'|| chr(10);
+		lv_text := lv_text||'  FUNCTION get_pk_suffix'|| chr(10);
+		lv_text := lv_text||'    RETURN VARCHAR2;'|| chr(10);
+		lv_text := lv_text||'  --'|| chr(10);
+		lv_text := lv_text||'  -- Generate a globally unique id..'|| chr(10);
+		lv_text := lv_text||'  FUNCTION generate_global_id(sequence IN VARCHAR2)'|| chr(10);
+		lv_text := lv_text||'    RETURN VARCHAR2;'|| chr(10);
+		lv_text := lv_text||'  --'|| chr(10);
+		lv_text := lv_text||'  -- Use in a form to derive globally unique id when a field is entered.'|| chr(10);
+		lv_text := lv_text||'  FUNCTION derive_global_id(sequence  IN VARCHAR2,'|| chr(10);
+		lv_text := lv_text||'                           cn_column IN VARCHAR2)'|| chr(10);
+		lv_text := lv_text||'    RETURN VARCHAR2;'|| chr(10);
+		lv_text := lv_text||''|| chr(10);
+		lv_text := lv_text||'END db_instance;';
+		EXECUTE IMMEDIATE lv_text;
+		--
+		lv_text := 'CREATE OR REPLACE PACKAGE BODY fs_db_admin.db_instance IS'|| chr(10);
+		lv_text := lv_text||'   global_domain_suffix CONSTANT VARCHAR2(10) := '||''''||'.fs.fed.us'||''''||';'|| chr(10);
+		lv_text := lv_text||'  --'|| chr(10);
+		lv_text := lv_text||'  --'|| chr(10);
+		lv_text := lv_text||'  TYPE Database_Instance'|| chr(10);
+		lv_text := lv_text||'    IS RECORD(Instance_ID NUMBER(15),'|| chr(10);
+		lv_text := lv_text||'              DB_Server_Name VARCHAR2(255),'|| chr(10);
+		lv_text := lv_text||'              DB_Server_Domain VARCHAR2(255),'|| chr(10);
+		lv_text := lv_text||'              Instance_Name VARCHAR2(8),'|| chr(10);
+		lv_text := lv_text||'              PK_Suffix CHAR(6));'|| chr(10);
+		lv_text := lv_text||'  --'|| chr(10);
+		lv_text := lv_text||'  --'|| chr(10);
+		lv_text := lv_text||'  This_Db_Instance_Record Database_Instance;'|| chr(10);
+		lv_text := lv_text||'  --'|| chr(10);
+		lv_text := lv_text||'  -- Set CREATED audit columns on row insert.'|| chr(10);
+		lv_text := lv_text||'  PROCEDURE insert_audit_columns(audit_column_by IN OUT VARCHAR2 ,'|| chr(10);
+		lv_text := lv_text||'                                 audit_column_in_instance IN OUT NUMBER ,'|| chr(10);
+		lv_text := lv_text||'                                 audit_column_date IN OUT DATE ) IS'|| chr(10);
+		lv_text := lv_text||'  BEGIN'|| chr(10);
+		lv_text := lv_text||'    IF audit_column_by IS NULL THEN'|| chr(10);
+		lv_text := lv_text||'       audit_column_by := USER;'|| chr(10);
+		lv_text := lv_text||'    END IF;'|| chr(10);
+		lv_text := lv_text||'    IF audit_column_in_instance IS NULL THEN'|| chr(10);
+		lv_text := lv_text||'       audit_column_in_instance := this_db_instance_record.instance_id;'|| chr(10);
+		lv_text := lv_text||'    END IF;'|| chr(10);
+		lv_text := lv_text||'    IF audit_column_date IS NULL THEN'|| chr(10);
+		lv_text := lv_text||'       audit_column_date := SYSDATE;'|| chr(10);
+		lv_text := lv_text||'    END IF;'|| chr(10);
+		lv_text := lv_text||'  END;'|| chr(10);
+		lv_text := lv_text||'  --'|| chr(10);
+		lv_text := lv_text||'  -- Set MODIFIED audit columns on row update.'|| chr(10);
+		lv_text := lv_text||'  PROCEDURE update_audit_columns(audit_column_by IN OUT VARCHAR2 ,'|| chr(10);
+		lv_text := lv_text||'                                 audit_column_in_instance IN OUT NUMBER ,'|| chr(10);
+		lv_text := lv_text||'                                 audit_column_date IN OUT date ) IS'|| chr(10);
+		lv_text := lv_text||'  BEGIN'|| chr(10);
+		lv_text := lv_text||'    audit_column_by := USER;'|| chr(10);
+		lv_text := lv_text||'    audit_column_in_instance := this_db_instance_record.instance_id;'|| chr(10);
+		lv_text := lv_text||'    audit_column_date := SYSDATE;'|| chr(10);
+		lv_text := lv_text||'  END;'|| chr(10);
+		lv_text := lv_text||'  --'|| chr(10);
+		lv_text := lv_text||'  -- Set vaules for standard audit columns.'|| chr(10);
+		lv_text := lv_text||'  PROCEDURE set_audit_columns('|| chr(10);
+		lv_text := lv_text||'    audit_column_by IN OUT VARCHAR2 ,'|| chr(10);
+		lv_text := lv_text||'    audit_column_in_instance IN OUT NUMBER ,'|| chr(10);
+		lv_text := lv_text||'    audit_column_date IN OUT DATE ) IS'|| chr(10);
+		lv_text := lv_text||'  BEGIN'|| chr(10);
+		lv_text := lv_text||'    IF audit_column_by IS NULL THEN'|| chr(10);
+		lv_text := lv_text||'       audit_column_by := USER;'|| chr(10);
+		lv_text := lv_text||'    END IF;'|| chr(10);
+		lv_text := lv_text||'   IF audit_column_in_instance IS NULL THEN'|| chr(10);
+		lv_text := lv_text||'       audit_column_in_instance := this_db_instance_record.instance_id;'|| chr(10);
+		lv_text := lv_text||'    END IF;'|| chr(10);
+		lv_text := lv_text||'    IF audit_column_date IS NULL THEN'|| chr(10);
+		lv_text := lv_text||'       audit_column_date := SYSDATE;'|| chr(10);
+		lv_text := lv_text||'    END IF;'|| chr(10);
+		lv_text := lv_text||'  END;'|| chr(10);
+		lv_text := lv_text||'  --'|| chr(10);
+		lv_text := lv_text||'  -- Get system generated primary key suffix.'|| chr(10);
+		lv_text := lv_text||'  FUNCTION get_pk_suffix'|| chr(10);
+		lv_text := lv_text||'    RETURN VARCHAR2 IS'|| chr(10);
+		lv_text := lv_text||'  BEGIN'|| chr(10);
+		lv_text := lv_text||'    RETURN(This_Db_Instance_Record.pk_suffix);'|| chr(10);
+		lv_text := lv_text||'  END;'|| chr(10);
+		lv_text := lv_text||'  --'|| chr(10);
+		lv_text := lv_text||'  -- Generate a globally unique id..'|| chr(10);
+		lv_text := lv_text||'  FUNCTION generate_global_id(sequence IN VARCHAR2 )'|| chr(10);
+		lv_text := lv_text||'    RETURN VARCHAR2 IS'|| chr(10);
+		lv_text := lv_text||'    --'|| chr(10);
+		lv_text := lv_text||'    --'|| chr(10);
+		lv_text := lv_text||'    global_id NUMBER;'|| chr(10);
+		lv_text := lv_text||'    vc_global_id VARCHAR2(34);'|| chr(10);
+		lv_text := lv_text||'    --'|| chr(10);
+		lv_text := lv_text||'    --'|| chr(10);
+		lv_text := lv_text||'    seq_cursor INTEGER;'|| chr(10);
+		lv_text := lv_text||'    --'|| chr(10);
+		lv_text := lv_text||'    --'|| chr(10);
+		lv_text := lv_text||'    ignore INTEGER;'|| chr(10);
+		lv_text := lv_text||'  BEGIN'|| chr(10);
+		lv_text := lv_text||'    seq_cursor := dbms_sql.open_cursor;'|| chr(10);
+		lv_text := lv_text||'    dbms_sql.parse('|| chr(10);
+		lv_text := lv_text||'            seq_cursor,'|| chr(10);
+		lv_text := lv_text||'           '||''''||'SELECT '||'''' ||'|| sequence || '||''''||'.NEXTVAL FROM SYS.DUAL'||''''||','|| chr(10);
+		lv_text := lv_text||'            dbms_sql.v7);'|| chr(10);
+		lv_text := lv_text||'    dbms_sql.define_column('|| chr(10);
+		lv_text := lv_text||'            seq_cursor,'|| chr(10);
+		lv_text := lv_text||'            1,'|| chr(10);
+		lv_text := lv_text||'            global_id);'|| chr(10);
+		lv_text := lv_text||'    ignore := dbms_sql.execute_and_fetch('|| chr(10);
+		lv_text := lv_text||'            seq_cursor,'|| chr(10);
+		lv_text := lv_text||'            FALSE);'|| chr(10);
+		lv_text := lv_text||'    dbms_sql.column_value('|| chr(10);
+		lv_text := lv_text||'            seq_cursor,'|| chr(10);
+		lv_text := lv_text||'            1,'|| chr(10);
+		lv_text := lv_text||'            global_id);'|| chr(10);
+		lv_text := lv_text||'    dbms_sql.close_cursor(seq_cursor);'|| chr(10);
+		lv_text := lv_text||'    vc_global_id := to_char(global_id)||get_pk_suffix;'|| chr(10);
+		lv_text := lv_text||'    RETURN(vc_global_id);'|| chr(10);
+		lv_text := lv_text||'    EXCEPTION'|| chr(10);
+		lv_text := lv_text||'    	WHEN OTHERS THEN'|| chr(10);
+		lv_text := lv_text||'    	IF dbms_sql.is_open(seq_cursor) THEN'|| chr(10);
+		lv_text := lv_text||'    		dbms_sql.close_cursor(seq_cursor);'|| chr(10);
+		lv_text := lv_text||'   	END IF;'|| chr(10);
+		lv_text := lv_text||'    	RAISE;'|| chr(10);
+		lv_text := lv_text||'  END;'|| chr(10);
+		lv_text := lv_text||'  --'|| chr(10);
+		lv_text := lv_text||'  -- Use in a form to derive globally unique id when a field is entered.'|| chr(10);
+		lv_text := lv_text||'  FUNCTION derive_global_id(sequence  IN VARCHAR2 ,'|| chr(10);
+		lv_text := lv_text||'                            cn_column IN VARCHAR2 )'|| chr(10);
+		lv_text := lv_text||'  RETURN VARCHAR2 IS'|| chr(10);
+		lv_text := lv_text||'  BEGIN'|| chr(10);
+		lv_text := lv_text||'    return(generate_global_id(sequence));'|| chr(10);
+		lv_text := lv_text||'  END;'|| chr(10);
+		lv_text := lv_text||'  --'|| chr(10);
+		lv_text := lv_text||'  --'|| chr(10);
+		lv_text := lv_text||''|| chr(10);
+		lv_text := lv_text||'BEGIN'|| chr(10);
+		lv_text := lv_text||'  --'|| chr(10);
+		lv_text := lv_text||'  -- Initialize This_Db_Instance_Record'|| chr(10);
+		lv_text := lv_text||'  SELECT Instance_ID,'|| chr(10);
+		lv_text := lv_text||'         DB_Server_Name,'|| chr(10);
+		lv_text := lv_text||'         DB_Server_Domain,'|| chr(10);
+		lv_text := lv_text||'         Instance_Name,'|| chr(10);
+		lv_text := lv_text||'         PK_Suffix'|| chr(10);
+		lv_text := lv_text||'  INTO   This_Db_Instance_Record'|| chr(10);
+		lv_text := lv_text||'  FROM   This_DB_Instance;'|| chr(10);
+		lv_text := lv_text||'  --'|| chr(10);
+		lv_text := lv_text||'  --'|| chr(10);
+		lv_text := lv_text||'END db_instance;';
+		EXECUTE IMMEDIATE lv_text;
+	END IF;
+	--
+	lv_text := 'SELECT count(*) FROM fs_db_admin.db_instances';
+	EXECUTE IMMEDIATE lv_text INTO lv_count;
+	--
+	IF lv_count = 0 THEN
+		lv_text := 'INSERT INTO fs_db_admin.db_instances (';
+		lv_text := lv_text||' 	INSTANCE_ID,';
+		lv_text := lv_text||' 	INSTANCE_NAME,';
+		lv_text := lv_text||' 	DB_SERVER_NAME,';
+		lv_text := lv_text||' 	DB_SERVER_DOMAIN,';
+		lv_text := lv_text||' 	EFFECTIVE_DATE,';
+		lv_text := lv_text||' 	CREATED_BY,';
+		lv_text := lv_text||' 	CREATED_DATE)';
+		lv_text := lv_text||' VALUES (';
+		lv_text := lv_text||'        (SELECT SUBSTR(dbid,-6) FROM v$database),';
+		lv_text := lv_text||'        (SELECT name FROM v$database),';
+		lv_text := lv_text||'        '||''''||'<%= $hostname %>'||''''||',';
+		lv_text := lv_text||'        '||''''||'<%= $domain %>'||''''||',';
+		lv_text := lv_text||'        sysdate,';
+		lv_text := lv_text||'        '||''''||'FS_DB_ADMIN'||''''||',';
+		lv_text := lv_text||'        sysdate)';
+		EXECUTE IMMEDIATE lv_text;
+		lv_text := 'COMMIT';
+		EXECUTE IMMEDIATE lv_text;
+	END IF;
+	--
+	lv_text := 'SELECT count(*) FROM fs_db_admin.this_db_instance';
+	EXECUTE IMMEDIATE lv_text INTO lv_count;
+	--
+	IF lv_count = 0 THEN
+		lv_text := 'INSERT INTO fs_db_admin.this_db_instance ('|| chr(10);
+		lv_text := lv_text||'        INSTANCE_ID,'|| chr(10);
+		lv_text := lv_text||'        INSTANCE_NAME,'|| chr(10);
+		lv_text := lv_text||'        DB_SERVER_NAME,'|| chr(10);
+		lv_text := lv_text||'        DB_SERVER_DOMAIN,'|| chr(10);
+		lv_text := lv_text||'        EFFECTIVE_DATE,'|| chr(10);
+		lv_text := lv_text||'        CREATED_BY,'|| chr(10);
+		lv_text := lv_text||'        CREATED_DATE,'|| chr(10);
+		lv_text := lv_text||'	PK_SUFFIX)'|| chr(10);
+		lv_text := lv_text||' VALUES ('|| chr(10);
+		lv_text := lv_text||'        (SELECT SUBSTR(dbid,-6) FROM v$database),'|| chr(10);
+		lv_text := lv_text||'        (SELECT name FROM v$database),'|| chr(10);
+		lv_text := lv_text||'        '||''''||'<%= $hostname %>'||''''||','|| chr(10);
+		lv_text := lv_text||'        '||''''||'<%= $domain %>'||''''||','|| chr(10);
+		lv_text := lv_text||'        sysdate,'|| chr(10);
+		lv_text := lv_text||'        '||''''||'FS_DB_ADMIN'||''''||','|| chr(10);
+		lv_text := lv_text||'	sysdate,'|| chr(10);
+		lv_text := lv_text||'	'||''''||'000000'||''''||')';
+		EXECUTE IMMEDIATE lv_text;
+		lv_text := 'COMMIT';
+		EXECUTE IMMEDIATE lv_text;
+	END IF;
+	--
+	SELECT count(*) INTO lv_count
+	FROM dba_objects
+	WHERE object_name = 'THIS_DB_INSTANCE_INFO' AND owner = 'FS_DB_ADMIN' and object_type = 'VIEW';
+	--
+	IF lv_count = 0 THEN
+		lv_text := 'CREATE OR REPLACE VIEW fs_db_admin.this_db_instance_info'|| chr(10);
+		lv_text := lv_text||'('|| chr(10);
+		lv_text := lv_text||'     instance_id'|| chr(10);
+		lv_text := lv_text||'    ,instance_name'|| chr(10);
+		lv_text := lv_text||'    ,db_server_name'|| chr(10);
+		lv_text := lv_text||'    ,db_server_domain'|| chr(10);
+		lv_text := lv_text||'    ,effective_date'|| chr(10);
+		lv_text := lv_text||'    ,created_date'|| chr(10);
+		lv_text := lv_text||'    ,created_by'|| chr(10);
+		lv_text := lv_text||'    ,modified_date'|| chr(10);
+		lv_text := lv_text||'    ,modified_by'|| chr(10);
+		lv_text := lv_text||'    ,pk_suffix'|| chr(10);
+		lv_text := lv_text||')'|| chr(10);
+		lv_text := lv_text||'AS SELECT'|| chr(10);
+		lv_text := lv_text||'     THSDBIN.INSTANCE_ID'|| chr(10);                               
+		lv_text := lv_text||'   ,THSDBIN.INSTANCE_NAME'|| chr(10);
+		lv_text := lv_text||'    ,THSDBIN.DB_SERVER_NAME'|| chr(10);
+		lv_text := lv_text||'    ,THSDBIN.DB_SERVER_DOMAIN'|| chr(10);
+		lv_text := lv_text||'    ,THSDBIN.EFFECTIVE_DATE'|| chr(10);
+		lv_text := lv_text||'    ,THSDBIN.CREATED_DATE'|| chr(10);
+		lv_text := lv_text||'    ,THSDBIN.CREATED_BY'|| chr(10);
+		lv_text := lv_text||'    ,THSDBIN.MODIFIED_DATE'|| chr(10);
+		lv_text := lv_text||'    ,THSDBIN.MODIFIED_BY'|| chr(10);
+		lv_text := lv_text||'    ,THSDBIN.PK_SUFFIX'|| chr(10);
+		lv_text := lv_text||'FROM'|| chr(10);
+		lv_text := lv_text||'    this_db_instance  thsdbin';
+		EXECUTE IMMEDIATE lv_text;
+	END IF;
+	--
+
+	SELECT count(*) INTO lv_count
+	FROM dba_tab_comments
+	WHERE table_name = 'THIS_DB_INSTANCE_INFO' AND owner = 'FS_DB_ADMIN';
+	--
+	IF lv_count = 0 THEN
+		lv_text := 'COMMENT ON TABLE fs_db_admin.this_db_instance_info';
+		lv_text := lv_text||'    IS '||''''||'Version: V4.0, Effective Date: 15 May 2012, Created by: DB Instances Install.'||''''||';';
+		EXECUTE IMMEDIATE lv_text;
+	END IF;
+	--
+	SELECT count(*) INTO lv_count
+	FROM dba_synonyms
+	WHERE synonym_name = 'THIS_DB_INSTANCE' AND table_owner = 'FS_DB_ADMIN' AND owner = 'PUBLIC';
+	--
+	IF lv_count = 0 THEN
+		lv_text := 'CREATE PUBLIC SYNONYM this_db_instance';
+		lv_text := lv_text||'       FOR fs_db_admin.this_db_instance';
+		EXECUTE IMMEDIATE lv_text;
+	END IF;
+	--
+	SELECT count(*) INTO lv_count
+	FROM dba_synonyms
+	WHERE synonym_name = 'THIS_DB_INSTANCE_INFO' AND table_owner = 'FS_DB_ADMIN' AND owner = 'PUBLIC';
+	--
+	IF lv_count = 0 THEN
+		lv_text := 'CREATE PUBLIC SYNONYM this_db_instance_info';
+		lv_text := lv_text||'       FOR fs_db_admin.this_db_instance_info';
+		EXECUTE IMMEDIATE lv_text;
+	END IF;
+	--
+	SELECT count(*) INTO lv_count
+	FROM dba_synonyms
+	WHERE synonym_name = 'DB_INSTANCE' AND table_owner = 'FS_DB_ADMIN' AND owner = 'PUBLIC';
+	--
+	IF lv_count = 0 THEN
+		lv_text := 'CREATE PUBLIC SYNONYM db_instance';
+		lv_text := lv_text||'       FOR fs_db_admin.db_instance';
+		EXECUTE IMMEDIATE lv_text;
+	END IF;
+	--
+	SELECT count(*) INTO lv_count
+	FROM dba_synonyms
+	WHERE synonym_name = 'DB_INSTANCES' AND table_owner = 'FS_DB_ADMIN' AND owner = 'PUBLIC';
+	--
+	IF lv_count = 0 THEN
+		lv_text := 'CREATE PUBLIC SYNONYM db_instances';
+		lv_text := lv_text||'       FOR fs_db_admin.db_instances';
+		EXECUTE IMMEDIATE lv_text;
+	END IF;
+	--
+	SELECT count(*) INTO lv_count
+	FROM dba_tab_privs
+	WHERE table_name = 'DB_INSTANCES' AND owner = 'FS_DB_ADMIN' AND PRIVILEGE = 'SELECT' AND GRANTEE = 'PUBLIC';
+	--
+	IF lv_count = 0 THEN
+		lv_text := 'GRANT SELECT ON fs_db_admin.db_instances TO PUBLIC';
+		EXECUTE IMMEDIATE lv_text;
+	END IF;
+	--
+	SELECT count(*) INTO lv_count
+	FROM dba_tab_privs
+	WHERE table_name = 'THIS_DB_INSTANCE' AND owner = 'FS_DB_ADMIN' AND PRIVILEGE = 'SELECT' AND GRANTEE = 'PUBLIC';
+	--
+	IF lv_count = 0 THEN
+		lv_text := 'GRANT SELECT ON fs_db_admin.this_db_instance TO PUBLIC';
+		EXECUTE IMMEDIATE lv_text;
+	END IF;
+	--
+	SELECT count(*) INTO lv_count
+	FROM dba_tab_privs
+	WHERE table_name = 'THIS_DB_INSTANCE_INFO' AND owner = 'FS_DB_ADMIN' AND PRIVILEGE = 'SELECT' AND GRANTEE = 'PUBLIC';
+	--
+	IF lv_count = 0 THEN
+		lv_text := 'GRANT SELECT ON fs_db_admin.this_db_instance_info TO PUBLIC';
+		EXECUTE IMMEDIATE lv_text;
+	END IF;
+	--
+	SELECT count(*) INTO lv_count
+	FROM dba_tab_privs
+	WHERE table_name = 'DB_INSTANCE' AND owner = 'FS_DB_ADMIN' AND PRIVILEGE = 'EXECUTE' AND GRANTEE = 'PUBLIC';
+	--
+	IF lv_count = 0 THEN
+		lv_text := 'GRANT EXECUTE ON fs_db_admin.db_instance TO PUBLIC';
+		EXECUTE IMMEDIATE lv_text;
+	END IF;
+	--
+END;
+/
+
+exit

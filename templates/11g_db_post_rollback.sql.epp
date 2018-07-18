@@ -1,0 +1,6 @@
+connect / as sysdba
+
+@<%= $home_path %>/rdbms/admin/catbundle_PSU_<%= $db_name %>_ROLLBACK.sql
+
+exit
+

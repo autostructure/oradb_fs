@@ -1,0 +1,36 @@
+connect / as sysdba
+
+DECLARE
+--
+lv_text		CLOB;
+lv_count	NUMBER;
+BEGIN
+	--
+	--***************************
+	-- SETUP FS_CONNECT ROLE
+	--***************************
+	--
+	SELECT count(*) INTO lv_count FROM dba_roles WHERE role = 'FS_CONNECT';
+	--
+	IF lv_count = 0 THEN
+		lv_text := 'CREATE ROLE FS_CONNECT';
+		EXECUTE IMMEDIATE lv_text;
+	END IF;
+	--
+	SELECT count(*) INTO lv_count
+	FROM dba_sys_privs
+	WHERE grantee = 'FS_CONNECT'
+	AND privilege IN ('CREATE SESSION', 'ALTER SESSION');
+	--
+	IF lv_count < 2 THEN
+		lv_text := 'GRANT CREATE SESSION TO FS_CONNECT';
+		EXECUTE IMMEDIATE lv_text;
+		lv_text := 'GRANT ALTER SESSION  TO FS_CONNECT';
+		EXECUTE IMMEDIATE lv_text;
+	END IF;
+	--
+END;
+/
+
+exit
+

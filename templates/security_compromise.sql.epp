@@ -1,0 +1,20 @@
+connect / as sysdba
+
+exec fs_db_admin.fs_security_pkg.set_i_am_automation(true);
+set serveroutput on size 1000000
+
+declare 
+
+ l_passcnt		NUMBER;
+ l_failcnt		NUMBER;
+ l_status		VARCHAR2(12);
+ l_errormessage		CLOB;
+
+BEGIN
+ fs_db_admin.fs_security_pkg.secure_database ('<%= $roles %>','<%= $profiles %>','<%= $public_grants %>','<%= $users %>','<%= $basic_security %>','<%= $legacy_objects %>','<%= $gis_roles %>',l_passcnt, l_failcnt, l_status, l_errormessage, '0');
+ dbms_output.put_line(l_passcnt||':'||l_failcnt);
+end;
+/
+
+exit
+

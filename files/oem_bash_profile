@@ -1,0 +1,48 @@
+##############################
+# Oracle Enterprise Manager Requirements
+##############################
+
+# ---------------------------------------------------
+# .bash_profile
+# ---------------------------------------------------
+# OS User:      oracle
+# Application:  Oracle Software Owner
+# Version:      Oracle Enterprise Manager 13.2.0
+# ---------------------------------------------------
+
+# ---------------------------------------------------
+# ORACLE software directories
+# ---------------------------------------------------
+export ORACLE_BASE=/opt/oracle
+export MW_HOME=$ORACLE_BASE/em13.2.0/middleware
+export OMS_HOME=$MW_HOME
+export AGENT_HOME=$ORACLE_BASE/emagent/agent_inst
+export DOMAIN_HOME=$ORACLE_BASE/em13.2.0/gc_inst/user_projects/domains/GCDomain
+export ORACLE_HOME=$MW_HOME
+export AGENT_CORE=$ORACLE_BASE/emagent/agent_13.2.0.0.0
+
+# ---------------------------------------------------
+# PATH
+# ---------------------------------------------------
+# Used by the shell to locate executable programs;
+# must include the $ORACLE_HOME/bin directory.
+# ---------------------------------------------------
+PATH=.:/opt/oracle/em13.2.0/middleware/oms/bin:$PATH:/usr/bin/X11
+export PATH
+
+# ---------------------------------------------------
+# UMASK 
+# ---------------------------------------------------
+# Set the default file mode creation mask
+# (umask) to 022 to ensure that the user performing
+# the Oracle software installation creates files
+# with 644 permissions.
+# ---------------------------------------------------
+umask 022
+
+# ---------------------------------------------------
+# Set command line prompt.
+# ---------------------------------------------------
+PS1='$USER@$PWD
+:  '
+

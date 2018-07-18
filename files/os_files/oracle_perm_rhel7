@@ -1,0 +1,21 @@
+# /etc/sudoers.d/oracle_perm_rhel7
+#
+# THIS FILE IS CONTROLLED BY PUPPET
+# DO NOT EDIT
+#
+##############################
+# Oracle Database requirements
+##############################
+oracle ALL=(root)NOPASSWD:/opt/oracle/product/12.1.0/db_?/root.sh, \
+      /opt/oracle/product/12.1.0/db_?/OPatch/opatch, \
+      /fslink/sysinfra/oracle/scripts/db/SI/12.1.0.2/orainst/root_setup, \
+      /fslink/sysinfra/oracle/scripts/db/SI/12.1.0.2/orainst/set_oratab, \
+      /fslink/sysinfra/oracle/scripts/db/SI/12.1.0.2/orainst/del_softwarea, \
+      /fslink/ops/cio/projects/oracle/scripts/db/SI/12.1.0.2/orainst/root_setup, \
+      /fslink/ops/cio/projects/oracle/scripts/db/SI/12.1.0.2/orainst/set_oratab, \
+      /fslink/ops/cio/projects/oracle/scripts/db/SI/12.1.0.2/orainst/del_softwarea, \
+      /tmp/root_raccheck.sh, \
+      /home/oracle/dbcheck/scripts/trim_logs.sh
+
+oracle    ALL=(grid)   NOPASSWD:   ALL
+

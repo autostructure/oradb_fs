@@ -1,0 +1,74 @@
+#! /bin/ksh
+#
+# Script: dbmaint_start.job
+# Version:  4.0
+# Date:  July 29, 2014 
+# Purpose:  Starts up the script that runs maintenance on all databases and
+#           directs output to a log file under /home/oracle/dbcheck/logs 
+#           IMPORTANT:
+#           On RAC servers, this script should be run from the FIRST NODE only.  
+#
+# Parameters:
+#              $1 = instances for maintenance.
+#  Run the dbmaint.sh script only on Saturdays
+
+show_usage ()
+{
+ echo "/home/oracle/dbcheck/scripts/dbmaint_start.job [Instance_id] "
+ echo "For example"
+ echo "/home/oracle/dbcheck/scripts/dbmaint_start.job emor  "
+ echo
+ echo "This would run the reset_fsschemas script, and cleanup on emor all days"
+ echo "except Saturday. If it is a Saturday then it would run the entire "
+ echo "maintenance script."
+ echo
+ echo "/home/oracle/dbcheck/scripts/dbmaint_start.job -force all "
+ echo 
+ echo " This would run the entire maintenance script on any day for all databases on the server"
+ exit 1
+}
+main_usage ()
+{
+    if [ "Sat" = "${DAY}" ]
+       then
+        process_id=$1
+        /home/oracle/dbcheck/scripts/dbmaint.sh -o $1 \
+         > /home/oracle/dbcheck/logs/dbmaint.log 2>&1
+       else
+	/home/oracle/dbcheck/scripts/dbmaint_daily.sh $1
+    fi
+}
+
+export ORACLE_BASE=/opt/oracle
+#. /fslink/sysinfra/oracle/common/db/oraenv.usfs
+
+DAY=$(date +%a)
+# Check script is being run as user oracle.
+ID=$(id -u -n)
+if [ $ID != 'oracle' ]
+then
+   echo "Please run as user oracle"
+   exit 1
+fi
+
+if [ $# -eq 0 ]
+   then
+     main_usage $1
+   elif [ $# -gt 0 -o $# -lt 4 ]
+        then
+          if [ "$1" = "-force" ]
+             then
+                 process_id=$2
+                 /home/oracle/dbcheck/scripts/dbmaint.sh -o $2 \
+                  > /home/oracle/dbcheck/logs/dbmaint.log 2>&1
+             elif [ "$1" = "-help" ]
+                  then
+                show_usage
+             else
+                main_usage $1
+          fi 
+   elif [ $# -gt 3 ]
+        then
+          show_usage
+fi
+

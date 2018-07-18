@@ -1,0 +1,7 @@
+# /etc/sysconfig/ntpd
+#
+# THIS FILE IS CONTROLLED BY PUPPET
+# DO NOT EDIT
+#
+# Drop root to id 'ntp:ntp' by default.
+OPTIONS="-x -u ntp:ntp -p /var/run/ntpd.pid -g"
