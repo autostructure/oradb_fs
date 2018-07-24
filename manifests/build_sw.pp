@@ -82,15 +82,23 @@ define oradb_fs::build_sw (
     path    => "${home_path}/bin",
     environment => [ "ORACLE_BASE=/opt/oracle", "ORACLE_HOME=${home_path}", "LD_LIBRARY_PATH=${home_path}/lib:/usr/lib"]
    } ->
-/*
    file { "${home_path}/network/admin/sqlnet.ora" :
     ensure  => present,
-    source  => 'puppet:///modules/oradb_fs/sqlnet.ora',
-    mode    => '0755',
+    content => epp("oradb_fs/sqlnet.ora.epp",
+                  { 'fqdn'       => $facts['networking']['fqdn'],
+                    'home_path'  => $home_path}),
+    mode    => '0744',
+    owner   => oracle,
+    group   => oinstall,
+    backup  => ".${facts['the_date']}",
+   } ->
+   file { "${home_path}/network/admin/ldap.ora" :
+    ensure  => present,
+    source  => 'puppet:///modules/oradb_fs/ldap.ora',
+    mode    => '0744',
     owner   => 'oracle',
     group   => 'oinstall',
    } ->
-*/
    oradb::listener { "Start listener after patching new home: ${home}":
     oracle_base   => '/opt/oracle',
     oracle_home   => $home_path,

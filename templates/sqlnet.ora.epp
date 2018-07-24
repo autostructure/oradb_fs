@@ -1,0 +1,31 @@
+sqlnet.authentication_required=false
+sqlnet.fips_140=false # Setting this to non-false is not an option.
+# Client Data encryption type
+sqlnet.encryption_client=accepted
+sqlnet.encryption_types=0
+# Checks integrity of the data to prevent tampering
+sqlnet.crypto_checksum_client=accepted
+sqlnet.crypto_checksum_types=0
+# Server Data encryption type
+sqlnet.encryption_server=accepted
+sqlnet.crypto_checksum_server=accepted
+sqlnet.authentication_services=(beq,kerberos5pre,kerberos5,none)
+sqlnet.authentication_kerberos5_service=aso
+sqlnet.crypto_seed=4fhfguweotcadsfdsafjkdsfqp5f201p45mxskdlfdasf
+sqlnet.kerberos5_clockskew=300
+sqlnet.kerberos5_conf_mit=true
+sqlnet.kerberos5_keytab=/etc/aso.<%= $fqdn %>.keytab
+sqlnet.kerberos5_conf=<%= $home_path %>/network/admin/krb5.conf
+sqlnet.kerberos5_cc_name=/tmp/krb5cc_1001
+NAMES.DIRECTORY_PATH=(EZCONNECT,TNSNAMES,LDAP)
+#trace_level_client=16
+#trace_level_server=16
+#trace_directory_client=/tmp/traces_cli/
+#trace_directory_server=/tmp/traces_srv/
+#trace_unique_client=true
+#trace_unique_server=true 
+#trace_unique_okinit=on
+#trace_directory_okinit=/tmp/okinit
+#DIAG_ADR_ENABLED=OFF
+sqlnet.allowed_logon_version_client=11 
+sqlnet.allowed_logon_version_server=11

@@ -1,0 +1,4 @@
+DIRECTORY_SERVERS = (oid.fdc.fs.usda.gov:389:636)
+DEFAULT_ADMIN_CONTEXT = "dc=fs,dc=fed,dc=us"
+DIRECTORY_SERVER_TYPE = OID
+
