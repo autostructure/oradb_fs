@@ -1,3 +1,22 @@
+####
+# oradb_fs::oem_support
+#  author: Matthew Parker
+#
+# additional support for an OEM server
+# may need to be moved over to ora_platform
+#
+# deploys/remediates directories:
+#  /home/oracle/cleanup
+#  /home/oracle/cleanup/logs
+#  /home/oracle/cleanup/scripts
+#
+# deploys:
+#  /home/oracle/cleanup/scripts/cleanup.sh
+#
+# cron entries:
+#  /home/oracle/cleanup/scripts/cleanup.sh > /home/oracle/cleanup/logs/cleanup.log 2>&1
+#
+####
 define oradb_fs::oem_support (
 )
 {

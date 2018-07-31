@@ -1,3 +1,23 @@
+####
+# oradb_fs::db_remediation
+#  author: Matthew Parker
+#
+# performs remediation tasks against a single database
+#
+# variables:
+#  String         $home              - home variable set in use (db_#)
+#  String         $home_path         - full path of the em agent home
+#  Array[String]  $db_list           - flat fact array of information required to build a new database(s) using this module 
+#  String         $patch_path        - patch version the Oracle home is supposed to be patched to in Oracle 18c version format (12_2.xx.x, 18.xx.x, ...)
+#  String         $version           - version of the base install of the Oracle home (12.2.0.1)
+#  Boolean        $default_detected  - set to true if the db_info_list_db_# array associated to the home being worked on contains any default value 
+#
+# calls the following manifests:
+#  oradb_fs::dbactions_loop      - start and stop of the database being remediated
+#  oradb_fs::post_patching_tree  - perform post patching actions against the database
+#  oradb_fs::db_security         - deploys security package set into the database and configures the databases based information in the flat fact for this database
+#
+####
 define oradb_fs::db_remediation (
  String         $home              = undef,
  String         $home_path         = undef,

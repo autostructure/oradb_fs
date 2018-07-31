@@ -1,8 +1,28 @@
+####
+# oradb_fs::delete_db_loop
+#  author: Matthew Parker
+#
+# wrapper to oradb::database to delete Oracle databases contained in $facts['home_associated_delete_db_list'] for the home being worked on
+#
+# variables:
+#  String         $home       - home variable set in use (db_#)
+#  String         $home_path  - full path of the em agent home
+#  String         $version    - version of the base install of the Oracle home (12.2.0.1)
+#  Array[String]  $db_list    - flat fact array of information required to build a new database(s) using this module
+#
+# calls the following manifests:
+#  oradb::database - deletes Oracle database
+#
+# removes:
+#  /opt/oracle/signatures/${local_file_name}                              - regex matched sig file names associated to the database being removed
+#  /fslink/sysinfra/signatures/oracle/${host_name}/${sysinfra_file_name}  - regex matched sig file names associated to the database being removed
+#
+####
 define oradb_fs::delete_db_loop (
- String           $home              = undef,
- String           $home_path         = undef,
- String           $version           = undef,
- Array[String]    $db_list           = undef,
+ String         $home       = undef,
+ String         $home_path  = undef,
+ String         $version    = undef,
+ Array[String]  $db_list    = undef,
 )
 {
 

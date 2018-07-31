@@ -1,5 +1,32 @@
+####
+# oradb_fs::db_maintenance_scripts
+#  author: Matthew Parker
+#
+# deploys the db maintenance rn
+#
+# variables:
+#  String  $optional_mail_list  - comma seperated e-mail list to go into the emailto file
+#
+# creates:
+#  /home/oracle/dbcheck
+#  /home/oracle/dbcheck/scripts
+#  /home/oracle/dbcheck/logs
+#  /opt/oracle/diag/bkp
+#  /opt/oracle/diag/bkp/alertlogs
+#  /opt/oracle/diag/bkp/rman
+#  /opt/oracle/diag/bkp/rman/log
+#
+# deploys:
+#  /home/oracle/dbcheck/scripts/${script} - see $scripts for full list
+#  /home/oracle/dbcheck/scripts/emailto
+#
+# cron entries:
+#  /home/oracle/dbcheck/scripts/rotate_alertlogs.sh > /home/oracle/dbcheck/logs/alert.log 2>&1
+#  /home/oracle/dbcheck/scripts/dbmaint_start.job all > /tmp/dbmaint_daily.log 2>&1
+#
+####
 define oradb_fs::db_maintenance_scripts (
- String    $optional_mail_list  = undef, 
+ String  $optional_mail_list  = undef, 
 )
 {
  file { [ '/home/oracle/dbcheck', '/home/oracle/dbcheck/scripts', '/home/oracle/dbcheck/logs',

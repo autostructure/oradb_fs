@@ -1,7 +1,19 @@
+####
+# oradb_fs::em_agent_control
+#  author: Matthew Parker
+#
+# starts and stops the em agent
+#
+# variables:
+#  String  $home        - home variable set in use (db_#)
+#  String  $action      - action to be taken again the em agent
+#  String  $agent_home  - full path to the em agent home
+#
+####
 define oradb_fs::em_agent_control (
- String        $home        = undef,
- String        $action      = undef,
- String        $agent_home  = undef,
+ String  $home        = undef,
+ String  $action      = undef,
+ String  $agent_home  = undef,
 )
 {
  if $action == 'stop' {

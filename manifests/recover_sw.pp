@@ -1,6 +1,23 @@
+####
+# oradb_fs::recover_sw
+#  author: Matthew Parker
+#
+# recovers from a failed Oracle software install
+#
+# variables:
+#  String  $home       - home variable set in use (db_#)
+#  String  $home_path  - full path to the Oracle home
+#
+# empties:
+#  $home_path
+#
+# updates:
+#  /opt/oraInventory/ContentsXML/inventory.xml
+#
+####
 define oradb_fs::recover_sw (
- String           $home             = undef,
- String           $home_path        = undef,
+ String  $home       = undef,
+ String  $home_path  = undef,
 )
 {
  

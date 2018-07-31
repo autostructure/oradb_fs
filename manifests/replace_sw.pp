@@ -1,6 +1,31 @@
+####
+# oradb_fs::replace_sw
+#  author: Matthew Parker
+#
+# wipes out an Oracle software install while preserving some files to move to a new home.
+# intended to be used if a home is corrupted or otherwise faulty
+#
+# variables:
+#  String  $home       - home variable set in use (db_#)
+#  String  $home_path  - full path to the Oracle home
+#
+# creates:
+#  /opt/oracle/sw/home_files_copy/${home} 
+#  /opt/oracle/sw/home_files_copy/${home}/${the_date}
+#  /opt/oracle/sw/home_files_copy/${home}/${the_date}/dbs            - contains the contents of ${home_path}/dbs
+#  /opt/oracle/sw/home_files_copy/${home}/${the_date}/network/admin  - contains the contents of ${home_path}/network/admin
+#  /opt/oracle/sw/home_files_copy/${home}/${the_date}/               - copy of /etc/oratab
+#
+# empties:
+#  $home_path
+#
+# updates:
+#  /opt/oraInventory/ContentsXML/inventory.xml
+#
+####
 define oradb_fs::replace_sw (
- String           $home             = undef,
- String           $home_path        = undef,
+ String  $home       = undef,
+ String  $home_path  = undef,
 )
 {
  

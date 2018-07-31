@@ -1,9 +1,29 @@
+####
+# oradb_fs::build_patched_sw
+#  author: Matthew Parker
+#
+# wrapper to oradb::opatchupgrade and oradb::opatch to patch a newly build Oracle home
+#
+# variables:
+#  String  $home                - home variable set in use (db_#)
+#  String  $patch_path          - patch version the Oracle home is supposed to be patched to in Oracle 18c version format (12_2.xx.x, 18.xx.x, ...)
+#  String  $home_path           - full path to the Oracle home
+#  String  $version             - version of the base install of the Oracle home (12.2.0.1)
+#  String  $download_dir_patch  - full path to the location of the unzipped oracle installation files
+#
+# calls the following manifests:
+#  oradb::opatchupgrade              - upgrades the oracle opatch utility
+#  oradb::opatch                     - apply patch of the patch component (db, ojvm)
+#  oradb_fs::oracle_version_actions  - performs actions against the newly patched Oracle home. intended to fix for anomalies new patches may cause
+#  oradb_fs::sig_file                - creation of sig file required from patching an Oracle home
+#
+####
 define oradb_fs::build_patched_sw (
- String    $home                 = undef,
- String    $patch_path           = undef,
- String    $home_path            = undef,
- String    $version              = undef,
- String    $download_dir_patch   = undef,
+ String  $home                = undef,
+ String  $patch_path          = undef,
+ String  $home_path           = undef,
+ String  $version             = undef,
+ String  $download_dir_patch  = undef,
 ) 
 {
  if $patch_path == 'xx.xx.x' or $patch_path =~ /.*\.0\.0/ {

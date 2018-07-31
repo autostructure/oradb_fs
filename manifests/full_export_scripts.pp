@@ -1,3 +1,17 @@
+####
+# oradb_fs::full_export_scripts
+#  author: Matthew Parker
+#
+# deploys the full export rn
+#
+# deploys:
+#  /home/oracle/system/oraexport/full_export_nocomp.sh
+#  /home/oracle/system/oraexport/get_sid.ksh
+#
+# cron entries:
+#  /home/oracle/system/oraexport/full_export_nocomp.sh -o ALL > /fslink/orapriv/ora_exports/full_export.sh.log 2>&1
+#
+####
 define oradb_fs::full_export_scripts (
 )
 { 

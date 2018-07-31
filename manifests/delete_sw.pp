@@ -1,12 +1,27 @@
+####
+# oradb_fs::delete_sw
+#  author: Matthew Parker
+#
+# removes an Oracle home  
+#
+# variables:
+#  String  $home              - home variable set in use (db_#)
+#  String  $delete_home_path  - full path to Oracle home being removed
+#
+# removes:
+#  /opt/oracle/signatures/${local_file_name}                              - regex matched sig file names associated to the home being removed
+#  /fslink/sysinfra/signatures/oracle/${host_name}/${sysinfra_file_name}  - regex matched sig file names associated to the home being removed
+#
+####
 define oradb_fs::delete_sw (
- String       $home                  = undef,
- String       $delete_home_path      = undef,
+ String  $home              = undef,
+ String  $delete_home_path  = undef,
 )
 {
  
  $oratab_entries = $facts['home_associated_db_list']
  $ps_entries = $facts['home_associated_running_db_list']
- $delete_entries =  $facts['delete_home_list']
+ $delete_entries = $facts['delete_home_list']
 
  $oratab_home = return_home($oratab_entries, $home, $delete_home_path, 'N')
  $ps_home = return_home($ps_entries, $home, $delete_home_path, 'N')
@@ -18,7 +33,7 @@ define oradb_fs::delete_sw (
  if $delete_in_oratab == 'B' or $delete_in_oratab == 'C' {
  }
  elsif $delete_in_oratab == 'T' or $delete_in_oratab == 'P' {
-  fail("Oratab contains the requested home to recover: ${home}")
+  fail("Oratab contains the requested home to delete: ${home}")
  }
  else { #elsif $delete_in_oratab == 'S' or $delete_in_oratab == 'F' {
   if $delete_in_running_ps == 'B' or $delete_in_running_ps == 'C' {
@@ -29,20 +44,11 @@ define oradb_fs::delete_sw (
   else { #elsif $delete_in_running_ps == 'S' or $delete_in_running_ps == 'F'{
  
    exec { "Kill listener before wiping home: ${home}":
-#    command   => "kill -9 `ps -ef | grep tnslsnr | grep ${delete_home_path} | /bin/awk '\$1 == \"oracle\" {print \$2}'`",
     command   => "pkill -u oracle -f ${delete_home_path}/bin/tnslsnr | wc \$1>/dev/null",
     path      => '/bin',
     logoutput => true,
    }
   
-#   file { $delete_home_path :
-#    ensure    => directory,
-#    force     => true,
-#    purge     => true,
-#    recurse   => true, 
-#    backup    => false,
-#   }
-
    exec { "Remove home : ${delete_home_path}":
     command   => "rm -rf ${delete_home_path}/*",
     path      => '/bin',
@@ -51,7 +57,6 @@ define oradb_fs::delete_sw (
 
    $delete_home_path_mod = regsubst($delete_home_path, '/', '\/', 'G')
 
-#   $sed_command  = "sed '/" + $delete_home_path_mod + "/ {s/\/>/ REMOVED=\"T\"\/>/;s/" + $delete_home_path_mod + "/OraPlaceHolderDummyHome/}' /opt/oraInventory/ContentsXML/inventory.xml"
    $sed_command  = "sed -i '/${delete_home_path_mod}/ {s/\/>/ REMOVED=\"T\"\/>/;s/${delete_home_path_mod}/OraPlaceHolderDummyHome/}' /opt/oraInventory/ContentsXML/inventory.xml"
 
    exec { "Remove home from inventory.xml : ${delete_home_path}":

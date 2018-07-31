@@ -1,3 +1,20 @@
+####
+# oradb_fs::post_oracle_build
+#  author: Matthew Parker
+#
+# collection of manifests run every puppet run and clean up of any files in the working directory used during a single run
+# only manifest in continuous enforcement mode
+#
+# variables:
+#  $ora_platform  - value of the ora_platform variable from the fqdn.yaml deployed from artifactory
+#
+# calls the following manifests:
+#  oradb_fs::full_export_scripts     - deployment of the full export rn
+#  oradb_fs::sig_file                - creation of sig files as needed
+#  oradb_fs::db_maintenance_scripts  - deployment of the db maintenance rn
+#  oradb_fs::bash_profile            - deploys a .bash_profile for the Oracle user based on the value of $ora_platform 
+#
+####
 define oradb_fs::post_oracle_build(
  $ora_platform  = undef,
 )
@@ -26,8 +43,6 @@ define oradb_fs::post_oracle_build(
  oradb_fs::bash_profile{ "set up oracle bash_profile" :
   db_name       => $facts['oradb::ora_bash_db_name'],
   db_home       => $facts['oradb::ora_bash_home'],
-  ora_owner     => 'oracle',
-  ora_group     => 'oinstall',
   ora_platform  => $ora_platform,
   agent_core    => $facts['oradb_fs::agent_core'],
   agent_home    => $facts['oradb_fs::agent_home'],
@@ -37,10 +52,5 @@ define oradb_fs::post_oracle_build(
   path      => '/bin',
   logoutput => true,
  }
-# tidy {'Clean up working directory.' : 
-#  path    => '/opt/oracle/sw/working_dir',
-#  recurse => true,
-#  rmdirs  => true,
-# }
 }
 

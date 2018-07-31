@@ -1,3 +1,25 @@
+####
+# oradb_fs::sig_file_loop
+#  author: Matthew Parker
+#
+# MARKED FOR DEPRECATION
+#
+# wrapper to oradb_fs::sig_file to build out multiple sig files with only slight variation on content
+#
+# variables:
+#  String         $home           - home variable set in use (db_#)
+#  String         $product        - 
+#  String         $sig_version    - sig file version
+#  String         $type           - 
+#  String         $sig_desc       - 
+#  Array[String]  $global_name    - 
+#  String         $scanid         - 
+#  String         $nodeid         - 
+#  String         $oracle_home    - 
+#  String         $sig_file_name  - 
+#  String         $home_path      - full path to the Oracle home
+#
+####
 define oradb_fs::sig_file_loop(
  String         $home             = '', 
  String         $product          = '',

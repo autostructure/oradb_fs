@@ -1,11 +1,37 @@
+####
+# oradb_fs::apply_patch
+#  author: Matthew Parker
+#
+# wrapper to oradb::opatch and oradb::opatchupgrade to patch a multi-database oracle home
+#
+# variables:
+#  String         $home              - home variable set in use (db_#)
+#  String         $patch_path        - patch version the Oracle home is supposed to be patched to in Oracle 18c version format (12_2.xx.x, 18.xx.x, ...)
+#  String         $home_path         - full path to the Oracle home
+#  Array[String]  $db_list           - array of database sids associated to the Oracle home being patched
+#  String         $version           - version of the base install of the Oracle home (12.2.0.1)
+#  Boolean        $default_detected  - set to true if the db_info_list_db_# array associated to the home being patched contains any default value
+#  String         $agent_home        - full path of the em agent home
+#
+# calls the following manifests:
+#  oradb_fs::em_agent_control        - stopping of the em agent
+#  oradb::listener                   - start and stop of the listener associated to the home
+#  oradb_fs::dbactions_loop          - start and stop of all databases associated to the home
+#  oradb::opatchupgrade              - upgrades the oracle opatch utility
+#  oradb_fs::oracle_version_actions  - actions to be perfromed against the home as part of patching 
+#  oradb::opatch                     - apply patch of the patch component (db, ojvm)
+#  oradb_fs::post_patching_tree      - actions to be performed against all databases associated to the home after patching the home
+#  oradb_fs::sig_file_loop           - creation of all sig files required from patching
+#
+####
 define oradb_fs::apply_patch (
- String            $home              = undef,
- String            $patch_path        = undef,
- String            $home_path         = undef,
- Array[String]     $db_list           = undef,
- String            $version           = undef,
- Boolean           $default_detected  = undef,
- String            $agent_home        = undef,
+ String         $home              = undef,
+ String         $patch_path        = undef,
+ String         $home_path         = undef,
+ Array[String]  $db_list           = undef,
+ String         $version           = undef,
+ Boolean        $default_detected  = undef,
+ String         $agent_home        = undef,
 )
 {
 
@@ -90,7 +116,7 @@ define oradb_fs::apply_patch (
          action        => 'stop',
          listener_name => 'LISTENER',
         } ->
-         oradb_fs::dbactions_loop { "Stop all dbs in ${home}" :
+        oradb_fs::dbactions_loop { "Stop all dbs in ${home}" :
          home           => $home,
          db_list        => $db_list,
          action         => 'stop1',
@@ -209,5 +235,4 @@ define oradb_fs::apply_patch (
   notify {"apply_patch : default detected : ${home}" :}
  }
 }
-
  

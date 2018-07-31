@@ -1,16 +1,42 @@
+####
+# oradb_fs::rhel_build
+#  author: Matthew Parker
+# 
+# main manifest for oradb_fs. calls all supporting manifests
+#
+# calls the following manifests:
+#  oradb_fs::build_working_dir  - builds working directory for the home being worked on
+#  oradb_fs::delete_db_loop     - removes databases specified
+#  oradb_fs::delete_sw          - removed Oracle software install
+#  oradb_fs::recover_sw         - recovers from a fail Oracle software install
+#  oradb_fs::replace_sw         - removes an Oracle home and saves files to be moved to another home
+#  oradb_fs::psu_rollback       - rollbacks patches in an Oracle home and associated databases
+#  oradb_fs::recover_db         - recovers from failed database creation
+#  oradb_fs::db_remediation     - performs various remediation tasks against the requested database(s)
+#  oradb_fs::apply_patch        - applies patches against an Oracle home and associated databases
+#  oradb_fs::build_sw           - build a new Oracle software home
+#  oradb_fs::build_db_loop      - create databases
+#  oradb_fs::em_agent_control   - starts and stops the em agent
+#
+####
 define oradb_fs::rhel_build (
- String      $db_1         = $facts['puppet_run_db_1'],
- String      $db_2         = $facts['puppet_run_db_2'],
- String      $db_3         = $facts['puppet_run_db_3'],
- String      $db_4         = $facts['puppet_run_db_4'],
- String      $db_5         = $facts['puppet_run_db_5'],
- String      $db_6         = $facts['puppet_run_db_6'],
+# String  $db_1  = $facts['puppet_run_db_1'],
+# String  $db_2  = $facts['puppet_run_db_2'],
+# String  $db_3  = $facts['puppet_run_db_3'],
+# String  $db_4  = $facts['puppet_run_db_4'],
+# String  $db_5  = $facts['puppet_run_db_5'],
+# String  $db_6  = $facts['puppet_run_db_6'],
 )
 {
  notify {'start':}
- $data = {'db_1' => $db_1,'db_2' => $db_2,
-          'db_3' => $db_3,'db_4' => $db_4,
-          'db_5' => $db_5,'db_6' => $db_6}
+/*
+ $data = {'db_1' => $db_1, 'db_2' => $db_2,
+          'db_3' => $db_3, 'db_4' => $db_5,
+          'db_5' => $db_5, 'db_6' => $db_6}
+*/
+ $data = {'db_1' => $facts['puppet_run_db_1'], 'db_2' => $facts['puppet_run_db_2'],
+          'db_3' => $facts['puppet_run_db_3'], 'db_4' => $facts['puppet_run_db_4'],
+          'db_5' => $facts['puppet_run_db_5'], 'db_6' => $facts['puppet_run_db_6']}
 
  tidy { 'Clear puppet run temp files.' :
   path    => '/tmp',
@@ -42,44 +68,18 @@ define oradb_fs::rhel_build (
     
     if $patch_path_holding[0] == '12_2' {
      $version = '12.2.0.1'
-#     $year = '2017'
     }
     elsif $patch_path_holding[0] =~ /[0-9][0-9]/ {
      $version = "${patch_path_holding[0]}.0.0"
-#     $year = "20${patch_path_holding[0]}"
     }
     else {
      $version = 'xx.xx.x'
-#     $year = 'xxxx'
     }
 
-#    if $patch_path_holding[1] == '0' and $patch_path_holding[2] == '0' {
-#     $patch_date = 'none' 
-#    }
     if $patch_path_holding[1] =~ /[0-9]?[0-9]/ {
-/*
-     $mod = $patch_path_holding[1] % 4
-     $floor = floor($patch_path_holding[1] / 4)
-
-     if $mod == 0 and $floor >= 1 {
-      $patch_year = $year + $floor - 1
-     }
-     else {
-      $patch_year = $year + $floor
-     }
-
-     $patch_quarter = $patch_path_holding[1] % 4 ? {
-      '1' => '01jan',
-      '2' => '04apr',
-      '3' => '07jul',
-      '0' => '10oct'
-     }
-     $patch_date = "${patch_year}_${patch_quarter}
-*/
      $ru = $patch_path_holding[1]
     }
     else {
-#     $patch_date = "${patch_year}_xxyyy'
      $ru = 'xx'
     }
 

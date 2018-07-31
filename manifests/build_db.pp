@@ -1,9 +1,32 @@
+####
+# oradb_fs::build_db
+#  author: Matthew Parker
+#
+# wrapper to oradb::database to build a new Oracle database associated to the Oracle home being worked on
+#
+# variables
+#  String  $home        - home variable set in use (db_#)
+#  String  $db_info     - single flat fact from the $db_info_list_db_# associated to the home being worked on
+#  String  $home_path   - full path to the Oracle home
+#  String  $version     - version of the base install of the Oracle home (12.2.0.1)
+#  String  $patch_path  - patch version the Oracle home is supposed to be patched to in Oracle 18c version format (12_2.xx.x, 18.xx.x, ...)
+#
+# calls the following manifests:
+#  oradb::database                   - builds a database
+#  oradb_fs::new_db_post_patch_tree  - runs post database build scripts. largely a hold over from 11g, but still may be needed
+#  oradb::dbactions                  - starts and stops the database being built
+#  oradb_fs::autostart               - sets the autostart flag to Y in /etc/oratab for the database being built
+#  oradb_fs::user_role_post_build    - runs post database build scripts to create required users and roles
+#  oradb_fs::sig_file                - creation of sig file required from creating a new database
+#  oradb_fs::db_security             - deploys security package set into the database and configures the databases based information in the flat fact for this database
+#
+####
 define oradb_fs::build_db (
- String       $home            = undef,
- String       $db_info         = undef,
- String       $home_path       = undef,
- String       $version         = undef,
- String       $patch_path      = undef,
+ String  $home        = undef,
+ String  $db_info     = undef,
+ String  $home_path   = undef,
+ String  $version     = undef,
+ String  $patch_path  = undef,
 )
 {
  $db_info_function_feed = any2array(split($db_info,':')[0])

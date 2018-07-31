@@ -1,8 +1,25 @@
+####
+# oradb_fs::db_instances
+#  author: Matthew Parker
+#
+# deploys and then runs the db instances rn scripts against a single database
+#
+# variables:
+#  String  $db_name       - datadase sid
+#  String  $working_dir   - path to the working directory to deploy transient files to 
+#  String  $oracle_home   - full path to the Oracle home
+#  String  $db_instances  - flag to indicate if oradb_fs::db_instances is supposed to be run
+#
+# deploys:
+#  ${working_dir}/db_instances1_${db_name}.sql - transient files
+#  ${working_dir}/db_instances2_${db_name}.sql - transient files
+#
+####
 define oradb_fs::db_instances (
- String    $db_name       = undef,
- String    $working_dir   = undef,
- String    $oracle_home   = undef,
- String    $db_instances  = undef,
+ String   $db_name       = undef,
+ String   $working_dir   = undef,
+ String   $oracle_home   = undef,
+ String   $db_instances  = undef,
 )
 {
  if $db_instances == 'false' {

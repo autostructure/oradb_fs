@@ -1,11 +1,26 @@
+####
+# oradb_fs::bash_profile
+#  author: Matthew Parker
+#
+# deploys a .bash_profile for the Oracle user based on the value of $ora_platform
+#
+# variables
+#  String  $db_name       - value to set ORACLE_SID to in the .bash_profile
+#  String  $db_home       - value to set ORACLE_HOME to in the .bash_profile
+#  String  $ora_platform  - value of the ora_platform variable from the fqdn.yaml deployed from artifactory
+#  String  $agent_core    - value to set AGENT_CORE to in the .bash_profile
+#  String  $agent_home    - value to set AGENT_HOME to in the .bash_profile
+#
+# deploys:
+#  /home/oracle/.bash_profile
+#
+####
 define oradb_fs::bash_profile (
- String     $db_name       = undef,
- String     $db_home       = undef,
- String     $ora_owner     = undef,
- String     $ora_group     = undef,
- String     $ora_platform  = undef, 
- String     $agent_core    = undef,
- String     $agent_home    = undef,
+ String  $db_name       = undef,
+ String  $db_home       = undef,
+ String  $ora_platform  = undef, 
+ String  $agent_core    = undef,
+ String  $agent_home    = undef,
 )
 {
  if $ora_platform == 'db' {
@@ -17,8 +32,8 @@ define oradb_fs::bash_profile (
                     'db_home'             => $db_home,
                     'agent_home'          => $agent_home}),
     mode    => '0755',
-    owner   => $ora_owner,
-    group   => $ora_group,
+    owner   => 'oracle',
+    group   => 'oinstall',
     backup  => ".${facts['the_date']}",
    }
   }
@@ -31,8 +46,8 @@ define oradb_fs::bash_profile (
                     'agent_core'          => $agent_core,
                     'agent_home'          => $agent_home}),
     mode    => '0755',
-    owner   => $ora_owner,
-    group   => $ora_group,
+    owner   => 'oracle',
+    group   => 'oinstall',
     backup  => ".${facts['the_date']}",
    }
   } 
@@ -42,8 +57,8 @@ define oradb_fs::bash_profile (
    ensure  => present,
    source  => "puppet:///modules/oradb_fs/oem_bash_profile",
    mode    => '0755',
-   owner   => $ora_owner,
-   group   => $ora_group,
+   owner   => 'oracle',
+   group   => 'oinstall',
    backup  => ".${facts['the_date']}",
   }
  }

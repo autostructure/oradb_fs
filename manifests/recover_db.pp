@@ -1,8 +1,24 @@
+####
+# oradb_fs::recover_db
+#  author: Matthew Parker
+#
+# recovers from a failed database creation
+#
+# variables:
+#  String         $home              - home variable set in use (db_#)
+#  String         $home_path         - full path to the Oracle home
+#  Array[String]  $db_info_list      - flat fact array of information required to build a new database(s) using this module 
+#  Boolean        $default_detected  - set to true if the db_info_list_db_# array associated to the home being patched contains any default value
+#
+# removes:
+#  files/directories from the $facts['sid_associated_vestige_list'] fact that are associated to the database being recovered
+# 
+####
 define oradb_fs::recover_db (
- String           $home              = undef,
- String           $home_path         = undef,
- Array[String]    $db_info_list      = undef,
- Boolean          $default_detected  = undef,
+ String         $home              = undef,
+ String         $home_path         = undef,
+ Array[String]  $db_info_list      = undef,
+ Boolean        $default_detected  = undef,
 )
 {
  if !$default_detected {

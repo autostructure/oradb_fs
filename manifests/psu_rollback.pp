@@ -1,3 +1,30 @@
+####
+# oradb_fs::psu_rollback
+#  author: Matthew Parker
+#
+# wrapper to oradb::opatch to rollback patches
+#
+# variables:
+#  String         $home              - home variable set in use (db_#)
+#  String         $home_path         - full path to the Oracle home
+#  Array[String]  $db_list           - flat fact array of information required to build a new database(s) using this module 
+#  String         $version           - version of the base install of the Oracle home (12.2.0.1)
+#  Array[String]  $patch_path_array  - flat fact array of homes and patches to roll back
+#  Boolean        $default_detected  - set to true if the db_info_list_db_# array associated to the home being patched contains any default value
+#  String         $agent_home        - full path of the em agent home
+#
+# calls the following manifests:
+#  oradb_fs::em_agent_control    - starts and stops the em agent
+#  oradb::listener               - starts and stop the listener associated to the home
+#  oradb_fs::dbactions_loop      - starts and stop all databases associated to the home
+#  oradb::opatch                 - rolls back patch components in the home
+#  oradb_fs::post_rollback_tree  - post actions to be perfromed against databases associated to the home
+#
+# removes:
+#  /opt/oracle/signatures/${local_file_name}                              - regex matched sig file names associated to the patch being removed rolled back
+#  /fslink/sysinfra/signatures/oracle/${host_name}/${sysinfra_file_name}  - regex matched sig file names associated to the patch being removed rolled back
+#
+####
 define oradb_fs::psu_rollback (
  String            $home                = undef,
  String            $home_path           = undef,

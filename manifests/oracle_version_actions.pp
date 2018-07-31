@@ -1,7 +1,20 @@
+####
+# oradb_fs::oracle_version_actions
+#  author: Matthew Parker
+#
+# performs actions against a newly created oracle home
+# hold over from 11g, but may be useful later
+#
+# variables:
+#  String  $home_path  - full path to the Oracle home
+#  String  $version    - version of the base install of the Oracle home (12.2.0.1)
+#  String  $action     - action to perform
+#
+####
 define oradb_fs::oracle_version_actions (
- String     $home_path  = undef,
- String     $version    = undef,
- String     $action     = undef,
+ String   $home_path  = undef,
+ String   $version    = undef,
+ String   $action     = undef,
 )
 {
  if $version == '11' {
