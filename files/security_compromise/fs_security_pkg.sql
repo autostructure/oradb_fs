@@ -28,32 +28,7 @@ AS
 --**************************************************************************************************************************
 --**   Change Control:
 --**	$Log: fs_db_admin.fs_exists_functions.sql,v $
---**	Revision 1.0  2018/04/01 5:01:52  matthewparker
---**	Converted Original DB Maintenance SQL into Package.
---**
---**	Revision 1.1  2018/04/03 19:54:30  matthewparker
---**	Converted the 10 original OPS SQL scripts into this package.
---**
---**	Revision 1.2  2018/04/04 18:32:19  matthewparker
---**	Added initial documentation into a package.
---**
---**	Revision 1.3  2018/04/04 18:56:37  matthewparker
---**	Added I_AM_AUTOMATION,SET_I_AM_AUTOMATION into package.
---**
---**	Revision 1.4  2018/04/05 02:14:44  matthewparker
---**	Added g_iamautomation usage, extended EXCEPTION handling into package.
---**
---**	Revision 1.5  2018/04/06 20:12:01  matthewparker
---**	Added p_debug usage usage into package.
---**
---**	Revision 1.6  2018/04/09 22:43:01  matthewparker
---**	Added transition between entry paths.
---**
---**	Revision 1.7  2018/04/15 04:08:12  matthewparker
---**	Extended verify Framework.
---**
---**	Revision 1.8  2018/05/01 01:42:26  matthewparker
---**	Collapsed reusable components into internal functions.
+--**	Revision 2.0.5  2018/07/23 5:01:52  matthewparker
 --**
 --**************************************************************************************************************************
 --
@@ -272,20 +247,53 @@ END exec_ddl;
 --**			g_programmessage global variable for the verify program along with calling the exec_ddl procedure
 --**			for passed ddl.
 --**  Calling Programs:	--
---**   Programs Called: fs_db_admin.fs_exists_functions.exec_ddl
+--**   Programs Called: fs_db_admin.fs_exists_functions
+--**			fs_security_pkg.exec_ddl
+--**			fs_db_admin.fs_puppet_format_output
 --**   Tables Accessed: --
 --**   Tables Modified:	--
---**  Passed Variables: --
---** Passed Global Var:	--
---**   Global Var Mods:	--
---**   Local Variables: --
+--**  Passed Variables:
+--**			p_sqltext			-- DDL
+--**			p_sqltextsecure			-- Secure DDL (obscured PW for output)
+--**			p_col1text			-- Main Column Message Text
+--**			p_col2text			-- Secondary Column Message Text
+--**			p_boolean			-- True/False for pass.
+--**			p_verifycount			-- Count for Verify
+--**			p_path				-- Message Choice/Path
+--**			p_debug				-- Output Variable: The debug level set by the original calling program.
+--** Passed Global Var:	
+--**			g_programcontext		-- Local program for WARN variable.
+--**			g_dropbassecobj			-- Special variable to handle for dropped object action seen by two procs only counted once.
+--**   Global Var Mods:	
+--**			g_providerolespasscnt		-- Provide Role Pass Count
+--**			g_providerolesfailcnt		-- Provide Role Fail Count
+--**			g_provideprofilespasscnt	-- Provide Profile Pass Count
+--**			g_provideprofilesfailcnt	-- Provide Profile Fail Count
+--**			g_providepublicgrantspasscnt	-- Provide Public Grant Pass Count
+--**			g_providepublicgrantsfailcnt	-- Provide Public Grant Fail Count
+--**			g_provideuserspasscnt		-- Provide User Pass Count
+--**			g_provideusersfailcnt		-- Provide User Fail Count
+--**			g_providebasicsecuritypasscnt	-- Provide Basic Security Pass Count
+--**			g_providebasicsecurityfailcnt	-- Provide Basic Security Fail Count
+--**			g_providebasicsecuritywarncnt	-- Provide Basic Security Warn Count
+--**			g_providelegacyobjectspasscnt	-- Provide Legacy Object Pass Count
+--**			g_providelegacyobjectsfailcnt	-- Provide Legacy Object Fail Count
+--**			g_providelegacyobjectswarncnt	-- Provide Legacy Object Warn Count
+--**			g_providegisrolespasscnt	-- Provide Role Pass Count
+--**			g_providegisroleswarncnt	-- Provide Role Fail Count
+--**   Local Variables: 
+--**			l_booleantext			-- Translate true/false boolean to text
+--**			l_pfw				-- Transalte pass/fail booelan to text
 --**           Cursors:	--
 --**           pragmas: --
 --**         Exception: --
 --**************************************************************************************************************************
 --**        Psudo code: 
---**			RETURN g_iamautomation
---**			EXCEPTION
+--**			Convert boolean
+--**			Determine procdure subfunction and add to global variable count
+--**			execute DDL
+--**			execute formatted output.
+--**
 --**************************************************************************************************************************
 --
 --
@@ -301,7 +309,6 @@ PROCEDURE activity_stream
  p_debug			IN		NUMBER
 )
 IS
- l_sysprivcnt		NUMBER		:= 0;
  l_booleantext		VARCHAR2(5);
  l_pfw			VARCHAR2(7);
 BEGIN
@@ -1680,7 +1687,9 @@ END random_password;
 --**           Purpose:	This procedure is generic debug procedure called when p_debug > 0.
 --**  Calling Programs:	All.
 --**   Programs Called:	
---**			secure_admin_user
+--**			fs_db_admin.fs_exists_functions
+--**			fs_security_pkg.activity_stream
+--**			fs_security_pkg.secure_admin_user
 --**			dbms_output
 --**   Tables Accessed:	
 --**			dba_users
@@ -1695,7 +1704,8 @@ END random_password;
 --**   Local Variables:
 --**			l_localprogramname		-- This programs name. (For debugging purposes.)
 --**			l_programmessage		-- The local debugging message.
---**           Cursors:	--
+--**           Cursors:	C1				-- oracle_maintained = 'Y'
+--**			C2				-- oracle_maintained = 'N'
 --**           pragmas: --
 --**         Exception:	
 --**			soau_failure
@@ -1817,15 +1827,11 @@ END secure_users;
 --**				c = Build Original Legacy Objects
 --**				s = Do not build Original Legacy Objects and remove them if they exist.
 --**  Calling Programs:	--
---**   Programs Called:	
---**			object_exists
---**			constraint_exists
---**			tabprivs_exists
---**			synonym_exists
---**			tabcom_exists
---**			trigger_exists
+--**   Programs Called:	fs_db_admin.fs_exists_functions
+--**			fs_security_pkg.activity_stream
+--**			drop_login_db_instances_legobj
+--**			drop_fsdba_legobj
 --**   Tables Accessed:	
---**			dba_users
 --**			fsdba.this_db_instance
 --**			fsdba.db_instances
 --**   Tables Modified:	--
@@ -1848,15 +1854,10 @@ END secure_users;
 --**			soau_failure
 --**************************************************************************************************************************
 --**        Psudo code: 
---**			SELECT dba_users oracle_maintained = 'N' AND substr(username,1,3) = 'FS_'
---**				LOOP
---**				CASE
---**					WHEN x.account_status like '%LOCKED%'
---**						dbms_output
---**					ELSE
---**						secure_admin_user: scramble password and lock account
---**				END LOOP
---**			EXCEPTION
+--**			IF LOWER(p_legacyobjectschoice) = 'c'
+--**				CREATE all legacy objects
+--**			IF LOWER(p_legacyobjectschoice) = 's'
+--**				Remove all legacy objects
 --**************************************************************************************************************************
 --
 --
@@ -1904,7 +1905,7 @@ BEGIN
 			l_sqltext := l_sqltext||' modified_by                              VARCHAR2(90),'|| chr(10);
 			l_sqltext := l_sqltext||' modified_date                            DATE'|| chr(10);
 			l_sqltext := l_sqltext||')'|| chr(10);
-			l_sqltext := l_sqltext||'TABLESPACE USERS';
+			l_sqltext := l_sqltext||'TABLESPACE FSDBA_DATA';
 			--
 			activity_stream ( l_sqltext, '', 'TABLE EXISTS', 'FSDBA.DB_INSTANCES.', false, 1, 'P1', p_debug);
 			--
@@ -2100,7 +2101,7 @@ BEGIN
 			l_sqltext := l_sqltext||' modified_date                   DATE                       NULL,'|| chr(10);
 			l_sqltext := l_sqltext||' pk_suffix                       CHAR(6)                    NOT NULL'|| chr(10);
 			l_sqltext := l_sqltext||')'|| chr(10);
-			l_sqltext := l_sqltext||'TABLESPACE USERS';
+			l_sqltext := l_sqltext||'TABLESPACE FSDBA_DATA';
 			--
 			activity_stream ( l_sqltext, '', 'TABLE EXISTS', 'FSDBA.THIS_DB_INSTANCE.', false, 1, 'P1', p_debug);
 			--
@@ -2610,20 +2611,46 @@ END provide_legacy_objects;
 --**         Procedure:	provide_users
 --**           Purpose:	This procedure creates the basic users with the appropirate grants.
 --**  Calling Programs:	--
---**   Programs Called: --
+--**   Programs Called: fs_db_admin.fs_exists_functions
+--**			fs_security_pkg.activity_stream
 --**   Tables Accessed: --
 --**   Tables Modified:	--
 --**  Passed Variables: --
+--**			p_userchoice			-- User Choice Variable
+--**			p_status			-- Status message to check for errors.
+--**			p_error_message			-- The actual error message.
+--**			p_debug				-- The debug level set by the original calling program.
 --** Passed Global Var:	--
 --**   Global Var Mods:	--
+--**			g_programcontext 		-- Set to l_localprogramname
+--**			g_provideuserspasscnt		-- Pass Count Variable
+--**			g_provideusersfailcnt		-- Fail Count Variable
 --**   Local Variables: --
+--**			l_localprogramname		-- This programs name. (For debugging purposes.)
+--**			l_programmessage		-- The local debugging message.
+--**			l_sqltext			-- The DDL text
+--**			l_boolean			-- Choice Boolean
+--**			l_password			-- Secure Password
 --**           Cursors:	--
 --**           pragmas: --
 --**         Exception: --
 --**************************************************************************************************************************
 --**        Psudo code: 
---**			RETURN g_iamautomation
---**			EXCEPTION
+--**			IF LOWER(p_userchoice) = 'c' OR LOWER(p_userchoice) = 'b' OR LOWER(p_userchoice) = 'h'
+--**				Create FSBA and LOGIN_DB_INSTANCES users
+--**				Grant Sysprivs and roles
+--**			IF LOWER(p_userchoice) = 'c' OR LOWER(p_userchoice) = 'b'
+--**				Grant restricted roles or sysprivs covered by roles.
+--**			IF LOWER(p_userchoice) = 'c'
+--**				No removal actions
+--**			IF LOWER(p_userchoice) = 'h'
+--**				Revoke restricted roles or sysprivs covered by roles.
+--**			IF LOWER(p_userchoice) = 's' OR LOWER(p_userchoice) = 'b' OR LOWER(p_userchoice) = 'h'
+--**				
+--**			IF LOWER(p_userchoice) = 's' THEN
+--**				Remove legacy objects
+--**				Remove legacy users
+--**				Remove legacy roles
 --**************************************************************************************************************************
 --
 --
@@ -2638,7 +2665,6 @@ IS
  l_localprogramname				VARCHAR2(128) := 'provide_users';
  l_programmessage				CLOB;
  l_errormessage					VARCHAR2(1000);
- l_status					VARCHAR2(15);
  l_sqltext					VARCHAR2(1000);
  l_boolean					BOOLEAN;
  l_password					VARCHAR2(30);
@@ -2649,11 +2675,27 @@ BEGIN
 	g_provideusersfailcnt := 0;
 	activity_stream ( '', '', 'DETAIL', 'PROVIDE USERS', true, 0, 'P6', p_debug);
 	--
-	IF LOWER(p_userchoice) = 'c' OR LOWER(p_userchoice) = 'b' THEN
+	IF LOWER(p_userchoice) = 'c' OR LOWER(p_userchoice) = 'b' OR LOWER(p_userchoice) = 'h' THEN
 		--
 		--***************************
 		-- SETUP FSDBA USER
 		--***************************
+		--
+		l_boolean := fs_db_admin.fs_exists_functions.tablespace_exists ('FSDBA_DATA');
+		--
+		IF l_boolean = false THEN
+			--
+                	l_sqltext := 'CREATE SMALLFILE TABLESPACE fsdba_data ';
+                	l_sqltext := l_sqltext||'DATAFILE SIZE 5M AUTOEXTEND ON NEXT 100M MAXSIZE 32767M LOGGING EXTENT MANAGEMENT LOCAL ';
+                	l_sqltext := l_sqltext||'SEGMENT SPACE MANAGEMENT AUTO';
+			--
+			activity_stream ( l_sqltext, '', 'TABLESPACE EXISTS', 'FSDBA_DATA.', false, 1, 'P1', p_debug);
+			--
+		ELSE
+			--
+			activity_stream ( '', '', 'TABLESPACE EXISTS', 'FSDBA_DATA.', true, 1, 'P2', p_debug);
+			--
+		END IF;
 		--
 		l_boolean := fs_db_admin.fs_exists_functions.user_exists ('FSDBA');
 		--
@@ -2661,13 +2703,10 @@ BEGIN
 			l_password := fs_db_admin.fs_security_pkg.random_password(15,0);
 			--
                 	l_sqltext := 'CREATE USER fsdba IDENTIFIED BY "'||l_password||'"';
-                	l_sqltext := l_sqltext || ' DEFAULT TABLESPACE users';
+                	l_sqltext := l_sqltext || ' DEFAULT TABLESPACE FSDBA_DATA';
                 	l_sqltext := l_sqltext || ' TEMPORARY TABLESPACE temp';
 			l_sqltext := l_sqltext || ' PROFILE default';
 			--
-			activity_stream ( l_sqltext, '', 'USER EXISTS', 'FSDBA.', false, 1, 'P1', p_debug);
-			--
-			l_sqltext := 'GRANT INHERIT PRIVILEGES ON USER sys TO fsdba';
 			activity_stream ( l_sqltext, '', 'USER EXISTS', 'FSDBA.', false, 1, 'P1', p_debug);
 			--
 		ELSE
@@ -2676,16 +2715,29 @@ BEGIN
 			--
 		END IF;
 		--
-		l_boolean := fs_db_admin.fs_exists_functions.tsquota_exists ( 'FSDBA', 'USERS', '', '', true);
+		l_boolean := fs_db_admin.fs_exists_functions.tabprivs_exists ('SYS', 'SYS', 'FSDBA', 'INHERIT PRIVILEGES');
 		--
 		IF l_boolean = false THEN
-			l_sqltext := 'ALTER USER fsdba QUOTA UNLIMITED ON users';
 			--
-			activity_stream ( l_sqltext, '', 'TABLESPACE QUOTA EXISTS', 'Quota UNLIMITED On Users.', false, 1, 'P1', p_debug);
+			l_sqltext := 'GRANT INHERIT PRIVILEGES ON USER sys TO fsdba';
+			activity_stream ( l_sqltext, '', 'GRANT EXISTS', 'INHERIT PRIVILEGES ON USER sys TO fsdba.', false, 1, 'P1', p_debug);
 			--
 		ELSE
 			--
-			activity_stream ( '', '', 'QUOTA GRANTED', 'UNLIMITED QUOTA On Users.', true, 1, 'P2', p_debug);
+			activity_stream ( '', '', 'GRANT EXISTS', 'INHERIT PRIVILEGES ON USER sys TO fsdba.', true, 1, 'P2', p_debug);
+			--
+		END IF;
+		--
+		l_boolean := fs_db_admin.fs_exists_functions.tsquota_exists ( 'FSDBA', 'FSDBA_DATA', '', '', true);
+		--
+		IF l_boolean = false THEN
+			l_sqltext := 'ALTER USER fsdba QUOTA UNLIMITED ON FSDBA_DATA';
+			--
+			activity_stream ( l_sqltext, '', 'TABLESPACE QUOTA EXISTS', 'Quota UNLIMITED On FSDBA_DATA.', false, 1, 'P1', p_debug);
+			--
+		ELSE
+			--
+			activity_stream ( '', '', 'QUOTA GRANTED', 'UNLIMITED QUOTA On FSDBA_DATA.', true, 1, 'P2', p_debug);
 			--
 		END IF;
 		--
@@ -2710,7 +2762,6 @@ BEGIN
 			activity_stream ( '', '', 'USER EXISTS', 'LOGIN_DB_INSTANCES.', true, 1, 'P2', p_debug);
 			--
 		END IF;
-		--
         	--
  		l_boolean := fs_db_admin.fs_exists_functions.tabprivs_exists ('SYS','DBA_ROLE_PRIVS','FSDBA','SELECT');
 		--
@@ -2748,18 +2799,18 @@ BEGIN
 			--
 		END IF;
 		--
-		l_boolean := fs_db_admin.fs_exists_functions.grantee_rolepriv_exists ('FSDBA', 'DBA');
-		IF l_boolean = false THEN
-			--
-			activity_stream ( 'GRANT dba TO fsdba', '', 'ROLE GRANTED', 'DBA To FSDBA.', false, 1, 'P1', p_debug);
-			--
- 		ELSE
-			--
-			activity_stream ( '', '', 'ROLE GRANTED', 'DBA To FSDBA.', true, 1, 'P2', p_debug);
-			--
-		END IF;
-		--
 		IF LOWER(p_userchoice) = 'c' OR LOWER(p_userchoice) = 'b' THEN
+			--
+			l_boolean := fs_db_admin.fs_exists_functions.grantee_rolepriv_exists ('FSDBA', 'DBA');
+			IF l_boolean = false THEN
+				--
+				activity_stream ( 'GRANT dba TO fsdba', '', 'ROLE GRANTED', 'DBA To FSDBA.', false, 1, 'P1', p_debug);
+				--
+ 			ELSE
+				--
+				activity_stream ( '', '', 'ROLE GRANTED', 'DBA To FSDBA.', true, 1, 'P2', p_debug);
+				--
+			END IF;
 			--
 			l_boolean := fs_db_admin.fs_exists_functions.pwfile_user_exists ('FSDBA','SYSDBA','TRUE');
 			IF l_boolean = false THEN
@@ -3131,13 +3182,12 @@ END provide_users;
 --**         Procedure:	provide_basic_security
 --**           Purpose:	This procedure create the FSDBA legacy objects.
 --**  Calling Programs:	--
---**   Programs Called:	
---**			secure_admin_user
---**			dbms_output
---**   Tables Accessed:	
---**			dba_users
+--**   Programs Called:	fs_db_admin.fs_exists_functions
+--**			fs_security_pkg.activity_stream
+--**   Tables Accessed:	--
 --**   Tables Modified:	--
 --**  Passed Variables:
+--**			p_basicsecuritychoice		-- Basic Security Choice Variable
 --**			p_status			-- Status message to check for errors.
 --**			p_error_message			-- The actual error message.
 --**			p_debug				-- The debug level set by the original calling program.
@@ -3146,21 +3196,20 @@ END provide_users;
 --**   Local Variables:
 --**			l_localprogramname		-- This programs name. (For debugging purposes.)
 --**			l_programmessage		-- The local debugging message.
+--**			l_sqltext			-- The DDL text
+--**			l_boolean			-- Choice Boolean
 --**           Cursors:	--
 --**           pragmas: --
---**         Exception:	
---**			soau_failure
+--**         Exception:	--
 --**************************************************************************************************************************
 --**        Psudo code: 
---**			SELECT dba_users oracle_maintained = 'N' AND substr(username,1,3) = 'FS_'
---**				LOOP
---**				CASE
---**					WHEN x.account_status like '%LOCKED%'
---**						dbms_output
---**					ELSE
---**						secure_admin_user: scramble password and lock account
---**				END LOOP
---**			EXCEPTION
+--**			IF LOWER(p_basicsecuritychoice) = 'c'
+--**				Create fsdba.create_rpwd_lock
+--**				Create fsdba.create_rpwd
+--**			IF LOWER(p_basicsecuritychoice) = 's'
+--**				's' components already exist in pkg.
+--**				drop_fsdba_bassecobj 
+--**			Create data_pump_dir
 --**************************************************************************************************************************
 --
 --
@@ -3256,17 +3305,16 @@ END provide_basic_security;
 --**         Procedure:	provide_roles
 --**           Purpose:	This procedure creates and destroys the roles.
 --**  Calling Programs:	--
---**   Programs Called:	
---**			role_exists
---**			grantee_syspriv_exists
---**			grantee_rolepriv_exists
---**			role_rolepriv_exists
---**			role_syspriv_exists
+--**   Programs Called:	fs_db_admin.fs_exists_functions
+--**			fs_security_pkg.activity_stream
+--**			sys.sys_context
 --**   Tables Accessed:	
---**			dba_users
+--**			dba_role_privs
+--**			dba_roles
+--**			v$instance
 --**   Tables Modified:	--
 --**  Passed Variables:
---**			p_rolechoice		-- Selection c,s, or b.
+--**			p_rolechoice		-- Selection c, b, h or s.
 --**			p_status		-- Status message to check for errors.
 --**			p_error_message		-- The actual error message.
 --**			p_debug			-- The debug level set by the original calling program.
@@ -3290,15 +3338,21 @@ END provide_basic_security;
 --**         Exception:	
 --**************************************************************************************************************************
 --**        Psudo code: 
---**			SELECT dba_users oracle_maintained = 'N' AND substr(username,1,3) = 'FS_'
---**				LOOP
---**				CASE
---**					WHEN x.account_status like '%LOCKED%'
---**						dbms_output
---**					ELSE
---**						secure_admin_user: scramble password and lock account
---**				END LOOP
---**			EXCEPTION
+--**			GLOBAL Agreed to Roles: FS_SESSION, FS_CREATE
+--**			IF LOWER(p_rolechoice) = 'c' OR LOWER(p_rolechoice) = 'b' OR LOWER(p_rolechoice) = 'h'
+--**				NULL
+--**			IF LOWER(p_rolechoice) = 'c'
+--**				Switch roles for users to DBA and FS_SELECT_CATALOG_ROLE from FSDBA_ROLE and FS_CATALOG_ROLE
+--**				Drop roles FSDBA_ROLE and FS_CATALOG_ROLE
+--**			IF LOWER(p_rolechoice) = 's' OR LOWER(p_rolechoice) = 'b' OR LOWER(p_rolechoice) = 'h'
+--**				Create FS_DBA_ROLE and FS_CATALOG_ROLE.
+--**				Revoke FS_SELECT_CATALOG_ROLE and grant FS_CATALOG_ROLE
+--**			IF PROD revoke role from users and drop role.
+--**			IF not PROD then build FS_DEVELOPER_ROLE
+--**				Syspriv Grants
+--**				Protected Syspriv grants
+--**				Role grants
+--**			REVOKE grant of Roles to SYS	
 --**************************************************************************************************************************
 --
 --
@@ -3315,11 +3369,6 @@ AS
 	FROM dba_role_privs
 	WHERE granted_role IN (SELECT (column_value).getstringval() FROM xmltable('"FS_DBA_ROLE","FS_CATALOG_ROLE"'))
 	ORDER BY grantee;
-	--
- CURSOR c2 IS
-	SELECT role
-	FROM dba_roles
-	WHERE role in (SELECT (column_value).getstringval() FROM xmltable('"FS_DBA_ROLE","FS_CATALOG_ROLE"'));
  --
  CURSOR c3 IS
 	SELECT (column_value).getstringval() role 
@@ -3450,7 +3499,7 @@ BEGIN
 	END LOOP;
 	--
 	--********************************************************************
-	--** PROFILE CHOICE c OR b
+	--** PROFILE CHOICE c OR b OF h
 	--********************************************************************
 	IF LOWER(p_rolechoice) = 'c' OR LOWER(p_rolechoice) = 'b' OR LOWER(p_rolechoice) = 'h' THEN
 	       	--
@@ -3492,13 +3541,13 @@ BEGIN
 			--** FS_CATALOG_ROLE ROLE
 			--*****************************************
 			--
-			FOR c2_rec IN c2 LOOP
+			FOR c3_rec IN c3 LOOP
 				--
-				l_boolean := fs_db_admin.fs_exists_functions.role_exists(c2_rec.role);
+				l_boolean := fs_db_admin.fs_exists_functions.role_exists(c3_rec.role);
 				--
 				IF l_boolean = true THEN
 					--
-					activity_stream ( 'DROP ROLE '||c2_rec.role, '', 'ROLE DOES NOT EXIST', c2_rec.role||'.', false, 1, 'P1', p_debug);
+					activity_stream ( 'DROP ROLE '||c3_rec.role, '', 'ROLE DOES NOT EXIST', c3_rec.role||'.', false, 1, 'P1', p_debug);
 					--
 				END IF;
 			END LOOP;
@@ -3680,11 +3729,10 @@ END provide_roles;
 --
 --**************************************************************************************************************************
 --**         Procedure:	provide_profiles
---**           Purpose:	This procedure create the FSDBA legacy objects.
+--**           Purpose:	This procedure create the profiles.
 --**  Calling Programs:	--
---**   Programs Called:	
---**			profile_exists
---**			profile_limit_exists
+--**   Programs Called:	fs_db_admin.fs_exists_functions
+--**			fs_security_pkg.activity_stream
 --**   Tables Accessed:	
 --**			dba_users
 --**			dba_profiles
@@ -3704,9 +3752,8 @@ END provide_roles;
 --**			l_count			-- Count Variable
 --**			l_boolean		-- Choice Boolean
 --**           Cursors:	
---**			c1			-- Profile List FS_APP_PROFILE,FS_USER_PROFILE,FS_OWNER_PROFILE,
---**						-- FS_ADMIN_PROFILE,FS_TEMP_PROFILE
---**			c2			-- Username asociated to profile list.
+--**			c1			-- The Profile List.
+--**			c2			-- Username asociated to the profile list.
 --**			c3			-- Profile Exceptions SESSIONS_PER_USER,IDLE_TIME,PASSWORD_LIFE_TIME
 --**			c4			-- Profile exceptions SESSIONS_PER_USER
 --**			c5			-- Profile exceptions SESSIONS_PER_USER,FAILED_LOGIN_ATTEMPTS,
@@ -3717,15 +3764,12 @@ END provide_roles;
 --**         Exception:	--
 --**************************************************************************************************************************
 --**        Psudo code: 
---**			SELECT dba_users oracle_maintained = 'N' AND substr(username,1,3) = 'FS_'
---**				LOOP
---**				CASE
---**					WHEN x.account_status like '%LOCKED%'
---**						dbms_output
---**					ELSE
---**						secure_admin_user: scramble password and lock account
---**				END LOOP
---**			EXCEPTION
+--**			IF LOWER(p_profilechoice) = 'c'
+--**				Change users to default profile that have the a profile list profile. 
+--**				Drop the profile list profiles
+--**			ELSIF LOWER(p_profilechoice) = 's'
+--**				IF new profile exists verfiy execptions set correctly.
+--**				If new profiles don'r exist create them
 --**************************************************************************************************************************
 --
 --
@@ -4371,19 +4415,18 @@ END provide_profiles;
 --
 --**************************************************************************************************************************
 --**         Procedure:	provide_gis_roles
---**           Purpose:	This procedure creates or destroys the FSDBA legacy objects based on the value of the 
---**			p_legacyobjectschoice 
---**				c = Build Original Legacy Objects
---**				s = Do not build Original Legacy Objects and remove them if they exist.
+--**           Purpose:	This procedure createsd the GIS roles based on the setting 
+--**			p_providegisroles 
+--**				t = Build the GIS Roles
+--**				f = Do not Build the GIS Roles
 --**  Calling Programs:	--
---**   Programs Called:	--
+--**   Programs Called:	fs_db_admin.fs_exists_functions
+--**			fs_security_pkg.activity_stream
 --**   Tables Accessed:	
---**			dba_users
---**			fsdba.this_db_instance
---**			fsdba.db_instances
+--**			dba_role_privs
 --**   Tables Modified:	--
 --**  Passed Variables: 
---**			p_legacyobjectschoice	-- Choice Variable
+--**			p_gisroleschoice	-- Choice Variable
 --**			p_status		-- Status message to check for errors.
 --**			p_error_message		-- The actual error message.
 --**			p_debug			-- The debug level set by the original calling program.
@@ -4393,22 +4436,26 @@ END provide_profiles;
 --**			l_localprogramname	-- This programs name. (For debugging purposes.)
 --**			l_programmessage	-- The local debugging message.
 --**			l_sqltext		-- The DDL text
---**			l_count			-- Count Variable
 --**			l_boolean		-- Choice Boolean
---**           Cursors:	--
+--**           Cursors:	C1			-- Privileges for FS_GIS role.
+--**			C2			-- Privileges for FS_GIS_ADMIN role.
+--**			C3			-- Grantee's of FS_GIS role.
+--**			C4			-- Grantee's of FS_GIS_ADMIN role.
 --**           pragmas: --
 --**         Exception:	
 --**			soau_failure
 --**************************************************************************************************************************
 --**        Psudo code: 
---**			SELECT dba_users oracle_maintained = 'N' AND substr(username,1,3) = 'FS_'
---**				LOOP
---**				CASE
---**					WHEN x.account_status like '%LOCKED%'
---**						dbms_output
---**					ELSE
---**						secure_admin_user: scramble password and lock account
---**				END LOOP
+--**			IF p_providegisroles = 't'
+--**				CREATE FS_GIS role
+--**				GRANT privileges to FS_GIS role
+--**				CREATE FS_GIS_ADMIN role
+--**				GRANT privileges to FS_GIS_ADMIN role
+--**			ELSIF p_providegisroles = 'f'
+--**				flip roles of users from FS_GIS to FS_RESOURCE
+--**				DROP role FS_GIS
+--**				flip roles of users from FS_GIS_ADMIN to FS_RESOURCE
+--**				DROP role FS_GIS_ADMIN
 --**			EXCEPTION
 --**************************************************************************************************************************
 --
@@ -4538,19 +4585,18 @@ END provide_gis_roles;
 --
 --**************************************************************************************************************************
 --**         Procedure:	provide_public_grants
---**           Purpose:	This procedure creates or destroys the FSDBA legacy objects based on the value of the 
---**			p_legacyobjectschoice 
---**				c = Build Original Legacy Objects
---**				s = Do not build Original Legacy Objects and remove them if they exist.
+--**           Purpose:	This procedure grants public grants 
+--**			p_providepublicgrants 
+--**				c = Grant the Public Grants
+--**				s = Do not grant the public grants. Reovke of the grants happens in other procedure because
+--**				    12c security dependency once public grant happens.
 --**  Calling Programs:	--
---**   Programs Called:	--
---**   Tables Accessed:	
---**			dba_users
---**			fsdba.this_db_instance
---**			fsdba.db_instances
+--**   Programs Called:	fs_db_admin.fs_exists_functions
+--**			fs_security_pkg.activity_stream
+--**   Tables Accessed:	--
 --**   Tables Modified:	--
 --**  Passed Variables: 
---**			p_legacyobjectschoice	-- Choice Variable
+--**			p_publicgrantschoice	-- Choice Variable
 --**			p_status		-- Status message to check for errors.
 --**			p_error_message		-- The actual error message.
 --**			p_debug			-- The debug level set by the original calling program.
@@ -4562,21 +4608,17 @@ END provide_gis_roles;
 --**			l_sqltext		-- The DDL text
 --**			l_count			-- Count Variable
 --**			l_boolean		-- Choice Boolean
---**           Cursors:	--
+--**           Cursors:	C1			-- TABLES that SELECT privilege granted.
+--**			C2			-- Packages/Procedure that EXECUTE privileges granted.
 --**           pragmas: --
 --**         Exception:	
 --**			soau_failure
 --**************************************************************************************************************************
 --**        Psudo code: 
---**			SELECT dba_users oracle_maintained = 'N' AND substr(username,1,3) = 'FS_'
---**				LOOP
---**				CASE
---**					WHEN x.account_status like '%LOCKED%'
---**						dbms_output
---**					ELSE
---**						secure_admin_user: scramble password and lock account
---**				END LOOP
---**			EXCEPTION
+--**			IF p_providepublicgrants = 'c'
+--**				LOOP C1 SELECT
+--**				LOOP C2 EXECUTE
+--**			No 's' as the revoke has to happen outside of package.
 --**************************************************************************************************************************
 --
 --
@@ -4755,7 +4797,7 @@ END provide_public_grants;
 --
 PROCEDURE secure_database
 (
- p_provideroles			IN		VARCHAR2,		-- c, b, s
+ p_provideroles			IN		VARCHAR2,		-- c, b, h, s
  p_provideprofiles		IN		VARCHAR2,		-- c, s
  p_providepublicgrants		IN		VARCHAR2,		-- c, s
  p_provideusers			IN		VARCHAR2,		-- c, b, h, s
@@ -4806,28 +4848,28 @@ BEGIN
 	--** Check Basic Variable Input
 	--*******************************************
 	--
-	IF LOWER(p_provideroles) IN ('c', 'b', 'h', 's', 'y') THEN
+	IF LOWER(p_provideroles) IN ('c', 'b', 'h', 's') THEN
 		l_provideroles := LOWER(p_provideroles);
 	ELSE
 		l_badtrackingcnt := l_badtrackingcnt+1;
 		activity_stream ( '', '', 'CODE ERROR: Improper Input Value', 'Provide Roles: '||LOWER(p_provideroles)||'.', false, 1, 'P5', p_debug);
 	END IF;
 	--
-	IF LOWER(p_provideprofiles) IN ('c', 's', 'y') THEN
+	IF LOWER(p_provideprofiles) IN ('c', 's') THEN
 		l_provideprofiles := LOWER(p_provideprofiles);
 	ELSE
 		l_badtrackingcnt := l_badtrackingcnt+1;
 		activity_stream ( '', '', 'CODE ERROR: Improper Input Value', 'Provide Profiles: '||LOWER(p_provideprofiles)||'.', false, 1, 'P5', p_debug);
 	END IF;
 	--
-	IF LOWER(p_providepublicgrants) IN ('c', 's', 'y') THEN
+	IF LOWER(p_providepublicgrants) IN ('c', 's') THEN
 		l_providepublicgrants := LOWER(p_providepublicgrants);
 	ELSE
 		l_badtrackingcnt := l_badtrackingcnt+1;
 		activity_stream ( '', '', 'CODE ERROR: Improper Input Value', 'Provide Public Grants: '||LOWER(p_providepublicgrants)||'.', false, 1, 'P5', p_debug);
 	END IF;
 	--
-	IF LOWER(p_provideusers) IN ('c', 'b', 'h', 's', 'y') THEN
+	IF LOWER(p_provideusers) IN ('c', 'b', 'h', 's') THEN
 		l_provideusers := LOWER(p_provideusers);
 		g_provideusers := LOWER(p_provideusers);
 	ELSE
@@ -4835,21 +4877,21 @@ BEGIN
 		activity_stream ( '', '', 'CODE ERROR: Improper Input Value', 'Provide Users: '||LOWER(p_provideusers)||'.', false, 1, 'P5', p_debug);
 	END IF;
 	--
-	IF LOWER(p_providebasicsecurity) IN ('c', 'b', 's', 'y') THEN
+	IF LOWER(p_providebasicsecurity) IN ('c', 'b', 's') THEN
 		l_providebasicsecurity := LOWER(p_providebasicsecurity);
 	ELSE
 		l_badtrackingcnt := l_badtrackingcnt+1;
 		activity_stream ( '', '', 'CODE ERROR: Improper Input Value', 'Provide Basic Security: '||LOWER(p_providebasicsecurity)||'.', false, 1, 'P5', p_debug);
 	END IF;
 	--
-	IF LOWER(p_providelegacyobjects) IN ('c', 's', 'y') THEN
+	IF LOWER(p_providelegacyobjects) IN ('c', 's') THEN
 		l_providelegacyobjects := LOWER(p_providelegacyobjects);
 	ELSE
 		l_badtrackingcnt := l_badtrackingcnt+1;
 		activity_stream ( '', '', 'CODE ERROR: Improper Input Value', 'Provide Legacy Objects: '||LOWER(p_providelegacyobjects)||'.', false, 1, 'P5', p_debug);
 	END IF;
 	--
-	IF LOWER(p_providegisroles) IN ('t', 'f', 'y') THEN
+	IF LOWER(p_providegisroles) IN ('t', 'f') THEN
 		l_providegisroles := LOWER(p_providegisroles);
 	ELSE
 		l_badtrackingcnt := l_badtrackingcnt+1;
@@ -4863,7 +4905,7 @@ BEGIN
 		--*******************************************
 		--
 		IF l_provideusers = 'c' THEN
-			IF l_provideroles IN ('s', 'y') THEN
+			IF l_provideroles IN ('s') THEN
 				activity_stream ( '', '', 'CODE ERROR: Improper Input value', 'Modify Provide Roles: '||l_provideroles||' TO '||l_provideusers||'.', false, 1, 'P5', p_debug);
 				l_provideroles := 'h';
 			END IF;
@@ -4889,7 +4931,7 @@ BEGIN
 			END IF;
 		END IF;
 		--
-		IF l_providelegacyobjects = 'c' AND l_provideusers IN ('s', 'y') THEN
+		IF l_providelegacyobjects = 'c' AND l_provideusers IN ('s') THEN
 			activity_stream ( '', '', 'CODE ERROR: Improper Input value', 'Modify Provide Users: '||l_provideusers||' TO '||l_providelegacyobjects||'.', false, 1, 'P5', p_debug);
 			l_provideusers := l_providelegacyobjects;
 		END IF;
@@ -4914,79 +4956,49 @@ BEGIN
 		--*******************************************
 		--
 		IF p_debug <> -2 THEN
-			IF l_provideroles = 'y' THEN
-				NULL;
-			ELSE
-				provide_roles (l_provideroles, l_status, l_errormessage, p_debug);
-				IF l_status = 'ERROR' THEN
-					p_status := 'ERROR';
-					p_errormessage := p_errormessage||l_errormessage;
-				END IF;
+			provide_roles (l_provideroles, l_status, l_errormessage, p_debug);
+			IF l_status = 'ERROR' THEN
+				p_status := 'ERROR';
+				p_errormessage := p_errormessage||l_errormessage;
 			END IF;
 			--
-			IF l_provideprofiles = 'y' THEN
-				NULL;
-			ELSE
-				provide_profiles (l_provideprofiles, l_status, l_errormessage, p_debug);
-				IF l_status = 'ERROR' THEN
-					p_status := 'ERROR';
-					p_errormessage := p_errormessage||l_errormessage;
-				END IF;
+			provide_profiles (l_provideprofiles, l_status, l_errormessage, p_debug);
+			IF l_status = 'ERROR' THEN
+				p_status := 'ERROR';
+				p_errormessage := p_errormessage||l_errormessage;
 			END IF;
 			--
-			IF l_providepublicgrants = 'y' THEN
-				NULL;
-			ELSE
-				provide_public_grants (l_providepublicgrants, l_status, l_errormessage, p_debug);
-				IF l_status = 'ERROR' THEN
-					p_status := 'ERROR';
-					p_errormessage := p_errormessage||l_errormessage;
-				END IF;
+			provide_public_grants (l_providepublicgrants, l_status, l_errormessage, p_debug);
+			IF l_status = 'ERROR' THEN
+				p_status := 'ERROR';
+				p_errormessage := p_errormessage||l_errormessage;
 			END IF;
 			--
-			IF l_provideusers = 'y' THEN
-				NULL;
-			ELSE
-				provide_users (l_provideusers, l_status, l_errormessage, p_debug);
-				IF l_status = 'ERROR' THEN
-					p_status := 'ERROR';
-					p_errormessage := p_errormessage||l_errormessage;
-				END IF;
+			provide_users (l_provideusers, l_status, l_errormessage, p_debug);
+			IF l_status = 'ERROR' THEN
+				p_status := 'ERROR';
+				p_errormessage := p_errormessage||l_errormessage;
 			END IF;
 			--
-			IF l_providebasicsecurity = 'y' THEN
-				NULL;
-			ELSE
-				provide_basic_security (l_providebasicsecurity, l_status, l_errormessage, p_debug);
-				IF l_status = 'ERROR' THEN
-					p_status := 'ERROR';
-					p_errormessage := p_errormessage||l_errormessage;
-				END IF;
+			provide_basic_security (l_providebasicsecurity, l_status, l_errormessage, p_debug);
+			IF l_status = 'ERROR' THEN
+				p_status := 'ERROR';
+				p_errormessage := p_errormessage||l_errormessage;
 			END IF;
 			--
-			IF l_providelegacyobjects = 'y' THEN
-				NULL;
-			ELSE
-				provide_legacy_objects (l_providelegacyobjects, l_status, l_errormessage, p_debug);
-				IF l_status = 'ERROR' THEN
-					p_status := 'ERROR';
-					p_errormessage := p_errormessage||l_errormessage;
-				END IF;
+			provide_legacy_objects (l_providelegacyobjects, l_status, l_errormessage, p_debug);
+			IF l_status = 'ERROR' THEN
+				p_status := 'ERROR';
+				p_errormessage := p_errormessage||l_errormessage;
 			END IF;
 			--
-			IF l_providegisroles = 'y' THEN
-				NULL;
-			ELSE
-				provide_gis_roles (l_providegisroles, l_status, l_errormessage, p_debug);
-				IF l_status = 'ERROR' THEN
-					p_status := 'ERROR';
-					p_errormessage := p_errormessage||l_errormessage;
-				END IF;
+			provide_gis_roles (l_providegisroles, l_status, l_errormessage, p_debug);
+			IF l_status = 'ERROR' THEN
+				p_status := 'ERROR';
+				p_errormessage := p_errormessage||l_errormessage;
 			END IF;
-		ELSE
-			NULL;
+			--
 		END IF;
-		--
 	END IF;
 	--
 	g_fssecuritypasscnt := g_providerolespasscnt + g_provideprofilespasscnt + g_providepublicgrantspasscnt + g_provideuserspasscnt + g_providebasicsecuritypasscnt + g_providelegacyobjectspasscnt + g_providegisrolespasscnt;
@@ -5012,4 +5024,5 @@ END fs_security_pkg;
 /
 
 exit;
+
 

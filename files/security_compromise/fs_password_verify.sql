@@ -1,10 +1,23 @@
 connect / as sysdba
 
+CREATE OR REPLACE FUNCTION sys.fs_password_verify
+(
+ p_username			IN		VARCHAR2,
+ p_password			IN		VARCHAR2,
+ p_oldpassword			IN		VARCHAR2
+)
+RETURN boolean
 --
 --
 --**************************************************************************************************************************
---**         Procedure:	fs_password_verify
---**           Purpose:	This function is the sys owned funtion to perform profile based password_verification..
+--**   Procedure Name:	fs_password_verify
+--**      Application:	Puppet STIG Implementation
+--**           Schema:	sys
+--**          Authors:	Ed Taylor, eDBA
+--**			Matthew Parker, Oracle Puppet SME 
+--**          Comment:	This function is the sys owned funtion to perform profile based password_verification.
+--**************************************************************************************************************************
+--**************************************************************************************************************************
 --**  Calling Programs:	All.
 --**   Programs Called: --
 --**   Tables Accessed: --
@@ -36,13 +49,6 @@ connect / as sysdba
 --**************************************************************************************************************************
 --
 --
-CREATE OR REPLACE FUNCTION sys.fs_password_verify
-(
- p_username			IN		VARCHAR2,
- p_password			IN		VARCHAR2,
- p_oldpassword			IN		VARCHAR2
-)
-RETURN boolean
 IS
  l_localprogramname				VARCHAR2(128)		:= 'fs_password_verify';
  l_programmessage				CLOB;
@@ -301,4 +307,5 @@ END fs_password_verify;
 /
 
 exit
+
 

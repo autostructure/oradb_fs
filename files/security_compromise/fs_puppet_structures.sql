@@ -13,7 +13,7 @@ AS
 --
 --
 --**************************************************************************************************************************
---**      Package Name: fs_puppet_verify
+--**      Package Name: fs_puppet_structures
 --**       Application: OPS Puppet Verify
 --**            Schema: fs_dba_admin
 --**           Authors: Matthew Parker, Oracle Puppet SME 
@@ -30,9 +30,9 @@ AS
 --**			$db_instances is the p_dbinstances value in External Fact fqdn-servername.yaml file
 --**************************************************************************************************************************
 --**   Change Control:
---**	$Log: fs_db_admin.fs_puppet_verify.sql,v $
---**	Revision 1.0  2018/06/13 5:01:52  matthewparker
---**	Converted Original Puppet Verify Scripts into Package.
+--**	$Log: fs_db_admin.fs_puppet_structures.sql,v $
+--**	Revision 2.0.6  2018/07/29 12:29:02  matthewparker
+--**	
 --**************************************************************************************************************************
 --
 --
@@ -528,21 +528,21 @@ AS
 	SELECT rts.req_ts, tablespace_name, block_size, status, contents, logging, extent_management, segment_space_management, bigfile
 	FROM dba_tablespaces real_ts,
 	(SELECT (column_value).getstringval() req_ts
-		FROM xmltable('"INDEXES","LOCAL","USERS","FS_DB_ADMIN_DATA"')) rts
+		FROM xmltable('"USERS","FS_DB_ADMIN_DATA"')) rts
 	WHERE rts.req_ts = real_ts.tablespace_name (+)
 	ORDER BY rts.req_ts;
  --
  CURSOR c3 IS
 	SELECT group#, sum(the_val) the_sum, count(*) the_count
 	FROM (
-		SELECT group#, CASE WHEN is_recovery_dest_file = 'NO' THEN 1 ELSE -1 END the_val
-		FROM v$logfile)
+		select group#, CASE WHEN instr(member, 'fra') > 0 THEN 1  WHEN instr(member, 'data') > 0 THEN 2 ELSE -1 END the_val 
+		from v$logfile)
 	GROUP BY group#;
  --
  CURSOR c4 IS
 	SELECT block_size, sum(the_val) the_sum, count(*) the_count
 	FROM (
-		SELECT block_size, CASE WHEN is_recovery_dest_file = 'NO' THEN 1 ELSE -1 END the_val
+		SELECT block_size, CASE WHEN instr(name, 'fra') > 0 THEN 1  WHEN instr(name, 'data') > 0 THEN 2 ELSE -1 END the_val 
 		FROM v$controlfile)
 	GROUP BY block_size;
  --
@@ -753,6 +753,8 @@ BEGIN
 				END IF;
 			END IF;
 			--
+			activity_stream ( '', '', 'BASE TABLESPACE DATAFILE  SIZE', c1_rec.base_ts||':'||c5_rec.file_name||' cur: '||c5_rec.the_size||' tar: 800.', true, 1, 'P2', g_debug);
+/*
 			IF c5_rec.tablespace_name = 'SYSTEM' THEN
 				IF c5_rec.the_size < '800' THEN
 					--
@@ -762,7 +764,7 @@ BEGIN
 					--
 					activity_stream ( '', '', 'BASE TABLESPACE DATAFILE  SIZE', c1_rec.base_ts||':'||c5_rec.file_name||' cur: '||c5_rec.the_size||' tar: 800.', true, 1, 'P2', g_debug);
 					--
-				END IF;
+				--END IF;
 			ELSIF c5_rec.tablespace_name = 'SYSAUX' THEN
 				IF c5_rec.the_size < '600' THEN
 					--
@@ -795,6 +797,7 @@ BEGIN
 				END IF;
 			END IF;
 			--
+*/
 		END LOOP;
 		--
 	END LOOP;
@@ -902,17 +905,7 @@ BEGIN
 				--
 			END IF;
 			--
-			IF c5_rec.tablespace_name IN ('INDEXES', 'LOCAL') THEN
-				IF c5_rec.the_size < '100' THEN
-					--
-					activity_stream ( '', '', 'REQUIRED TABLESPACES DATAFILE SIZE', c2_rec.req_ts||':'||c5_rec.file_name||' cur: '||c5_rec.the_size||' tar: 100.' , false, 1, 'P1', g_debug);
-					--
-				ELSE
-					--
-					activity_stream ( '', '', 'REQUIRED TABLESPACES DATAFILE SIZE', c2_rec.req_ts||':'||c5_rec.file_name||' cur: '||c5_rec.the_size||' tar: 100.', true, 1, 'P2', g_debug);
-					--
-				END IF;
-			ELSIF c5_rec.tablespace_name IN ('USERS', 'FS_DB_ADMIN_DATA') THEN
+			IF c5_rec.tablespace_name IN ('USERS', 'FS_DB_ADMIN_DATA', 'FSDBA_DATA') THEN
 				IF c5_rec.the_size < '5' THEN
 					--
 					activity_stream ( '', '', 'REQUIRED TABLESPACES DATAFILE SIZE', c2_rec.req_ts||':'||c5_rec.file_name||' cur: '||c5_rec.the_size||' tar: 5.' , false, 1, 'P1', g_debug);
@@ -949,17 +942,17 @@ BEGIN
 			--
 			activity_stream ( l_sqltext, '', 'REQUIRED REDOLOGS PER GROUP', 'Group '||c3_rec.group#||': 2 Logs cur:'||c3_rec.the_count||' Logs.', true, 1, 'P2', g_debug);
 			--
-			IF c3_rec.the_sum = -2 THEN
+			IF c3_rec.the_sum = 2 THEN
 				--
 				activity_stream ( '', '', 'REDOLOG CONFIG', 'Group '||c3_rec.group#||': SMO: REDOLOGS On FRA Only.' , true, 1, 'P2', g_debug);
 				--
-			ELSIF c3_rec.the_sum = 0 THEN
+			ELSIF c3_rec.the_sum = 4 THEN
 				--
 				activity_stream ( l_sqltext, '', 'REDOLOG CONFIG', 'Group '||c3_rec.group#||': RMAN: REDOLOGS On DATA And FRA.', true, 1, 'P2', g_debug);
 				--
 			ELSE
 				--
-				activity_stream ( l_sqltext, '', 'REDOLOG CONFIG INCORRECT', 'Group '||c3_rec.group#||': REDOLOGS On DATA Only.', false, 1, 'P1', g_debug);
+				activity_stream ( l_sqltext, '', 'REDOLOG CONFIG INCORRECT', 'Group '||c3_rec.group#||': REDOLOGS UNKNOWN Config.', false, 1, 'P1', g_debug);
 				--
 			END IF;
 		END IF;
@@ -976,17 +969,17 @@ BEGIN
 			--
 			activity_stream ( l_sqltext, '', 'REQUIRED CONTROLFILE PAIR', '2 Controlfiles cur:'||c4_rec.the_count||' Controlfiles.', true, 1, 'P2', g_debug);
 			--
-			IF c4_rec.the_sum = -2 THEN
+			IF c4_rec.the_sum = 2 THEN
 				--
 				activity_stream ( '', '', 'CONTROLFILE CONFIG', 'SMO: CONTROLFILES On FRA Only.' , true, 1, 'P2', g_debug);
 				--
-			ELSIF c4_rec.the_sum = 0 THEN
+			ELSIF c4_rec.the_sum = 4 THEN
 				--
 				activity_stream ( l_sqltext, '', 'CONTROLFILE CONFIG', 'RMAN: CONTROLFILES On DATA And FRA.', true, 1, 'P2', g_debug);
 				--
 			ELSE
 				--
-				activity_stream ( l_sqltext, '', 'CONTROLFILE CONFIG INCORRECT', 'CONTROLFILES On DATA Only.', false, 1, 'P1', g_debug);
+				activity_stream ( l_sqltext, '', 'CONTROLFILE CONFIG INCORRECT', 'CONTROLFILES UNKNOWN Config.', false, 1, 'P1', g_debug);
 				--
 			END IF;
 		END IF;
@@ -1065,7 +1058,7 @@ BEGIN
 		activity_stream ( '', '', 'FEATURE NOT CURRENTLY INSTALLED', 'SDO - Spatial.', true, 1, 'P2', g_debug);
 		--
 	END IF;
-	--
+/*	--
 	SELECT count(*) into l_count
 	FROM DBA_REGISTRY
 	WHERE COMP_ID = 'ORDIM';
@@ -1080,7 +1073,7 @@ BEGIN
 		activity_stream ( '', '', 'FEATURE INSTALLED', 'Install to prevent possible upgrade issues - Oracle Doc ID: 179472.1', false, 1, 'P5', g_debug);
 		--
 	END IF;
-	--
+*/	--
 	FOR c1_rec IN c1 LOOP
 		IF c1_rec.value = 'FALSE' THEN
 			--
@@ -1130,10 +1123,8 @@ PROCEDURE init_params_special
  p_spval			IN		VARCHAR2,
  p_dbblocksize			IN		VARCHAR2,
  p_processes			IN		VARCHAR2,
- p_memorytarget			IN		VARCHAR2,
- p_memorymaxtarget		IN		VARCHAR2,
- p_opencursors			IN		VARCHAR2,
- p_dbrecoveryfiledestsize	IN		VARCHAR2,
+ p_sgatarget			IN		VARCHAR2,
+ p_pgaaggregatetarget		IN		VARCHAR2,
  p_debug			IN		NUMBER
 )
 AS
@@ -1164,55 +1155,26 @@ BEGIN
 			activity_stream ( l_sqltext, '', 'INITIALIZATION PARAMETERS MEMORY/SPFILE', p_name||'='||p_processes||': mem:'||p_memval||' sp:'||p_spval||'.', false, 1, 'P1', g_debug);
 			--
 		END IF;
-	ELSIF p_name = 'memory_target' THEN
-		IF p_memval = p_memorytarget and p_spval = p_memorytarget THEN
-		--
-		activity_stream ( '', '', 'INITIALIZATION PARAMETERS MEMORY/SPFILE', p_name||'='||p_memorytarget||': mem:'||p_memval||' sp:'||p_spval||'.', true, 1, 'P2', g_debug);
-		--
-		ELSE
-			l_boolean := fs_db_admin.fs_exists_functions.init_param_value_spfile_exists('memory_max_target', p_memorytarget);
-				IF l_boolean = true THEN
-					--
-					activity_stream ( '', '', 'INITIALIZATION PARAMETERS MEMORY/SPFILE', p_name||'='||p_memorytarget||': mem:'||p_memval||' , sp:'||p_spval||'.', true, 1, 'P2', g_debug);
-					--
-				ELSE
-					l_sqltext := 'ALTER SYSTEM SET '||p_name||'='||p_memorytarget||' SID='||''''||'*'||''''||' SCOPE=BOTH';
-					--
-					activity_stream ( l_sqltext, '', 'INITIALIZATION PARAMETERS MEMORY/SPFILE', p_name||'='||p_memorytarget||': mem:'||p_memval||' sp:'||p_spval||'.', false, 1, 'P1', g_debug);
-					--
-				END IF;
-		END IF;
-	ELSIF p_name = 'memory_max_target' THEN
-		IF p_memval = p_memorymaxtarget and p_spval = p_memorymaxtarget THEN
+	ELSIF p_name = 'sga_target' THEN
+		IF p_memval = p_sgatarget and p_spval = p_sgatarget THEN
 			--
-			activity_stream ( '', '', 'INITIALIZATION PARAMETERS MEMORY/SPFILE', p_name||'='||p_memorymaxtarget||': mem:'||p_memval||' sp:'||p_spval||'.', true, 1, 'P2', g_debug);
+			activity_stream ( '', '', 'INITIALIZATION PARAMETERS MEMORY/SPFILE', p_name||'='||p_sgatarget||': mem:'||p_memval||' sp:'||p_spval||'.', true, 1, 'P2', g_debug);
 			--
 		ELSE
-			l_sqltext := 'ALTER SYSTEM SET '||p_name||'='||p_memorymaxtarget||' SID='||''''||'*'||''''||' SCOPE=BOTH';
+			l_sqltext := 'ALTER SYSTEM SET '||p_name||'='||p_sgatarget||' SID='||''''||'*'||''''||' SCOPE=SPFILE';
 			--
-			activity_stream ( l_sqltext, '', 'INITIALIZATION PARAMETERS MEMORY/SPFILE', p_name||'='||p_memorymaxtarget||': mem:'||p_memval||' sp:'||p_spval||'.', false, 1, 'P1', g_debug);
+			activity_stream ( l_sqltext, '', 'INITIALIZATION PARAMETERS MEMORY/SPFILE', p_name||'='||p_sgatarget||': mem:'||p_memval||' sp:'||p_spval||'.', false, 1, 'P1', g_debug);
 			--
 		END IF;
-	ELSIF p_name = 'open_cursors' THEN
-		IF p_memval = p_opencursors and p_spval = p_opencursors THEN
+	ELSIF p_name = 'pga_aggregate_target' THEN
+		IF p_memval = p_pgaaggregatetarget and p_spval = p_pgaaggregatetarget THEN
 			--
-			activity_stream ( '', '', 'INITIALIZATION PARAMETERS MEMORY/SPFILE', p_name||'='||p_opencursors||': mem:'||p_memval||' sp:'||p_spval||'.', true, 1, 'P2', g_debug);
-			--
-		ELSE
-			l_sqltext := 'ALTER SYSTEM SET '||p_name||'='||p_opencursors||' SID='||''''||'*'||''''||' SCOPE=BOTH';
-			--
-			activity_stream ( l_sqltext, '', 'INITIALIZATION PARAMETERS MEMORY/SPFILE', p_name||'='||p_opencursors||': mem:'||p_memval||' sp:'||p_spval||'.', false, 1, 'P1', g_debug);
-			--
-		END IF;
-	ELSIF p_name = 'db_recovery_file_dest_size' THEN
-		IF p_memval = p_dbrecoveryfiledestsize and p_spval = p_dbrecoveryfiledestsize THEN
-			--
-			activity_stream ( '', '', 'INITIALIZATION PARAMETERS MEMORY/SPFILE', p_name||'='||p_dbrecoveryfiledestsize||': mem:'||p_memval||' sp:'||p_spval||'.', true, 1, 'P2', g_debug);
+			activity_stream ( '', '', 'INITIALIZATION PARAMETERS MEMORY/SPFILE', p_name||'='||p_pgaaggregatetarget||': mem:'||p_memval||' sp:'||p_spval||'.', true, 1, 'P2', g_debug);
 			--
 		ELSE
-			l_sqltext := 'ALTER SYSTEM SET '||p_name||'='||p_dbrecoveryfiledestsize||' SID='||''''||'*'||''''||' SCOPE=BOTH';
+			l_sqltext := 'ALTER SYSTEM SET '||p_name||'='||p_pgaaggregatetarget||' SID='||''''||'*'||''''||' SCOPE=BOTH';
 			--
-			activity_stream ( l_sqltext, '', 'INITIALIZATION PARAMETERS MEMORY/SPFILE', p_name||'='||p_dbrecoveryfiledestsize||': mem:'||p_memval||' sp:'||p_spval||'.', false, 1, 'P1', g_debug);
+			activity_stream ( l_sqltext, '', 'INITIALIZATION PARAMETERS MEMORY/SPFILE', p_name||'='||p_pgaaggregatetarget||': mem:'||p_memval||' sp:'||p_spval||'.', false, 1, 'P1', g_debug);
 			--
 		END IF;
 	END IF;
@@ -1226,7 +1188,8 @@ END init_params_special;
 --**			g_programmessage global variable for the verify program along with calling the exec_ddl procedure
 --**			for passed ddl.
 --**  Calling Programs:	--
---**   Programs Called: fs_db_admin.fs_exists_functions.exec_ddl
+--**   Programs Called: fs_exists_functions
+--**			fs_puppet_structures.exec_ddl
 --**   Tables Accessed: --
 --**   Tables Modified:	--
 --**  Passed Variables: --
@@ -1265,28 +1228,23 @@ AS
 	CASE WHEN srp.value=spp.value THEN 0 ELSE 1 END sp_decision,
 	srp.value reqval, mp.value memval, spp.value spval
 	FROM v$parameter mp, v$spparameter spp, 
-	(SELECT 'db_create_file_dest' name, l_datavol value FROM dual UNION
-	SELECT 'db_recovery_file_dest' name, l_fravol value FROM dual UNION
-	SELECT 'audit_file_dest' name, l_orabase||'/admin/'||l_dbname||'/adump' value FROM dual UNION
-	SELECT 'audit_trail' name, 'OS' value FROM dual UNION
-	SELECT 'compatible' name, '12.2.0.0.0' value FROM dual UNION
-	SELECT 'db_name' name, l_dbname value FROM dual UNION
-	SELECT 'db_domain' name, l_dbdomain value FROM dual UNION
-	SELECT 'diagnostic_dest' name, l_orabase value FROM dual UNION
-	SELECT 'dispatchers' name, '(PROTOCOL=TCP) (SERVICE='||l_dbname||'XDB)' value FROM dual UNION
-	SELECT 'remote_login_passwordfile' name, 'EXCLUSIVE' value FROM dual UNION
-	SELECT 'undo_tablespace' name, 'UNDOTBS1' value FROM dual UNION
-	SELECT 'statistics_level' name, 'TYPICAL' value FROM dual UNION
-	SELECT 'lock_sga' name, 'FALSE' value FROM dual UNION
-	SELECT 'db_cache_size' name, '0' value FROM dual UNION
-	SELECT 'db_cache_advice' name, 'ON' value FROM dual UNION
-	SELECT 'workarea_size_policy' name, 'AUTO' value FROM dual UNION
-	SELECT 'global_names' name, 'TRUE' value FROM dual UNION
-	SELECT 'log_buffer' name, '10485760' value FROM dual UNION
-	SELECT 'streams_pool_size' name, '0' value FROM dual UNION
-	SELECT 'java_pool_size' name, '318767104' value FROM dual UNION
-	SELECT 'pga_aggregate_target' name, '314572800' value FROM dual UNION
-	SELECT 'shared_pool_size' name, '788529152' value FROM dual) srp
+	(SELECT 'audit_file_dest' name, l_orabase||'/admin/'||l_dbname||'/adump' value FROM dual UNION
+	 SELECT 'audit_trail' name, 'OS' value FROM dual UNION
+	 SELECT 'compatible' name, '12.2.0.0.0' value FROM dual UNION
+	 SELECT 'db_create_file_dest' name, l_datavol value FROM dual UNION
+	 SELECT 'db_name' name, l_dbname value FROM dual UNION
+	 SELECT 'db_recovery_file_dest' name, l_fravol value FROM dual UNION
+	 SELECT 'db_recovery_file_dest_size' name, '2147483648' value FROM dual UNION
+	 SELECT 'diagnostic_dest' name, l_orabase value FROM dual UNION
+	 SELECT 'dispatchers' name, '(PROTOCOL=TCP) (SERVICE='||l_dbname||'XDB)' value FROM dual UNION
+	 SELECT 'nls_language' name, 'AMERICAN' value FROM dual UNION
+	 SELECT 'nls_territory' name, 'AMERICA' value FROM dual UNION 
+	 SELECT 'open_cursors' name, '300' value FROM dual UNION
+	 SELECT 'remote_login_passwordfile' name, 'EXCLUSIVE' value FROM dual UNION
+	 SELECT 'undo_tablespace' name, 'UNDOTBS1' value FROM dual UNION
+	 SELECT 'global_names' name, 'TRUE' value FROM dual UNION
+	 SELECT 'db_domain' name, l_dbdomain value FROM dual UNION
+	 SELECT 'log_buffer' name, '10485760' value FROM dual) srp
 	WHERE srp.name = mp.name (+)
 	AND srp.name = spp.name (+);
  --
@@ -1300,7 +1258,7 @@ AS
 	mp.value memval, spp.value spval
 	FROM v$parameter mp, v$spparameter spp,
 	(SELECT (column_value).getstringval() name
-	FROM xmltable('"db_recovery_file_dest_size", "processes","memory_target","memory_max_target", "open_cursors", "db_block_size"')) srp
+	FROM xmltable('"processes","sga_target","pga_aggregate_target", "db_block_size"')) srp
 	WHERE srp.name = mp.name (+)
 	AND srp.name = spp.name (+);
  --
@@ -1399,11 +1357,11 @@ BEGIN
 					--
 					l_sqltext := 'ALTER SYSTEM SET '||c1_rec.name||'='||''''||c1_rec.reqval||''''||' SID='||''''||'*'||''''||' SCOPE=SPFILE';
 					--
-				ELSIF c1_rec.name IN ('lock_sga', 'log_buffer') THEN
+				ELSIF c1_rec.name IN ('log_buffer') THEN
 					--
 					l_sqltext := 'ALTER SYSTEM SET '||c1_rec.name||'='||c1_rec.reqval||' SID='||''''||'*'||''''||' SCOPE=SPFILE';
 					--
-				ELSIF c1_rec.name IN ('global_names', 'streams_pool_size', 'java_pool_size', 'pga_aggregate_target', 'shared_pool_size') THEN
+				ELSIF c1_rec.name IN ('global_names') THEN
 					--
 					l_sqltext := 'ALTER SYSTEM SET '||c1_rec.name||'='||c1_rec.reqval||' SID='||''''||'*'||''''||' SCOPE=BOTH';
 					--
@@ -1411,9 +1369,8 @@ BEGIN
 					l_sqltext := 'ALTER SYSTEM SET '||c1_rec.name||'='||''''||c1_rec.reqval||''''||' SID='||''''||'*'||''''||' SCOPE=BOTH';
 				END IF;
 				--
-				IF c1_rec.name IN ('db_cache_size') AND c1_rec.reqval = 0 AND c1_rec.spval = 0 THEN
-					activity_stream ( '', '', 'INITIALIZATION PARAMETERS MEMORY/SPFILE', c1_rec.name||'='||c1_rec.reqval||': mem:'||c1_rec.memval||' , sp:'||c1_rec.spval||'.', true, 1, 'P2', g_debug);
-				ELSIF c1_rec.name IN ('audit_file_dest', 'diagnostic_dest', 'db_create_file_dest', 'dispatchers', 'db_recovery_file_dest') THEN
+				
+				IF c1_rec.name IN ('audit_file_dest', 'diagnostic_dest', 'db_create_file_dest', 'dispatchers', 'db_recovery_file_dest') THEN
 					--
 					activity_stream ( l_sqltext, '', 'INITIALIZATION PARAMETERS MEMORY/SPFILE', c1_rec.name||'='||c1_rec.reqval||'.', false, 1, 'P1', g_debug);
 					--
@@ -1502,120 +1459,104 @@ BEGIN
 		END LOOP;
 	END IF;
 	--
-	IF LOWER(g_dbtemplate) = 'small_8k' THEN
+	IF LOWER(g_dbtemplate) = 'db01g_8k' THEN
+		-- processes=300
+		-- sga_target=786432000
+		-- pga_aggregate_target=262144000
+		l_dbblocksize:='8192';
+		l_processes:='300';
+		l_sgatarget:='788529152';
+		l_pgaaggregatetarget:='260046848';
+		FOR c2_rec IN c2 LOOP
+			init_params_special (c2_rec.name,c2_rec.memval,c2_rec.spval,l_dbblocksize,l_processes,l_sgatarget,l_pgaaggregatetarget,g_debug);
+		END LOOP;
+	ELSIF LOWER(g_dbtemplate) = 'db02g_8k' THEN
 		-- processes=500
-		-- memory_target=2048MB
-		-- memory_max_target=2048MB
-		-- open_cursors=500
-		-- db_recovery_file_dest_size=2048MB
+		-- sga_target=1572864000
+		-- pga_aggregate_target=524288000
+		l_dbblocksize:='8192';
+		l_processes:='300';
+		l_sgatarget:='1577058304';
+		l_pgaaggregatetarget:='520093696';
+		FOR c2_rec IN c2 LOOP
+			init_params_special (c2_rec.name,c2_rec.memval,c2_rec.spval,l_dbblocksize,l_processes,l_sgatarget,l_pgaaggregatetarget,g_debug);
+		END LOOP;
+	ELSIF LOWER(g_dbtemplate) = 'db04g_8k' THEN
+		-- processes=500
+		-- sga_target=3145728000
+		-- pga_aggregate_target=1048576000
 		l_dbblocksize:='8192';
 		l_processes:='500';
-		l_memorytarget:='2147483648';
-		l_memorymaxtarget:='2147483648';
-		l_opencursors:='500';
-		l_dbrecoveryfiledestsize:='2147483648';
+		l_sgatarget:='3154116608';
+		l_pgaaggregatetarget:='1040187392';
 		FOR c2_rec IN c2 LOOP
-			init_params_special (c2_rec.name,c2_rec.memval,c2_rec.spval,l_dbblocksize,l_processes,l_memorytarget,l_memorymaxtarget,l_opencursors,l_dbrecoveryfiledestsize,g_debug);
+			init_params_special (c2_rec.name,c2_rec.memval,c2_rec.spval,l_dbblocksize,l_processes,l_sgatarget,l_pgaaggregatetarget,g_debug);
 		END LOOP;
-	ELSIF LOWER(g_dbtemplate) = 'medium_8k' THEN
+	ELSIF LOWER(g_dbtemplate) = 'db08g_8k' THEN
 		-- processes=750
-		-- memory_target=4096MB
-		-- memory_max_target=4096MB
-		-- open_cursors=800
-		-- db_recovery_file_dest_size=2048MB
+		-- sga_target=6291456000
+		-- pga_aggregate_target=2097152000
 		l_dbblocksize:='8192';
 		l_processes:='750';
-		l_memorytarget:='4294967296';
-		l_memorymaxtarget:='4294967296';
-		l_opencursors:='800';
-		l_dbrecoveryfiledestsize:='2147483648';
+		l_sgatarget:='6291456000';
+		l_pgaaggregatetarget:='2097152000';
 		FOR c2_rec IN c2 LOOP
-			init_params_special (c2_rec.name,c2_rec.memval,c2_rec.spval,l_dbblocksize,l_processes,l_memorytarget,l_memorymaxtarget,l_opencursors,l_dbrecoveryfiledestsize,g_debug);
+			init_params_special (c2_rec.name,c2_rec.memval,c2_rec.spval,l_dbblocksize,l_processes,l_sgatarget,l_pgaaggregatetarget,g_debug);
 		END LOOP;
-	ELSIF LOWER(g_dbtemplate) = 'large_8k' THEN
-		-- processes=1000
-		-- memory_target=8192MB
-		-- memory_max_target=8192MB
-		-- open_cursors=1000
-		-- db_recovery_file_dest_size=10100MB
-		l_dbblocksize:='8192';
-		l_processes:='1000';
-		l_memorytarget:='8589934592';
-		l_memorymaxtarget:='8589934592';
-		l_opencursors:='1000';
-		l_dbrecoveryfiledestsize:='10590617600';
-		FOR c2_rec IN c2 LOOP
-			init_params_special (c2_rec.name,c2_rec.memval,c2_rec.spval,l_dbblocksize,l_processes,l_memorytarget,l_memorymaxtarget,l_opencursors,l_dbrecoveryfiledestsize,g_debug);
-		END LOOP;
-	ELSIF LOWER(g_dbtemplate) = 'xlarge_8k' THEN
-		-- processes=1500
-		-- memory_target=12288MB
-		-- memory_max_target=12288MB
-		-- open_cursors=1200
-		-- db_recovery_file_dest_size=10100MB
-		l_dbblocksize:='8192';
-		l_processes:='1500';
-		l_memorytarget:='12884901888';
-		l_memorymaxtarget:='12884901888';
-		l_opencursors:='1200';
-		l_dbrecoveryfiledestsize:='10590617600';
-		FOR c2_rec IN c2 LOOP
-			init_params_special (c2_rec.name,c2_rec.memval,c2_rec.spval,l_dbblocksize,l_processes,l_memorytarget,l_memorymaxtarget,l_opencursors,l_dbrecoveryfiledestsize,g_debug);
-		END LOOP;
-	ELSIF LOWER(g_dbtemplate) = 'small_16k' THEN
-		l_dbblocksize:='16384';
-		l_processes:='500';
-		l_memorytarget:='2147483648';
-		l_memorymaxtarget:='2147483648';
-		l_opencursors:='500';
-		l_dbrecoveryfiledestsize:='2147483648';
-		FOR c2_rec IN c2 LOOP
-			init_params_special (c2_rec.name,c2_rec.memval,c2_rec.spval,l_dbblocksize,l_processes,l_memorytarget,l_memorymaxtarget,l_opencursors,l_dbrecoveryfiledestsize,g_debug);
-		END LOOP;
-	ELSIF LOWER(g_dbtemplate) = 'medium_16k' THEN
+	ELSIF LOWER(g_dbtemplate) = 'db12g_8k' THEN
 		-- processes=750
-		-- memory_target=4096MB
-		-- memory_max_target=4096MB
-		-- open_cursors=800
-		-- db_recovery_file_dest_size=2048MB
-		l_dbblocksize:='16384';
+		-- sga_target=9437184000
+		-- pga_aggregate_target=3145728000
+		l_dbblocksize:='8192';
 		l_processes:='750';
-		l_memorytarget:='4294967296';
-		l_memorymaxtarget:='4294967296';
-		l_opencursors:='800';
-		l_dbrecoveryfiledestsize:='2147483648';
+		l_sgatarget:='9445572608';
+		l_pgaaggregatetarget:='3137339392';
 		FOR c2_rec IN c2 LOOP
-			init_params_special (c2_rec.name,c2_rec.memval,c2_rec.spval,l_dbblocksize,l_processes,l_memorytarget,l_memorymaxtarget,l_opencursors,l_dbrecoveryfiledestsize,g_debug);
+			init_params_special (c2_rec.name,c2_rec.memval,c2_rec.spval,l_dbblocksize,l_processes,l_sgatarget,l_pgaaggregatetarget,g_debug);
 		END LOOP;
-	ELSIF LOWER(g_dbtemplate) = 'large_16k' THEN
+	ELSIF LOWER(g_dbtemplate) = 'db16g_8k' THEN
 		-- processes=1000
-		-- memory_target=8192MB
-		-- memory_max_target=8192MB
-		-- open_cursors=1000
-		-- db_recovery_file_dest_size=10100MB
-		l_dbblocksize:='16384';
+		-- sga_target=12582912000
+		-- pga_aggregate_target=4194304000
+		l_dbblocksize:='8192';
 		l_processes:='1000';
-		l_memorytarget:='8589934592';
-		l_memorymaxtarget:='8589934592';
-		l_opencursors:='1000';
-		l_dbrecoveryfiledestsize:='10590617600';
+		l_sgatarget:='12582912000';
+		l_pgaaggregatetarget:='4194304000';
 		FOR c2_rec IN c2 LOOP
-			init_params_special (c2_rec.name,c2_rec.memval,c2_rec.spval,l_dbblocksize,l_processes,l_memorytarget,l_memorymaxtarget,l_opencursors,l_dbrecoveryfiledestsize,g_debug);
+			init_params_special (c2_rec.name,c2_rec.memval,c2_rec.spval,l_dbblocksize,l_processes,l_sgatarget,l_pgaaggregatetarget,g_debug);
 		END LOOP;
-	ELSIF LOWER(g_dbtemplate) = 'xlarge_16k' THEN
-		-- processes=1500
-		-- memory_target=12288MB
-		-- memory_max_target=12288MB
-		-- open_cursors=1200
-		-- db_recovery_file_dest_size=10100MB
-		l_dbblocksize:='16384';
-		l_processes:='1500';
-		l_memorytarget:='12884901888';
-		l_memorymaxtarget:='12884901888';
-		l_opencursors:='1200';
-		l_dbrecoveryfiledestsize:='10590617600';
+	ELSIF LOWER(g_dbtemplate) = 'db24g_8k' THEN
+		-- processes=1000
+		-- sga_target=18874368000
+		-- pga_aggregate_target=6291456000
+		l_dbblocksize:='8192';
+		l_processes:='1000';
+		l_sgatarget:='18874368000';
+		l_pgaaggregatetarget:='6291456000';
 		FOR c2_rec IN c2 LOOP
-			init_params_special (c2_rec.name,c2_rec.memval,c2_rec.spval,l_dbblocksize,l_processes,l_memorytarget,l_memorymaxtarget,l_opencursors,l_dbrecoveryfiledestsize,g_debug);
+			init_params_special (c2_rec.name,c2_rec.memval,c2_rec.spval,l_dbblocksize,l_processes,l_sgatarget,l_pgaaggregatetarget,g_debug);
+		END LOOP;
+	ELSIF LOWER(g_dbtemplate) = 'db16g_16k' THEN
+		-- processes=1000
+		-- sga_target=10066329600
+		-- pga_aggregate_target=6710886400
+		l_dbblocksize:='8192';
+		l_processes:='1000';
+		l_sgatarget:='10066329600';
+		l_pgaaggregatetarget:='6710886400';
+		FOR c2_rec IN c2 LOOP
+			init_params_special (c2_rec.name,c2_rec.memval,c2_rec.spval,l_dbblocksize,l_processes,l_sgatarget,l_pgaaggregatetarget,g_debug);
+		END LOOP;
+	ELSIF LOWER(g_dbtemplate) = 'db24g_16k' THEN
+		-- processes=1000
+		-- sga_target=15099494400
+		-- pga_aggregate_target=10066329600
+		l_dbblocksize:='8192';
+		l_processes:='1000';
+		l_sgatarget:='15099494400';
+		l_pgaaggregatetarget:='10066329600';
+		FOR c2_rec IN c2 LOOP
+			init_params_special (c2_rec.name,c2_rec.memval,c2_rec.spval,l_dbblocksize,l_processes,l_sgatarget,l_pgaaggregatetarget,g_debug);
 		END LOOP;
 	ELSE
 		NULL;
@@ -1849,3 +1790,6 @@ END fs_puppet_structures;
 /
 
 exit
+
+
+

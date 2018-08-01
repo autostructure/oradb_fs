@@ -20,8 +20,8 @@ AS
 --**************************************************************************************************************************
 --**   Change Control:
 --**	$Log: fs_db_admin.fs_puppet_formatted_text.sql,v $
---**	Revision 1.0  2018/05/01 5:01:52  matthewparker
---**	Converted Original Puppet Verify Scripts into Package.
+--**	Revision 1.0  2018/05/30 7:04:36  matthewparker
+--**	
 --**************************************************************************************************************************
 --
 --
@@ -407,4 +407,5 @@ END fs_puppet_format_output;
 /
 
 exit
+
 

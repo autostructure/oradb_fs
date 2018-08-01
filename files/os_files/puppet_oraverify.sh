@@ -442,7 +442,7 @@ if [ -f /usr/local/bin/puppet_oraverify.sh ] ; then
   echo -e "${GREEN}#`printf " %-54s" "File Existence"`#`printf " %-72s" "/usr/local/bin/puppet_oraverify.sh"`# PASS   #${NC}"
  fi
  ora_bootstrap_verification_pass=$((ora_bootstrap_verification_pass+1))
- if [ $(/bin/cat /usr/local/bin/puppet_oraverify.sh | grep -v '##~DO NOT REMOVE THIS~##' | sha256sum | awk '{print $1}') = 'dae149e3d1df5aab709084873c02f0a00f321e211f41140c469fb100297a9f64' ] ; then ##~DO NOT REMOVE THIS~##
+ if [ $(/bin/cat /usr/local/bin/puppet_oraverify.sh | grep -v '##~DO NOT REMOVE THIS~##' | sha256sum | awk '{print $1}') = 'f19cbceaa0113d969aea721813e0b55c9e5b2ad2eda707dea0c4b2998f9aab77' ] ; then ##~DO NOT REMOVE THIS~##
   if [[ "$2" = "detail" ]] ; then
     echo -e "${GREEN}#`printf " %-54s" "File Checksum"`#`printf " %-72s" "/usr/local/bin/puppet_oraverify.sh"`# PASS   #${NC}"
   fi
@@ -2855,7 +2855,7 @@ FILE_LIST=(8a1828c17727124a3d134facb581fc183d0a41efaf65603d911c3dbb33607e8b:arch
            e94a45b5072b1b5d17994ea0bd18ab3f72d458f7ed96040304a342ab9e910549:dbmaint_start.job
            61319f285a7ec9045a50ca2377c41fc65c369e4d66bb42d70ca97c8a49e92520:dbsize.sql
            dbd9af0e4f773a6a0713218cbfd6b4f54144f1984c41eb43607468d1a8f895c5:db_start.sql
-           be72c93dd6d9f22352d763207ed176f822926e4d795b7a111b1bc39995afc34d:FSoptions.sql
+           b5e6f9c5d9d161969d48828b0e7a9cac98416705ab8f1541226a1af2fa352fdb:FSoptions.sql
            f23b96c8e68cdf460dbef822248e6f5512cb3bf39782227b9e7b77e239ea1241:FSutlrp.sql
            0c2e0c01205f56b0cc7e92cf7fd142f451d840cf24e46f481a88ce91bc4e28d8:get_sid.ksh
            83846d36ed1437dfa6c46cfda4f5662ee07f558f0799b3dc7abb9dca18cdfeaa:global_name.sql

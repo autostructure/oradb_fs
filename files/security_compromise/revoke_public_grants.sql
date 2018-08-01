@@ -1,11 +1,18 @@
 connect / as sysdba
 
+CREATE OR REPLACE PROCEDURE fs_db_admin.revoke_public_grants
+AUTHID CURRENT_USER
 --
 --
 --**************************************************************************************************************************
---**         Procedure:	revoke_public_grants
---**           Purpose:	This procedure revokes the public grants associated to the db_instances scripts.
---**  Calling Programs:	--
+--**   Procedure Name:	fs_exists_functions
+--**      Application:	Puppet Verification
+--**           Schema:	fs_dba_admin
+--**          Authors:	Matthew Parker, Oracle Puppet SME 
+--**          Comment:	This procedure revokes the public grants associated to the db_instances scripts.
+--**************************************************************************************************************************
+--**************************************************************************************************************************
+--**  Calling Programs:	External
 --**   Programs Called: --
 --**   Tables Accessed: --
 --**   Tables Modified:	--
@@ -13,18 +20,21 @@ connect / as sysdba
 --** Passed Global Var:	--
 --**   Global Var Mods:	--
 --**   Local Variables: --
---**           Cursors:	--
+--**			l_sqltext			dynamic SQL
+--**			l_count				Count variable for existence
+--**           Cursors:
+--**			C1				tracking tables/views to be granted to public.
+--**			C2				tracking execute right objects.
 --**           pragmas: --
 --**         Exception: --
 --**************************************************************************************************************************
 --**        Psudo code: 
---**			
+--**			Loop c1 cursor and revoke public grants.
+--**			Loop c2 curosr and revoke public execute grants.
 --**			
 --**************************************************************************************************************************
 --
 --
-CREATE OR REPLACE PROCEDURE fs_db_admin.revoke_public_grants
-AUTHID CURRENT_USER
 AS
  CURSOR c1 IS
 	SELECT (column_value).getstringval() tabs
@@ -72,4 +82,5 @@ END revoke_public_grants;
 /
 
 exit
+
 
