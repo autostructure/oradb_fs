@@ -406,6 +406,7 @@ END fs_puppet_format_output;
 --
 /
 
-exit
+exit;
+
 
 

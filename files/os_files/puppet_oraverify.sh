@@ -442,7 +442,7 @@ if [ -f /usr/local/bin/puppet_oraverify.sh ] ; then
   echo -e "${GREEN}#`printf " %-54s" "File Existence"`#`printf " %-72s" "/usr/local/bin/puppet_oraverify.sh"`# PASS   #${NC}"
  fi
  ora_bootstrap_verification_pass=$((ora_bootstrap_verification_pass+1))
- if [ $(/bin/cat /usr/local/bin/puppet_oraverify.sh | grep -v '##~DO NOT REMOVE THIS~##' | sha256sum | awk '{print $1}') = 'f19cbceaa0113d969aea721813e0b55c9e5b2ad2eda707dea0c4b2998f9aab77' ] ; then ##~DO NOT REMOVE THIS~##
+ if [ $(/bin/cat /usr/local/bin/puppet_oraverify.sh | grep -v '##~DO NOT REMOVE THIS~##' | sha256sum | awk '{print $1}') = 'dd37a6a0b53acb5414cfd8243bd67e2eb0c5ddc3f295a5382ba61850fe6da17c' ] ; then ##~DO NOT REMOVE THIS~##
   if [[ "$2" = "detail" ]] ; then
     echo -e "${GREEN}#`printf " %-54s" "File Checksum"`#`printf " %-72s" "/usr/local/bin/puppet_oraverify.sh"`# PASS   #${NC}"
   fi
@@ -477,7 +477,7 @@ if [ -f /usr/local/bin/sql/dbint_verification.sql ] ; then
   echo -e "${GREEN}#`printf " %-54s" "File Existence"`#`printf " %-72s" "/usr/local/bin/sql/dbint_verification.sql"`# PASS   #${NC}"
  fi
  ora_bootstrap_verification_pass=$((ora_bootstrap_verification_pass+1))
- if [ $(sha256sum /usr/local/bin/sql/dbint_verification.sql | awk '{print $1}') = '938acf33543dc402fefa473b0964cff49736c24c0a80c890328f41db07811312' ] ; then
+ if [ $(sha256sum /usr/local/bin/sql/dbint_verification.sql | awk '{print $1}') = 'afdeeda444c9b56c8ea9f8871abd0681e2eb969e711eb40e9b9cf36934456292' ] ; then
   if [[ "$2" = "detail" ]] ; then
    echo -e "${GREEN}#`printf " %-54s" "File Checksum"`#`printf " %-72s" "/usr/local/bin/sql/dbint_verification.sql"`# PASS   #${NC}"
   fi
@@ -3490,7 +3490,7 @@ do
             export LD_LIBRARY_PATH=\$ORACLE_HOME/lib
             export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/opt/puppetlabs/bin:/root/bin:\$ORACLE_HOME/bin
             export ORACLE_SID=${DB_INFO[1]}
-            sqlplus -S /nolog @/usr/local/bin/sql/dbint_verification.sql ${DB_INFO[2]} ${DB_INFO[1]} $HOSTNAME_D /opt/oracle/oradata/data${DB_INFO[3]} /opt/oracle/oradata/fra${DB_INFO[3]} /opt/oracle ${SEC_INFO[0]} ${SEC_INFO[1]} ${SEC_INFO[2]} ${SEC_INFO[3]} ${SEC_INFO[4]} ${SEC_INFO[5]} ${SEC_INFO[6]} /tmp/${HUMAN}_${DB_INFO[1]}_dbint_verification.txt " - oracle 2>/dev/null
+            sqlplus -S /nolog @/usr/local/bin/sql/dbint_verification.sql ${DB_INFO[2]} ${DB_INFO[1]} $HOSTNAME_D /opt/oracle/oradata/data${DB_INFO[3]} /opt/oracle/oradata/fra${DB_INFO[3]} /opt/oracle ${SEC_INFO[0]} ${SEC_INFO[1]} /tmp/${HUMAN}_${DB_INFO[1]}_dbint_verification.txt " - oracle 2>/dev/null
    
           mapfile -t DBINT_VERIFICATION_OUTPUT < <( cat /tmp/${HUMAN}_${DB_INFO[1]}_dbint_verification.txt | sed "/^$/d;s/:/\n/" ) 
           (( dbint_verification_pass = dbint_verification_pass + ${DBINT_VERIFICATION_OUTPUT[0]} ))

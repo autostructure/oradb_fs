@@ -18,12 +18,7 @@
 --**          $6 is the value of $ORACLE_BASE, e.g., '/opt/oracle'
 --**          $7 is the first security parameter of the fs_security_pkg.secure_database procedure
 --**          $8 is the second security parameter of the fs_security_pkg.secure_database procedure
---**          $9 is the third security parameter of the fs_security_pkg.secure_database procedure
---**          $10 is the fourth security parameter of the fs_security_pkg.secure_database procedure
---**          $11 is the fifth security parameter of the fs_security_pkg.secure_database procedure
---**          $12 is the sixth security parameter of the fs_security_pkg.secure_database procedure
---**          $13 is the sixth security parameter of the fs_security_pkg.secure_database procedure
---**          $14 is the fully pathed /tmp output file where pass/fail counts will be stored
+--**          $9 is the fully pathed /tmp output file where pass/fail counts will be stored
 --****************************************************************************************************
 --****************************************************************************************************
 --
@@ -72,7 +67,7 @@ connect /  as sysdba
    :db_pass := :db_pass + l_dbstructurepasscnt;
    :db_fail := :db_fail + l_dbstructurefailcnt;
 
-   fs_db_admin.fs_security_pkg.secure_database ('&7','&8','&9','&10','&11','&12','&13',l_passcnt, l_failcnt, l_status, l_errormessage, '-1');
+   fs_db_admin.fs_security_pkg.secure_database ('&7','&8', l_passcnt, l_failcnt, l_status, l_errormessage, '-1');
 
    :db_pass := :db_pass + l_passcnt;
    :db_fail := :db_fail + l_failcnt;
@@ -84,7 +79,7 @@ connect /  as sysdba
  /
 
  SET TERMOUT OFF
- spool &14
+ spool &9
 
  SELECT :db_pass || ':' || :db_fail from dual;
 

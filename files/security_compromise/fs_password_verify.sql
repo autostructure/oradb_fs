@@ -194,7 +194,7 @@ BEGIN
 	--** in length.
 	--*************************************************************
 	--
-	IF LENGTH(p_password) < 15 THEN
+	IF LENGTH(p_password) < 12 THEN
 		--
 		fs_db_admin.fs_puppet_format_output.format_entries ( 'l1', '', '#', 'USER', p_username||': Password Length Less Than 15 Bytes In Length.', '', 'FAIL','','','','');
 		--
@@ -208,8 +208,8 @@ BEGIN
 	--** STIG ID: O121-C2-014400 - require 2 special characters
 	--*************************************************************
 	--
-	IF REGEXP_COUNT(p_password, '([1234567890])', 1) < 2 OR REGEXP_COUNT(p_password, '([abcdefghijklmnopqrstuvwxyz])', 1, 'c') < 2 
-		OR REGEXP_COUNT(p_password, '([ABCDEFGHIJKLMNOPQRSTUVWXYZ])', 1, 'c') < 2 OR count_special(p_password)  < 2 THEN
+	IF REGEXP_COUNT(p_password, '([1234567890])', 1) < 1 OR REGEXP_COUNT(p_password, '([abcdefghijklmnopqrstuvwxyz])', 1, 'c') < 1 
+		OR REGEXP_COUNT(p_password, '([ABCDEFGHIJKLMNOPQRSTUVWXYZ])', 1, 'c') < 1 OR count_special(p_password)  < 1 THEN
 		--
 		fs_db_admin.fs_puppet_format_output.format_entries ( 'l1', '', '#', 'USER', p_username||': Password must contain at least two upper, two lower, two numbers and two special characters.', '', 'FAIL','','','','');
 		--
@@ -306,6 +306,7 @@ EXCEPTION
 END fs_password_verify;
 /
 
-exit
+exit;
+
 
 

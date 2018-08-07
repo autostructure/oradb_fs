@@ -52,50 +52,45 @@ RETURN BOOLEAN ;
 --
 PROCEDURE set_i_am_automation
 (
- p_automation			IN		BOOLEAN		-- Variable to determine if this is automation.
+ p_automation				IN		BOOLEAN						-- Variable to determine if this is automation.
 );
 --
 --
 FUNCTION fs_password_verify
 (
- p_username			IN		VARCHAR2,
- p_password			IN		VARCHAR2,
- p_oldpassword			IN		VARCHAR2
+ p_username				IN		VARCHAR2,
+ p_password				IN		VARCHAR2,
+ p_oldpassword				IN		VARCHAR2
 )
 RETURN boolean;
 --
 --
 FUNCTION random_password
 (
- p_pwlength			IN		INTEGER DEFAULT 15,
- p_debug			IN		NUMBER			-- Turn on DEBUG.
+ p_pwlength				IN		INTEGER DEFAULT 15,
+ p_debug				IN		NUMBER			-- Turn on DEBUG.
 ) 
 RETURN VARCHAR2;
 --
 --
 PROCEDURE secure_users
 (
- p_action			IN		VARCHAR2 DEFAULT 'b',	-- s, f, b
- p_status			OUT		VARCHAR2,		-- Status message to check for errors.
- p_errormessage			OUT		VARCHAR2,		-- The actual error message.
- p_debug			IN		NUMBER			-- Turn on DEBUG.
+ p_action				IN		VARCHAR2 DEFAULT 'b',	-- p, l, b
+ p_status				OUT		VARCHAR2,		-- Status message to check for errors.
+ p_errormessage				OUT		VARCHAR2,		-- The actual error message.
+ p_debug				IN		NUMBER			-- Turn on DEBUG.
 );
 --
 --
 PROCEDURE secure_database
 (
- p_provideroles			IN		VARCHAR2,		-- c, b, h, s
- p_provideprofiles		IN		VARCHAR2,		-- c, s
- p_providepublicgrants		IN		VARCHAR2,		-- c, s
- p_provideusers			IN		VARCHAR2,		-- c, b, h, s
- p_providebasicsecurity		IN		VARCHAR2,		-- c, s
- p_providelegacyobjects		IN		VARCHAR2,		-- c, s
- p_providegisroles		IN		VARCHAR2,		-- t, f
- p_passcnt			OUT		NUMBER,
- p_failcnt			OUT		NUMBER,
- p_status			OUT		VARCHAR2,		-- Status message to check for errors.
- p_errormessage			OUT		VARCHAR2,		-- The actual error message.
- p_debug			IN		NUMBER			-- Turn on DEBUG.
+ p_providedbinstancesobjects		IN		VARCHAR2,				-- t, f
+ p_providegisroles			IN		VARCHAR2,		-- t, f
+ p_passcnt				OUT		NUMBER,
+ p_failcnt				OUT		NUMBER,
+ p_status				OUT		VARCHAR2,		-- Status message to check for errors.
+ p_errormessage				OUT		VARCHAR2,		-- The actual error message.
+ p_debug				IN		NUMBER			-- Turn on DEBUG.
 );
 --
 --
@@ -138,37 +133,37 @@ CREATE OR REPLACE PACKAGE BODY fs_db_admin.fs_security_pkg IS
 --**************************************************************************************************************************
 --
 --
-g_iamautomation			BOOLEAN		DEFAULT false;
-g_programmessage		CLOB;
-g_dbinstance			VARCHAR2(32);
-g_orahome			VARCHAR2(128);
-g_programcontext		VARCHAR2(32);
-g_providerolespasscnt		NUMBER;
-g_providerolesfailcnt		NUMBER;
-g_provideprofilespasscnt	NUMBER;
-g_provideprofilesfailcnt	NUMBER;
-g_providepublicgrantspasscnt	NUMBER;
-g_providepublicgrantsfailcnt	NUMBER;
-g_provideuserspasscnt		NUMBER;
-g_provideusersfailcnt		NUMBER;
-g_providebasicsecuritypasscnt	NUMBER;
-g_providebasicsecurityfailcnt	NUMBER;
-g_providebassecpasswarncnt	NUMBER;
-g_providebassecfailwarncnt	NUMBER;
-g_providelegacyobjectspasscnt	NUMBER;
-g_providelegacyobjectsfailcnt	NUMBER;
-g_providelegobjpasswarncnt	NUMBER;
-g_providelegobjfailwarncnt	NUMBER;
-g_providegisrolespasscnt	NUMBER;
-g_providegisrolesfailcnt	NUMBER;
-g_fssecuritypasscnt		NUMBER;
-g_fssecurityfailcnt		NUMBER;
-g_fssecuritypasswarncnt		NUMBER;
-g_fssecurityfailwarncnt		NUMBER;
-g_provideusers			VARCHAR2(1);
-g_droplegobj			BOOLEAN		DEFAULT false;
-g_dropbassecobj			BOOLEAN		DEFAULT false;
-g_debug				NUMBER		DEFAULT 0;
+g_iamautomation				BOOLEAN		DEFAULT false;
+g_programmessage			CLOB;
+g_dbinstance				VARCHAR2(32);
+g_orahome				VARCHAR2(128);
+g_programcontext			VARCHAR2(32);
+g_providerolespasscnt			NUMBER;
+g_providerolesfailcnt			NUMBER;
+g_provideprofilespasscnt		NUMBER;
+g_provideprofilesfailcnt		NUMBER;
+g_providepublicgrantspasscnt		NUMBER;
+g_providepublicgrantsfailcnt		NUMBER;
+g_provideuserspasscnt			NUMBER;
+g_provideusersfailcnt			NUMBER;
+g_providebasicsecuritypasscnt		NUMBER;
+g_providebasicsecurityfailcnt		NUMBER;
+g_providebassecpasswarncnt		NUMBER;
+g_providebassecfailwarncnt		NUMBER;
+g_providedbinstancesobjectspasscnt	NUMBER;
+g_providedbinstancesobjectsfailcnt	NUMBER;
+g_providelegobjpasswarncnt		NUMBER;
+g_providelegobjfailwarncnt		NUMBER;
+g_providegisrolespasscnt		NUMBER;
+g_providegisrolesfailcnt		NUMBER;
+g_fssecuritypasscnt			NUMBER;
+g_fssecurityfailcnt			NUMBER;
+g_fssecuritypasswarncnt			NUMBER;
+g_fssecurityfailwarncnt			NUMBER;
+g_provideusers				VARCHAR2(1);
+g_droplegobj				BOOLEAN		DEFAULT false;
+g_dropbassecobj				BOOLEAN		DEFAULT false;
+g_debug					NUMBER		DEFAULT 0;
 --
 --
 --**************************************************************************************************************************
@@ -216,7 +211,7 @@ g_debug				NUMBER		DEFAULT 0;
 --**           pragmas: --
 --**         Exception: --
 --**************************************************************************************************************************
---**        Psudo code: 
+--**        Pseudo code: 
 --**			RETURN g_iamautomation
 --**			EXCEPTION
 --**************************************************************************************************************************
@@ -224,9 +219,9 @@ g_debug				NUMBER		DEFAULT 0;
 --
 PROCEDURE exec_ddl
 (
- p_sqltext			IN		VARCHAR2,
- p_sqltextsecure		IN		VARCHAR2,
- p_debug			IN		VARCHAR2
+ p_sqltext				IN		VARCHAR2,
+ p_sqltextsecure			IN		VARCHAR2,
+ p_debug				IN		VARCHAR2
 )
 IS
 BEGIN
@@ -253,42 +248,37 @@ END exec_ddl;
 --**   Tables Accessed: --
 --**   Tables Modified:	--
 --**  Passed Variables:
---**			p_sqltext			-- DDL
---**			p_sqltextsecure			-- Secure DDL (obscured PW for output)
---**			p_col1text			-- Main Column Message Text
---**			p_col2text			-- Secondary Column Message Text
---**			p_boolean			-- True/False for pass.
---**			p_verifycount			-- Count for Verify
---**			p_path				-- Message Choice/Path
---**			p_debug				-- Output Variable: The debug level set by the original calling program.
+--**			p_sqltext				-- DDL
+--**			p_sqltextsecure				-- Secure DDL (obscured PW for output)
+--**			p_col1text				-- Main Column Message Text
+--**			p_col2text				-- Secondary Column Message Text
+--**			p_boolean				-- True/False for pass.
+--**			p_verifycount				-- Count for Verify
+--**			p_path					-- Message Choice/Path
+--**			p_debug					-- Output Variable: The debug level set by the original calling program.
 --** Passed Global Var:	
---**			g_programcontext		-- Local program for WARN variable.
---**			g_dropbassecobj			-- Special variable to handle for dropped object action seen by two procs only counted once.
+--**			g_programcontext			-- Local program for WARN variable.
+--**			g_dropbassecobj				-- Special variable to handle for dropped object action seen by two procs only counted once.
 --**   Global Var Mods:	
---**			g_providerolespasscnt		-- Provide Role Pass Count
---**			g_providerolesfailcnt		-- Provide Role Fail Count
---**			g_provideprofilespasscnt	-- Provide Profile Pass Count
---**			g_provideprofilesfailcnt	-- Provide Profile Fail Count
---**			g_providepublicgrantspasscnt	-- Provide Public Grant Pass Count
---**			g_providepublicgrantsfailcnt	-- Provide Public Grant Fail Count
---**			g_provideuserspasscnt		-- Provide User Pass Count
---**			g_provideusersfailcnt		-- Provide User Fail Count
---**			g_providebasicsecuritypasscnt	-- Provide Basic Security Pass Count
---**			g_providebasicsecurityfailcnt	-- Provide Basic Security Fail Count
---**			g_providebasicsecuritywarncnt	-- Provide Basic Security Warn Count
---**			g_providelegacyobjectspasscnt	-- Provide Legacy Object Pass Count
---**			g_providelegacyobjectsfailcnt	-- Provide Legacy Object Fail Count
---**			g_providelegacyobjectswarncnt	-- Provide Legacy Object Warn Count
---**			g_providegisrolespasscnt	-- Provide Role Pass Count
---**			g_providegisroleswarncnt	-- Provide Role Fail Count
+--**			g_providerolespasscnt			-- Provide Role Pass Count
+--**			g_providerolesfailcnt			-- Provide Role Fail Count
+--**			g_provideprofilespasscnt		-- Provide Profile Pass Count
+--**			g_provideprofilesfailcnt		-- Provide Profile Fail Count
+--**			g_provideuserspasscnt			-- Provide User Pass Count
+--**			g_provideusersfailcnt			-- Provide User Fail Count
+--**			g_providedbinstancesobjectspasscnt	-- Provide DBInstances Object Pass Count
+--**			g_providedbinstancesobjectsfailcnt	-- Provide DBInstances Object Fail Count
+--**			g_providedbinstancesobjectswarncnt	-- Provide DBInstances Object Warn Count
+--**			g_providegisrolespasscnt		-- Provide Role Pass Count
+--**			g_providegisroleswarncnt		-- Provide Role Fail Count
 --**   Local Variables: 
---**			l_booleantext			-- Translate true/false boolean to text
---**			l_pfw				-- Transalte pass/fail booelan to text
+--**			l_booleantext				-- Translate true/false boolean to text
+--**			l_pfw					-- Transalte pass/fail booelan to text
 --**           Cursors:	--
 --**           pragmas: --
 --**         Exception: --
 --**************************************************************************************************************************
---**        Psudo code: 
+--**        Pseudo code: 
 --**			Convert boolean
 --**			Determine procdure subfunction and add to global variable count
 --**			execute DDL
@@ -299,14 +289,14 @@ END exec_ddl;
 --
 PROCEDURE activity_stream
 (
- p_sqltext			IN		VARCHAR2,
- p_sqltextsecure		IN		VARCHAR2,
- p_col1text			IN		VARCHAR2,
- p_col2text			IN		VARCHAR2,
- p_boolean			IN		BOOLEAN,
- p_verifycount			IN		NUMBER,
- p_path				IN		VARCHAR2,
- p_debug			IN		NUMBER
+ p_sqltext				IN		VARCHAR2,
+ p_sqltextsecure			IN		VARCHAR2,
+ p_col1text				IN		VARCHAR2,
+ p_col2text				IN		VARCHAR2,
+ p_boolean				IN		BOOLEAN,
+ p_verifycount				IN		NUMBER,
+ p_path					IN		VARCHAR2,
+ p_debug				IN		NUMBER
 )
 IS
  l_booleantext		VARCHAR2(5);
@@ -334,43 +324,22 @@ BEGIN
 		ELSE
 			g_provideprofilesfailcnt := g_provideprofilesfailcnt+p_verifycount;
 		END IF;
-	ELSIF g_programcontext = 'provide_public_grants' THEN
-		IF p_boolean = true THEN
-			g_providepublicgrantspasscnt := g_providepublicgrantspasscnt+p_verifycount;
-		ELSE
-			g_providepublicgrantsfailcnt := g_providepublicgrantsfailcnt+p_verifycount;
-		END IF;
 	ELSIF g_programcontext = 'provide_users' THEN
 		IF p_boolean = true THEN
 			g_provideuserspasscnt := g_provideuserspasscnt+p_verifycount;
 		ELSE
 			g_provideusersfailcnt := g_provideusersfailcnt+p_verifycount;
 		END IF;
-	ELSIF g_programcontext = 'provide_basic_security' THEN
-		IF p_boolean = true THEN
-			IF g_dropbassecobj = false THEN
-				g_providebasicsecuritypasscnt := g_providebasicsecuritypasscnt+p_verifycount;
-			ELSE
-				g_providebassecpasswarncnt := g_providebassecpasswarncnt+p_verifycount;
-			END IF;
-		ELSE
-			IF g_dropbassecobj = false THEN
-				g_providebasicsecurityfailcnt := g_providebasicsecurityfailcnt+p_verifycount;
-			ELSE
-				g_providebassecfailwarncnt := g_providebassecfailwarncnt+p_verifycount;
-			END IF;
-			
-		END IF;
-	ELSIF g_programcontext = 'provide_legacy_objects' THEN
+	ELSIF g_programcontext = 'provide_dbinstances_objects' THEN
 		IF p_boolean = true  THEN
 			IF g_droplegobj = false THEN
-				g_providelegacyobjectspasscnt := g_providelegacyobjectspasscnt+p_verifycount;
+				g_providedbinstancesobjectspasscnt := g_providedbinstancesobjectspasscnt+p_verifycount;
 			ELSE
 				g_providelegobjpasswarncnt := g_providelegobjpasswarncnt+p_verifycount;
 			END IF;
 		ELSE
 			IF g_droplegobj = false THEN
-				g_providelegacyobjectsfailcnt := g_providelegacyobjectsfailcnt+p_verifycount;
+				g_providedbinstancesobjectsfailcnt := g_providedbinstancesobjectsfailcnt+p_verifycount;
 			ELSE
 				g_providelegobjfailwarncnt := g_providelegobjfailwarncnt+p_verifycount;
 			END IF;
@@ -454,18 +423,12 @@ BEGIN
 		ELSIF g_programcontext = 'provide_profiles' THEN
 			fs_db_admin.fs_puppet_format_output.format_entries ( 's1', 'provide_profiles', '#', p_col1text,
 									 p_col2text, '','',g_provideprofilespasscnt,g_provideprofilesfailcnt,'','');
-		ELSIF g_programcontext = 'provide_public_grants' THEN
-			fs_db_admin.fs_puppet_format_output.format_entries ( 's1', 'provide_public_grants', '#', p_col1text,
-									 p_col2text, '','',g_providepublicgrantspasscnt,g_providepublicgrantsfailcnt,'','');
 		ELSIF g_programcontext = 'provide_users' THEN
 			fs_db_admin.fs_puppet_format_output.format_entries ( 's1', 'provide_users', '#', p_col1text,
 									 p_col2text, '','',g_provideuserspasscnt,g_provideusersfailcnt,'','');
-		ELSIF g_programcontext = 'provide_basic_security' THEN
-			fs_db_admin.fs_puppet_format_output.format_entries ( 's1', 'provide_basic_security', '#', p_col1text,
-									 p_col2text, '','',g_providebasicsecuritypasscnt,g_providebasicsecurityfailcnt,g_providebassecpasswarncnt,g_providebassecfailwarncnt);
-		ELSIF g_programcontext = 'provide_legacy_objects' THEN
-			fs_db_admin.fs_puppet_format_output.format_entries ( 's1', 'provide_legacy_objects', '#', p_col1text,
-									 p_col2text, '','',g_providelegacyobjectspasscnt,g_providelegacyobjectsfailcnt,g_providelegobjpasswarncnt,g_providelegobjfailwarncnt);
+		ELSIF g_programcontext = 'provide_dbinstances_objects' THEN
+			fs_db_admin.fs_puppet_format_output.format_entries ( 's1', 'provide_dbinstances_objects', '#', p_col1text,
+									 p_col2text, '','',g_providedbinstancesobjectspasscnt,g_providedbinstancesobjectsfailcnt,g_providelegobjpasswarncnt,g_providelegobjfailwarncnt);
 		ELSIF g_programcontext = 'provide_gis_roles' THEN
 			fs_db_admin.fs_puppet_format_output.format_entries ( 's1', 'provide_gis_roles', '#', p_col1text,
 									 p_col2text, '','',g_providegisrolespasscnt,g_providegisrolesfailcnt,'','');
@@ -517,7 +480,7 @@ END activity_stream;
 --**			rdbms/admin/catpvf.sql - Create Password Verify Function, STIG profile
 --**			Copyright (c) 2013, 2016, Oracle and/or its affiliates. All rights reserved.
 --**************************************************************************************************************************
---**        Psudo code: 
+--**        Pseudo code: 
 --**			PW Length check 15 to 30
 --**			Construct PW Meeting Compliance Rules
 --**			Check for 3x repeating characters
@@ -527,8 +490,8 @@ END activity_stream;
 --
 FUNCTION count_special
 (
- p_password			IN		VARCHAR2,
- p_debug			IN		INTEGER
+ p_password				IN		VARCHAR2,
+ p_debug				IN		INTEGER
 ) 
 RETURN INTEGER 
 IS
@@ -592,7 +555,7 @@ END count_special;
 --**			rdbms/admin/catpvf.sql - Create Password Verify Function, STIG profile
 --**			Copyright (c) 2013, 2016, Oracle and/or its affiliates. All rights reserved.
 --**************************************************************************************************************************
---**        Psudo code: 
+--**        Pseudo code: 
 --**			PW Length check 15 to 30
 --**			Construct PW Meeting Compliance Rules
 --**			Check for 3x repeating characters
@@ -602,9 +565,9 @@ END count_special;
 --
 FUNCTION string_distance
 (
- p_s			IN		VARCHAR2,
- p_t			IN		VARCHAR2,
- p_debug		IN		INTEGER
+ p_s					IN		VARCHAR2,
+ p_t					IN		VARCHAR2,
+ p_debug				IN		INTEGER
 )
 RETURN INTEGER IS
  l_slen			INTEGER		:= NVL(LENGTH(p_s), 0);
@@ -695,7 +658,7 @@ END string_distance;
 --**         Exception:	
 --**			soau_failure
 --**************************************************************************************************************************
---**        Psudo code: 
+--**        Pseudo code: 
 --**			PW Length check 15 to 30
 --**			Construct PW Meeting Compliance Rules
 --**			Check for 3x repeating characters
@@ -774,7 +737,7 @@ END spec_char;
 --**         Exception:	
 --**			soau_failure
 --**************************************************************************************************************************
---**        Psudo code: 
+--**        Pseudo code: 
 --**			g_iamautomation := p_automation
 --**			EXCEPTION
 --**************************************************************************************************************************
@@ -782,11 +745,11 @@ END spec_char;
 --
 PROCEDURE secure_admin_user
 (
- p_username			IN		VARCHAR2,
- p_accountstatus		IN		VARCHAR2 DEFAULT 'LOCK',
- p_status			OUT		VARCHAR2,				-- Status message to check for errors.
- p_errormessage			OUT		VARCHAR2,				-- The actual error message.
- p_debug			IN		NUMBER					-- Turn on DEBUG.
+ p_username				IN		VARCHAR2,
+ p_accountstatus			IN		VARCHAR2 DEFAULT 'LOCK',
+ p_status				OUT		VARCHAR2,				-- Status message to check for errors.
+ p_errormessage				OUT		VARCHAR2,				-- The actual error message.
+ p_debug				IN		NUMBER					-- Turn on DEBUG.
 )
 IS 
  l_localprogramname				VARCHAR2(128) := 'secure_admin_user';
@@ -842,8 +805,8 @@ END secure_admin_user;
 --
 --
 --**************************************************************************************************************************
---**         Procedure:	drop_fsdba_bassecobj
---**           Purpose:	This procedure drops the objects and grants surrounding login_db_instances legacy objects.
+--**         Procedure:	drop_login_db_instances_obj
+--**           Purpose:	This procedure drops the objects and grants surrounding login_db_instances objects.
 --**  Calling Programs:	--
 --**   Programs Called: --
 --**   Tables Accessed: --
@@ -856,113 +819,29 @@ END secure_admin_user;
 --**           pragmas: --
 --**         Exception: --
 --**************************************************************************************************************************
---**        Psudo code: 
+--**        Pseudo code: 
 --**			RETURN g_iamautomation
 --**			EXCEPTION
 --**************************************************************************************************************************
 --
 --
-PROCEDURE drop_fsdba_bassecobj
+PROCEDURE drop_login_db_instances_obj
 (
- p_debug		IN		NUMBER
+ p_debug				IN		NUMBER
 )
 AS
 --
- l_localprogramname				VARCHAR2(128) := 'drop_fsdba_bassecobj';
- l_programmessage				CLOB;
- l_sqltext					CLOB;
- l_count					NUMBER;
- l_verifycount					NUMBER;
- l_boolean					BOOLEAN;
- l_pathtrue					VARCHAR2(3);
- l_pathfalse					VARCHAR2(3);
+ l_localprogramname			VARCHAR2(128) := 'drop_login_db_instances_obj';
+ l_programmessage			CLOB;
+ l_sqltext				CLOB;
+ l_count				NUMBER;
+ l_verifycount				NUMBER;
+ l_boolean				BOOLEAN;
+ l_pathtrue				VARCHAR2(3);
+ l_pathfalse				VARCHAR2(3);
 --
 BEGIN
-	IF g_programcontext = 'provide_base_security' THEN
-		l_verifycount := 0;
-		l_pathfalse := 'P3';
-		l_pathtrue := 'P4';
-		g_dropbassecobj := true;
-	ELSE
-		l_verifycount := 1;
-		l_pathfalse := 'P1';
-		l_pathtrue := 'P2';
-		g_dropbassecobj := false;
-	END IF;
-	--
-	--**********************************************
-	--** Remove items Built under option "c" or 
-	--** Option "b".
-	--**********************************************
-	--
-	--
-	l_boolean := fs_db_admin.fs_exists_functions.object_exists ('FSDBA', 'CREATE_RPWD_LOCK', 'PROCEDURE');
-	--
-        IF l_boolean = true THEN
-		--
-		activity_stream ( 'DROP PROCEDURE fsdba.create_rpwd_lock', '', 'PROCEDURE DOES NOT EXIST', 'fsdba.create_rpwd_lock.', false, l_verifycount, l_pathfalse, p_debug);
-		--
-	ELSE
-		--
-		activity_stream ( '', '', 'PROCEDURE DOES NOT EXIST', 'fsdba.create_rpwd_lock.', true, l_verifycount, l_pathtrue, p_debug);
-		--
-	END IF;
-	--
-	l_boolean := fs_db_admin.fs_exists_functions.object_exists ('FSDBA', 'CREATE_RPWD', 'PROCEDURE');
-	--
-        IF l_boolean = true THEN
-		--
-		activity_stream ( 'DROP PROCEDURE fsdba.create_rpwd', '', 'PROCEDURE DOES NOT EXIST', 'fsdba.create_rpwd.', false, l_verifycount, l_pathfalse, p_debug);
-		--
-	ELSE
-		--
-		activity_stream ( '', '', 'PROCEDURE DOES NOT EXIST', 'fsdba.create_rpwd.', true, l_verifycount, l_pathtrue, p_debug);
-		--
-	END IF;
-	--
-	g_dropbassecobj := false;
-	--
-END drop_fsdba_bassecobj;
---
---
---**************************************************************************************************************************
---**         Procedure:	drop_login_db_instances_legobj
---**           Purpose:	This procedure drops the objects and grants surrounding login_db_instances legacy objects.
---**  Calling Programs:	--
---**   Programs Called: --
---**   Tables Accessed: --
---**   Tables Modified:	--
---**  Passed Variables: --
---** Passed Global Var:	--
---**   Global Var Mods:	--
---**   Local Variables: --
---**           Cursors:	--
---**           pragmas: --
---**         Exception: --
---**************************************************************************************************************************
---**        Psudo code: 
---**			RETURN g_iamautomation
---**			EXCEPTION
---**************************************************************************************************************************
---
---
-PROCEDURE drop_login_db_instances_legobj
-(
- p_debug		IN		NUMBER
-)
-AS
---
- l_localprogramname				VARCHAR2(128) := 'drop_login_db_instances_legobj';
- l_programmessage				CLOB;
- l_sqltext					CLOB;
- l_count					NUMBER;
- l_verifycount					NUMBER;
- l_boolean					BOOLEAN;
- l_pathtrue					VARCHAR2(3);
- l_pathfalse					VARCHAR2(3);
---
-BEGIN
-	IF g_programcontext = 'provide_legacy_objects' THEN
+	IF g_programcontext = 'provide_dbinstances_objects' THEN
 		l_verifycount := 0;
 		l_pathfalse := 'P3';
 		l_pathtrue := 'P4';
@@ -993,12 +872,12 @@ BEGIN
 	--
 	g_droplegobj := false;
 	--
-END drop_login_db_instances_legobj;
+END drop_login_db_instances_obj;
 --
 --
 --**************************************************************************************************************************
---**         Procedure:	drop_fsdba_legobj
---**           Purpose:	This procedure drops the objects and grants surrounding fsdba legacy objects.
+--**         Procedure:	drop_fsdba_obj
+--**           Purpose:	This procedure drops the objects and grants surrounding fsdba objects.
 --**  Calling Programs:	--
 --**   Programs Called: --
 --**   Tables Accessed: --
@@ -1011,28 +890,28 @@ END drop_login_db_instances_legobj;
 --**           pragmas: --
 --**         Exception: --
 --**************************************************************************************************************************
---**        Psudo code: 
+--**        Pseudo code: 
 --**			RETURN g_iamautomation
 --**			EXCEPTION
 --**************************************************************************************************************************
 --
 --
-PROCEDURE drop_fsdba_legobj
+PROCEDURE drop_fsdba_obj
 (
- p_debug		IN		NUMBER
+ p_debug				IN		NUMBER
 )
 AS
 --
- l_localprogramname				VARCHAR2(128) := 'drop_fsdba_legobj';
- l_programmessage				CLOB;
- l_sqltext					CLOB;
- l_verifycount					NUMBER;
- l_boolean					BOOLEAN;
- l_pathtrue					VARCHAR2(3);
- l_pathfalse					VARCHAR2(3);
+ l_localprogramname			VARCHAR2(128) := 'drop_fsdba_obj';
+ l_programmessage			CLOB;
+ l_sqltext				CLOB;
+ l_verifycount				NUMBER;
+ l_boolean				BOOLEAN;
+ l_pathtrue				VARCHAR2(3);
+ l_pathfalse				VARCHAR2(3);
 --
 BEGIN
-	IF g_programcontext = 'provide_legacy_objects' THEN
+	IF g_programcontext = 'provide_dbinstances_objects' THEN
 		l_verifycount := 0;
 		l_pathfalse := 'P3';
 		l_pathtrue := 'P4';
@@ -1285,7 +1164,7 @@ BEGIN
 	--
 	g_droplegobj := false;
 	--
-END drop_fsdba_legobj;
+END drop_fsdba_obj;
 --
 --
 --**************************************************************************************************************************
@@ -1312,7 +1191,7 @@ END drop_fsdba_legobj;
 --**           pragmas: --
 --**         Exception: --
 --**************************************************************************************************************************
---**        Psudo code: 
+--**        Pseudo code: 
 --**			RETURN g_iamautomation
 --**			EXCEPTION
 --**************************************************************************************************************************
@@ -1345,7 +1224,7 @@ END select_i_am_automation;
 --**           pragmas: --
 --**         Exception: --
 --**************************************************************************************************************************
---**        Psudo code: 
+--**        Pseudo code: 
 --**			RETURN g_iamautomation
 --**			EXCEPTION
 --**************************************************************************************************************************
@@ -1375,7 +1254,7 @@ END get_i_am_automation;
 --**           pragmas: --
 --**         Exception: --
 --**************************************************************************************************************************
---**        Psudo code: 
+--**        Pseudo code: 
 --**			g_iamautomation := p_automation
 --**			EXCEPTION
 --**************************************************************************************************************************
@@ -1415,7 +1294,7 @@ END;
 --**			rdbms/admin/catpvf.sql - Create Password Verify Function, STIG profile
 --**			Copyright (c) 2013, 2016, Oracle and/or its affiliates. All rights reserved.
 --**************************************************************************************************************************
---**        Psudo code: 
+--**        Pseudo code: 
 --**			PW Length check 15 to 30
 --**			Construct PW Meeting Compliance Rules
 --**			Check for 3x repeating characters
@@ -1425,19 +1304,19 @@ END;
 --
 FUNCTION fs_password_verify
 (
- p_username			IN		VARCHAR2,
- p_password			IN		VARCHAR2,
- p_oldpassword			IN		VARCHAR2
+ p_username				IN		VARCHAR2,
+ p_password				IN		VARCHAR2,
+ p_oldpassword				IN		VARCHAR2
 )
 RETURN boolean
 IS
- l_localprogramname				VARCHAR2(128)		:= 'fs_password_verify';
- l_programmessage				CLOB;
- l_pwverifycnt					INTEGER			:= 0;
- l_m						INTEGER;
- l_differ					INTEGER;
- l_repeat					BOOLEAN;
- l_threechar					VARCHAR2(3);
+ l_localprogramname			VARCHAR2(128)		:= 'fs_password_verify';
+ l_programmessage			CLOB;
+ l_pwverifycnt				INTEGER			:= 0;
+ l_m					INTEGER;
+ l_differ				INTEGER;
+ l_repeat				BOOLEAN;
+ l_threechar				VARCHAR2(3);
 BEGIN
 	--
 	--**********************************************************
@@ -1456,11 +1335,11 @@ BEGIN
 	END IF;
 	--
 	--*************************************************************
-	--** STIG ID: O121-C2-013900 - must be at least 15 bytes
+	--** STIG ID: O121-C2-013900 - must be at least 12 bytes
 	--** in length.
 	--*************************************************************
 	--
-	IF LENGTH(p_password) < 15 THEN
+	IF LENGTH(p_password) < 12 THEN
 		--
 		activity_stream ( '', '', 'USER', p_username||': Password Length Less Than 15 Bytes In Length.', false, 1, 'P5', g_debug);
 		--
@@ -1472,10 +1351,11 @@ BEGIN
 	--** STIG ID: O121-C2-014200 - require 2 lower case characters
 	--** STIG ID: O121-C2-014300 - require 2 numeric characters
 	--** STIG ID: O121-C2-014400 - require 2 special characters
+    	--** Points to Agency olicy that is on 1 character of each
 	--*************************************************************
 	--
-	IF REGEXP_COUNT(p_password, '([1234567890])', 1) < 2 OR REGEXP_COUNT(p_password, '([abcdefghijklmnopqrstuvwxyz])', 1, 'c') < 2 
-		OR REGEXP_COUNT(p_password, '([ABCDEFGHIJKLMNOPQRSTUVWXYZ])', 1, 'c') < 2 OR count_special(p_password, g_debug)  < 2 THEN
+	IF REGEXP_COUNT(p_password, '([1234567890])', 1) < 1 OR REGEXP_COUNT(p_password, '([abcdefghijklmnopqrstuvwxyz])', 1, 'c') < 1 
+		OR REGEXP_COUNT(p_password, '([ABCDEFGHIJKLMNOPQRSTUVWXYZ])', 1, 'c') < 1 OR count_special(p_password, g_debug)  < 1 THEN
 		--
 		activity_stream ( '', '', 'USER', p_username||': Password must contain at least two upper, two lower, two numbers and two special characters.', false, 1, 'P5', g_debug);
 		--
@@ -1594,7 +1474,7 @@ END fs_password_verify;
 --**         Exception:	
 --**			soau_failure
 --**************************************************************************************************************************
---**        Psudo code: 
+--**        Pseudo code: 
 --**			PW Length check 15 to 30
 --**			Construct PW Meeting Compliance Rules
 --**			Check for 3x repeating characters
@@ -1604,18 +1484,18 @@ END fs_password_verify;
 --
 FUNCTION random_password
 (
- p_pwlength			IN		INTEGER DEFAULT 15,
- p_debug			IN		NUMBER					-- Turn on DEBUG.
+ p_pwlength				IN		INTEGER DEFAULT 15,
+ p_debug				IN		NUMBER					-- Turn on DEBUG.
 )
 RETURN VARCHAR2
 IS
- l_localprogramname				VARCHAR2(128)		:= 'random_password';
- l_programmessage				CLOB;
- l_pwvalue					VARCHAR2(50); 
- l_padlen					NUMBER(3)		:= 0;
- l_pwlength					NUMBER(3);
- l_strndx					NUMBER(1);
- l_pwverify					BOOLEAN			:= false;
+ l_localprogramname			VARCHAR2(128)		:= 'random_password';
+ l_programmessage			CLOB;
+ l_pwvalue				VARCHAR2(50); 
+ l_padlen				NUMBER(3)		:= 0;
+ l_pwlength				NUMBER(3);
+ l_strndx				NUMBER(1);
+ l_pwverify				BOOLEAN			:= false;
 BEGIN
 	--
 	--******************************************************************************
@@ -1695,7 +1575,7 @@ END random_password;
 --**			dba_users
 --**   Tables Modified:	--
 --**  Passed Variables:
---**			p_action			-- s, f, b
+--**			p_action			-- p, l, b
 --**			p_status			-- Status message to check for errors.
 --**			p_error_message			-- The actual error message.
 --**			p_debug				-- The debug level set by the original calling program.
@@ -1710,7 +1590,7 @@ END random_password;
 --**         Exception:	
 --**			soau_failure
 --**************************************************************************************************************************
---**        Psudo code: 
+--**        Pseudo code: 
 --**			SELECT dba_users oracle_maintained = 'Y' and username NOT IN ('XS$NULL')
 --**				LOOP
 --**				CASE
@@ -1740,10 +1620,10 @@ END random_password;
 --
 PROCEDURE secure_users
 (
- p_action			IN		VARCHAR2 DEFAULT 'b',				-- s, f, b
- p_status			OUT		VARCHAR2,				-- Status message to check for errors.
- p_errormessage			OUT		VARCHAR2,				-- The actual error message.
- p_debug			IN		NUMBER					-- Turn on DEBUG.
+ p_action				IN		VARCHAR2 DEFAULT 'b',				-- p, l, b
+ p_status				OUT		VARCHAR2,				-- Status message to check for errors.
+ p_errormessage				OUT		VARCHAR2,				-- The actual error message.
+ p_debug				IN		NUMBER					-- Turn on DEBUG.
 )
 IS
  CURSOR c1 IS
@@ -1758,18 +1638,19 @@ IS
 	FROM dba_users 
 	WHERE oracle_maintained = 'N'
 	AND (substr(username,1,3) = 'FS_'
-	OR username = 'FSDBA')
+	OR username = 'FSDBA'
+	OR username = 'FS_DB_ADMIN')
 	ORDER BY username;
  --
- l_localprogramname				VARCHAR2(128) := 'secure_users';
- l_programmessage				CLOB;
- l_sqltext					VARCHAR2(1000);
- l_status                                       VARCHAR2(15);
- l_errormessage                                 VARCHAR2(1000);
- soau_failure					EXCEPTION;
+ l_localprogramname			VARCHAR2(128) := 'secure_users';
+ l_programmessage			CLOB;
+ l_sqltext				VARCHAR2(1000);
+ l_status				VARCHAR2(15);
+ l_errormessage				VARCHAR2(1000);
+ soau_failure				EXCEPTION;
 BEGIN
 	--
-	IF LOWER(p_action) = 's' OR LOWER(p_action) = 'b' THEN
+	IF LOWER(p_action) = 'p' OR LOWER(p_action) = 'b' THEN
 		FOR c1_rec IN c1 LOOP
 			--
 			IF p_debug > 0 THEN
@@ -1805,7 +1686,7 @@ BEGIN
 		END LOOP;
 	END IF;
 	--
-	IF LOWER(p_action) = 'f' OR LOWER(p_action) = 'b' THEN
+	IF LOWER(p_action) = 'l' OR LOWER(p_action) = 'b' THEN
 		FOR c2_rec IN c2 LOOP
 			IF c2_rec.account_status like '%LOCKED%' then
 				--
@@ -1821,69 +1702,69 @@ END secure_users;
 --
 --
 --**************************************************************************************************************************
---**         Procedure:	provide_legacy_objects
---**           Purpose:	This procedure creates or destroys the FSDBA legacy objects based on the value of the 
---**			p_legacyobjectschoice 
---**				c = Build Original Legacy Objects
---**				s = Do not build Original Legacy Objects and remove them if they exist.
+--**         Procedure:	provide_dbinstances_objects
+--**           Purpose:	This procedure creates or destroys the FSDBA DBInstances objects based on the value of the 
+--**			p_dbinstancesobjectschoice 
+--**				t = Build Original DBInstances Objects
+--**				f = Do not build Original DBInstances Objects and remove them if they exist.
 --**  Calling Programs:	--
 --**   Programs Called:	fs_db_admin.fs_exists_functions
 --**			fs_security_pkg.activity_stream
---**			drop_login_db_instances_legobj
---**			drop_fsdba_legobj
+--**			drop_login_db_instances_obj
+--**			drop_fsdba_obj
 --**   Tables Accessed:	
 --**			fsdba.this_db_instance
 --**			fsdba.db_instances
 --**   Tables Modified:	--
 --**  Passed Variables: 
---**			p_legacyobjectschoice	-- Choice Variable
---**			p_status		-- Status message to check for errors.
---**			p_errormessage		-- The actual error message.
---**			p_debug			-- The debug level set by the original calling program.
+--**			p_dbinstancesobjectschoice	-- Choice Variable
+--**			p_status			-- Status message to check for errors.
+--**			p_errormessage			-- The actual error message.
+--**			p_debug				-- The debug level set by the original calling program.
 --** Passed Global Var:	--
 --**   Global Var Mods:	--
 --**   Local Variables:
---**			l_localprogramname	-- This programs name. (For debugging purposes.)
---**			l_programmessage	-- The local debugging message.
---**			l_sqltext		-- The DDL text
---**			l_count			-- Count Variable
---**			l_boolean		-- Choice Boolean
+--**			l_localprogramname		-- This programs name. (For debugging purposes.)
+--**			l_programmessage		-- The local debugging message.
+--**			l_sqltext			-- The DDL text
+--**			l_count				-- Count Variable
+--**			l_boolean			-- Choice Boolean
 --**           Cursors:	--
 --**           pragmas: --
 --**         Exception:	
 --**			soau_failure
 --**************************************************************************************************************************
---**        Psudo code: 
---**			IF LOWER(p_legacyobjectschoice) = 'c'
---**				CREATE all legacy objects
---**			IF LOWER(p_legacyobjectschoice) = 's'
---**				Remove all legacy objects
+--**        Pseudo code: 
+--**			IF LOWER(p_dbinstancesobjectschoice) = 't'
+--**				CREATE all DBInstances objects
+--**			IF LOWER(p_dbinstancesobjectschoice) = 'f'
+--**				Remove all DBInstances objects
 --**************************************************************************************************************************
 --
 --
-PROCEDURE provide_legacy_objects
+PROCEDURE provide_dbinstances_objects
 (
- p_legacyobjectschoice		IN		VARCHAR2,				-- Selection C, S.
- p_status			OUT		VARCHAR2,				-- Status message to check for errors.
- p_errormessage			OUT		VARCHAR2,				-- The actual error message.
- p_debug			IN		NUMBER					-- Turn on DEBUG.
+ p_dbinstancesobjectschoice		IN		VARCHAR2,				-- Selection t, f.
+ p_status				OUT		VARCHAR2,				-- Status message to check for errors.
+ p_errormessage				OUT		VARCHAR2,				-- The actual error message.
+ p_debug				IN		NUMBER					-- Turn on DEBUG.
 )
 AS
 --
- l_localprogramname				VARCHAR2(128) := 'provide_legacy_objects';
- l_programmessage				CLOB;
- l_sqltext					CLOB;
- l_count					NUMBER;
- l_boolean					BOOLEAN;
+ l_localprogramname			VARCHAR2(128) := 'provide_dbinstances_objects';
+ l_programmessage			CLOB;
+ l_sqltext				CLOB;
+ l_count				NUMBER;
+ l_boolean				BOOLEAN;
 --
 BEGIN
 	--
 	g_programcontext := l_localprogramname;
-	g_providelegacyobjectspasscnt := 0;
-	g_providelegacyobjectsfailcnt := 0;
-	activity_stream ( '', '', 'DETAIL', 'PROVIDE LEGACY OBJECTS', true, 0, 'P6', p_debug);
+	g_providedbinstancesobjectspasscnt := 0;
+	g_providedbinstancesobjectsfailcnt := 0;
+	activity_stream ( '', '', 'DETAIL', 'PROVIDE DBINSTANCES OBJECTS', true, 0, 'P6', p_debug);
 	--
-	IF LOWER(p_legacyobjectschoice) = 'c' THEN
+	IF LOWER(p_dbinstancesobjectschoice) = 't' THEN
 		--
 		--********************************
 		--* Build Table fsdba.db_instances
@@ -1989,7 +1870,7 @@ BEGIN
 		IF l_boolean = false THEN
 			l_sqltext := 'GRANT insert ON fsdba.db_instances TO login_db_instances';
 			--
-			activity_stream ( l_sqltext, '', 'TABPRIV EXISTs', 'INSERT On FSDBA.DB_INSTANCES To LOGIN_DB_INSTANCES.', false, 1, 'P1', p_debug);
+			activity_stream ( l_sqltext, '', 'TABPRIV EXISTS', 'INSERT On FSDBA.DB_INSTANCES To LOGIN_DB_INSTANCES.', false, 1, 'P1', p_debug);
 			--
 		ELSE 
 			--
@@ -2591,20 +2472,20 @@ BEGIN
 			--
 		END IF;
 		--
-	ELSIF LOWER(p_legacyobjectschoice) = 's' THEN
-		drop_login_db_instances_legobj (p_debug);
-		drop_fsdba_legobj (p_debug);
+	ELSIF LOWER(p_dbinstancesobjectschoice) = 'f' THEN
+		drop_login_db_instances_obj (p_debug);
+		drop_fsdba_obj (p_debug);
 	ELSE
 		--
-		activity_stream ( '', '', 'CODE ERROR: provide_legacy_objects Improper Input Value', LOWER(p_legacyobjectschoice)||'.', false, 1, 'P5', p_debug);
+		activity_stream ( '', '', 'CODE ERROR: provide_dbinstances_objects Improper Input Value', LOWER(p_dbinstancesobjectschoice)||'.', false, 1, 'P5', p_debug);
 		--
 	END IF;
 	--
 	activity_stream ( '', '', '', '', true, 0, 'P8', p_debug);
 	--
-	activity_stream ( '', '', 'SUMMARY', 'PROVIDE LEGACY OBJECTS', true, 0, 'P7', p_debug);
+	activity_stream ( '', '', 'SUMMARY', 'PROVIDE DBINSTANCES OBJECTS', true, 0, 'P7', p_debug);
 	--
-END provide_legacy_objects;
+END provide_dbinstances_objects;
 --
 --
 --**************************************************************************************************************************
@@ -2616,7 +2497,6 @@ END provide_legacy_objects;
 --**   Tables Accessed: --
 --**   Tables Modified:	--
 --**  Passed Variables: --
---**			p_userchoice			-- User Choice Variable
 --**			p_status			-- Status message to check for errors.
 --**			p_error_message			-- The actual error message.
 --**			p_debug				-- The debug level set by the original calling program.
@@ -2635,39 +2515,31 @@ END provide_legacy_objects;
 --**           pragmas: --
 --**         Exception: --
 --**************************************************************************************************************************
---**        Psudo code: 
---**			IF LOWER(p_userchoice) = 'c' OR LOWER(p_userchoice) = 'b' OR LOWER(p_userchoice) = 'h'
+--**        Pseudo code: 
+--**			IF LOWER(p_userchoice) = 't'
 --**				Create FSBA and LOGIN_DB_INSTANCES users
 --**				Grant Sysprivs and roles
---**			IF LOWER(p_userchoice) = 'c' OR LOWER(p_userchoice) = 'b'
---**				Grant restricted roles or sysprivs covered by roles.
---**			IF LOWER(p_userchoice) = 'c'
---**				No removal actions
---**			IF LOWER(p_userchoice) = 'h'
---**				Revoke restricted roles or sysprivs covered by roles.
---**			IF LOWER(p_userchoice) = 's' OR LOWER(p_userchoice) = 'b' OR LOWER(p_userchoice) = 'h'
---**				
---**			IF LOWER(p_userchoice) = 's' THEN
---**				Remove legacy objects
---**				Remove legacy users
---**				Remove legacy roles
+--**				Verify fs_db_admin user
+--**			IF LOWER(p_userchoice) = 'f' THEN
+--**				Remove FSDBA objects
+--**				Remove FSBA and LOGIN_DB_INSTANCES users
 --**************************************************************************************************************************
 --
 --
 PROCEDURE provide_users
 (
- p_userchoice			IN		VARCHAR2,				-- Selection C, S.
- p_status			OUT		VARCHAR2,				-- Status message to check for errors.
- p_errormessage			OUT		VARCHAR2,				-- The actual error message.
- p_debug			IN		NUMBER					-- Turn on DEBUG.
+ p_userchoice				IN		VARCHAR2,				-- input of debinstancesobjects
+ p_status				OUT		VARCHAR2,				-- Status message to check for errors.
+ p_errormessage				OUT		VARCHAR2,				-- The actual error message.
+ p_debug				IN		NUMBER					-- Turn on DEBUG.
 )
 IS
- l_localprogramname				VARCHAR2(128) := 'provide_users';
- l_programmessage				CLOB;
- l_errormessage					VARCHAR2(1000);
- l_sqltext					VARCHAR2(1000);
- l_boolean					BOOLEAN;
- l_password					VARCHAR2(30);
+ l_localprogramname			VARCHAR2(128) := 'provide_users';
+ l_programmessage			CLOB;
+ l_errormessage				VARCHAR2(1000);
+ l_sqltext				VARCHAR2(1000);
+ l_boolean				BOOLEAN;
+ l_password				VARCHAR2(30);
 BEGIN
 	--
 	g_programcontext := l_localprogramname;
@@ -2675,7 +2547,7 @@ BEGIN
 	g_provideusersfailcnt := 0;
 	activity_stream ( '', '', 'DETAIL', 'PROVIDE USERS', true, 0, 'P6', p_debug);
 	--
-	IF LOWER(p_userchoice) = 'c' OR LOWER(p_userchoice) = 'b' OR LOWER(p_userchoice) = 'h' THEN
+	IF LOWER(p_userchoice) = 't' THEN
 		--
 		--***************************
 		-- SETUP FSDBA USER
@@ -2715,19 +2587,6 @@ BEGIN
 			--
 		END IF;
 		--
-		l_boolean := fs_db_admin.fs_exists_functions.tabprivs_exists ('SYS', 'SYS', 'FSDBA', 'INHERIT PRIVILEGES');
-		--
-		IF l_boolean = false THEN
-			--
-			l_sqltext := 'GRANT INHERIT PRIVILEGES ON USER sys TO fsdba';
-			activity_stream ( l_sqltext, '', 'GRANT EXISTS', 'INHERIT PRIVILEGES ON USER sys TO fsdba.', false, 1, 'P1', p_debug);
-			--
-		ELSE
-			--
-			activity_stream ( '', '', 'GRANT EXISTS', 'INHERIT PRIVILEGES ON USER sys TO fsdba.', true, 1, 'P2', p_debug);
-			--
-		END IF;
-		--
 		l_boolean := fs_db_admin.fs_exists_functions.tsquota_exists ( 'FSDBA', 'FSDBA_DATA', '', '', true);
 		--
 		IF l_boolean = false THEN
@@ -2762,413 +2621,120 @@ BEGIN
 			activity_stream ( '', '', 'USER EXISTS', 'LOGIN_DB_INSTANCES.', true, 1, 'P2', p_debug);
 			--
 		END IF;
-        	--
- 		l_boolean := fs_db_admin.fs_exists_functions.tabprivs_exists ('SYS','DBA_ROLE_PRIVS','FSDBA','SELECT');
+		--
+		l_boolean := fs_db_admin.fs_exists_functions.grantee_rolepriv_exists ('LOGIN_DB_INSTANCES','FS_SESSION');
 		--
 		IF l_boolean = false THEN
 			--
-			activity_stream ( 'GRANT SELECT ON dba_role_privs TO fsdba WITH GRANT OPTION', '', 'TABPRIV GRANTED', 'SEELCT On dba_role_privs To FSDBA.', false, 1, 'P1', p_debug);
+			activity_stream ( 'GRANT FS_SESSION TO login_db_instances', '', 'ROLE GRANTED', 'FS_SESSION To LOGIN_DB_INSTANCES.', false, 1, 'P1', p_debug);
 			--
  		ELSE
 			--
-			activity_stream ( '', '', 'TABPRIV GRANTED', 'SELECT On dba_role_privs To FSDBA.', true, 1, 'P2', p_debug);
+			activity_stream ( '', '', 'ROLE GRANTED', 'FS_SESSION To LOGIN_DB_INSTANCES.', true, 1, 'P2', p_debug);
 			--
-		END IF;
-        	--
- 		l_boolean := fs_db_admin.fs_exists_functions.tabprivs_exists ('SYS','ALL_TABLES','FSDBA','SELECT');
-		--
-		IF l_boolean = false THEN
-			--
-			activity_stream ( 'GRANT SELECT ON all_tables TO fsdba WITH GRANT OPTION', '', 'TABPRIV GRANTED', 'SEELCT On all_tables To FSDBA.', false, 1, 'P1', p_debug);
-			--
- 		ELSE
-			--
-			activity_stream ( '', '', 'TABPRIV GRANTED', 'SELECT On all_tables To FSDBA.', true, 1, 'P2', p_debug);
-			--
-		END IF;
-		--
-		l_boolean := fs_db_admin.fs_exists_functions.grantee_rolepriv_exists ('FSDBA', 'RESOURCE');
-		--
-		IF l_boolean = false THEN
-			--
-			activity_stream ( 'GRANT resource TO fsdba', '', 'ROLE GRANTED', 'Resource To FSDBA.', false, 1, 'P1', p_debug);
-			--
-		ELSE
-			--
-			activity_stream ( '', '', 'ROLE GRANTED', 'RESOURCE To FSDBA.', true, 1, 'P2', p_debug);
-			--
-		END IF;
-		--
-		IF LOWER(p_userchoice) = 'c' OR LOWER(p_userchoice) = 'b' THEN
-			--
-			l_boolean := fs_db_admin.fs_exists_functions.grantee_rolepriv_exists ('FSDBA', 'DBA');
-			IF l_boolean = false THEN
-				--
-				activity_stream ( 'GRANT dba TO fsdba', '', 'ROLE GRANTED', 'DBA To FSDBA.', false, 1, 'P1', p_debug);
-				--
- 			ELSE
-				--
-				activity_stream ( '', '', 'ROLE GRANTED', 'DBA To FSDBA.', true, 1, 'P2', p_debug);
-				--
-			END IF;
-			--
-			l_boolean := fs_db_admin.fs_exists_functions.pwfile_user_exists ('FSDBA','SYSDBA','TRUE');
-			IF l_boolean = false THEN
-				--
-				activity_stream ( 'GRANT sysdba TO fsdba', '', 'SYSTEM PRVILEGE GRANTED', 'SYSDBA To FSDBA.', false, 1, 'P1', p_debug);
-				--
- 			ELSE
-				--
-				activity_stream ( '', '', 'SYSTEM PRVILEGE GRANTED', 'SYSDBA To FSDBA.', true, 1, 'P2', p_debug);
-				--
-			END IF;
-			--
-			l_boolean := fs_db_admin.fs_exists_functions.grantee_syspriv_exists ('FSDBA','CREATE SESSION');
-			IF l_boolean = false THEN
-				--
-				activity_stream ( 'GRANT CREATE SESSION TO fsdba', '', 'SYSPRIV GRANTED', 'CREATE SESSION To FSDBA.', false, 1, 'P1', p_debug);
-				--
- 			ELSE
-				--
-				activity_stream ( '', '', 'SYSPRIV GRANTED', 'CREATE SESSION To FSDBA.', true, 1, 'P2', p_debug);
-				--
-			END IF;
-			--
-			l_boolean := fs_db_admin.fs_exists_functions.grantee_syspriv_exists ('FSDBA','CREATE ANY VIEW');
-			IF l_boolean = false THEN
-				--
-				activity_stream ( 'GRANT CREATE ANY VIEW TO fsdba', '', 'SYSPRIV GRANTED', 'CREATE ANY VIEW To FSDBA.', false, 1, 'P1', p_debug);
-				--
- 			ELSE
-				--
-				activity_stream ( '', '', 'SYSPRIV GRANTED', 'CREATE ANY VIEW To FSDBA.', true, 1, 'P2', p_debug);
-				--
-			END IF;
-			--
-			l_boolean := fs_db_admin.fs_exists_functions.grantee_syspriv_exists ('FSDBA','SELECT ANY TABLE');
-			IF l_boolean = false THEN
-				--
-				activity_stream ( 'GRANT SELECT ANY TABLE TO fsdba', '', 'SYSPRIV GRANTED', 'SELECT ANY TABLE To FSDBA.', false, 1, 'P1', p_debug);
-				--
- 			ELSE
-				--
-				activity_stream ( '', '', 'SYSPRIV GRANTED', 'SELECT ANY TABLE To FSDBA.', true, 1, 'P2', p_debug);
-				--
-			END IF;
-			--
-			l_boolean := fs_db_admin.fs_exists_functions.grantee_rolepriv_exists ('LOGIN_DB_INSTANCES','CONNECT');
-			--
-			IF l_boolean = false THEN
-				--
-				activity_stream ( 'GRANT CONNECT TO login_db_instances', '', 'ROLE GRANTED', 'CONNECT To LOGIN_DB_INSTANCES.', false, 1, 'P1', p_debug);
-				--
- 			ELSE
-				--
-				activity_stream ( '', '', 'ROLE GRANTED', 'CONNECT To LOGIN_DB_INSTANCES.', true, 1, 'P2', p_debug);
-				--
-			END IF;
-		END IF;
-		--
-		IF LOWER(p_userchoice) = 'c' THEN
-			--
-			--************************************
-			--** Perform No Removal Actions As
-			--** fs_db_admin Exists Always.
-			--************************************
-			--
-			NULL;
-		END IF;
-		--
-		IF LOWER(p_userchoice) = 'h' THEN
-                        --
-                        l_boolean := fs_db_admin.fs_exists_functions.grantee_rolepriv_exists ('FSDBA', 'DBA');
-                        --
-                        IF l_boolean = false THEN
-                                --
-                                activity_stream ( '', '', 'ROLE NOT GRANTED', 'DBA To FSDBA.', true, 1, 'P2', p_debug);
-                                --
-                        ELSE
-                                --
-                                activity_stream ( 'REVOKE DBA FROM FSDBA', '', 'ROLE GRANTED', 'DBA To FSDBA.', false, 1, 'P1', p_debug);
-                                --
-                        END IF;
-			--
-			l_boolean := fs_db_admin.fs_exists_functions.grantee_rolepriv_exists ('FSDBA', 'FS_CREATE');
-			--
-			IF l_boolean = false THEN
-				--
-				activity_stream ( 'GRANT FS_CREATE TO fsdba', '', 'ROLE GRANTED', 'FS_CREATE To FSDBA.', false, 1, 'P1', p_debug);
-				--
-			ELSE
-				--
-				activity_stream ( '', '', 'ROLE GRANTED', 'FS_CREATE To FSDBA.', true, 1, 'P2', p_debug);
-				--
-			END IF;
-			--
-			l_boolean := fs_db_admin.fs_exists_functions.grantee_rolepriv_exists ('FSDBA', 'FS_SESSION');
-			--
-			IF l_boolean = false THEN
-				--
-				activity_stream ( 'GRANT FS_SESSION TO fsdba', '', 'ROLE GRANTED', 'FS_SESSION To FSDBA.', false, 1, 'P1', p_debug);
-				--
-			ELSE
-				--
-				activity_stream ( '', '', 'ROLE GRANTED', 'FS_SESSION To FSDBA.', true, 1, 'P2', p_debug);
-				--
-			END IF;
-			--
-			l_boolean := fs_db_admin.fs_exists_functions.grantee_syspriv_exists ('FSDBA','SELECT ANY TABLE');
-			IF l_boolean = false THEN
-				--
-				activity_stream ( 'GRANT SELECT ANY TABLE TO fsdba', '', 'SYSPRIV GRANTED', 'SELECT ANY TABLE To FSDBA.', false, 1, 'P1', p_debug);
-				--
- 			ELSE
-				--
-				activity_stream ( '', '', 'SYSPRIV GRANTED', 'SELECT ANY TABLE To FSDBA.', true, 1, 'P2', p_debug);
-				--
-			END IF;
-			--
-			l_boolean := fs_db_admin.fs_exists_functions.grantee_rolepriv_exists ('FSDBA', 'FS_CATALOG_ROLE');
-			--
-			IF l_boolean = false THEN
-				--
-				activity_stream ( 'GRANT FS_CATALOG_ROLE TO fsdba', '', 'ROLE GRANTED', 'FS_CATALOG_ROLE To FSDBA.', false, 1, 'P1', p_debug);
-				--
-			ELSE
-				--
-				activity_stream ( '', '', 'ROLE GRANTED', 'FS_CATALOG_ROLE To FSDBA.', true, 1, 'P2', p_debug);
-				--
-			END IF;
-			--
-			l_boolean := fs_db_admin.fs_exists_functions.grantee_rolepriv_exists ('LOGIN_DB_INSTANCES','FS_SESSION');
-			--
-			IF l_boolean = false THEN
-				--
-				activity_stream ( 'GRANT FS_SESSION TO login_db_instances', '', 'ROLE GRANTED', 'FS_SESSION To LOGIN_DB_INSTANCES.', false, 1, 'P1', p_debug);
-				--
- 			ELSE
-				--
-				activity_stream ( '', '', 'ROLE GRANTED', 'FS_SESSION To LOGIN_DB_INSTANCES.', true, 1, 'P2', p_debug);
-				--
-			END IF;
 		END IF;
 	END IF;
 	--
-	IF LOWER(p_userchoice) = 's' OR LOWER(p_userchoice) = 'b' OR LOWER(p_userchoice) = 'h' THEN
+	activity_stream ( '', '', 'USER EXISTS', 'fs_db_admin.', true, 1, 'P2', p_debug);
+	--
+	l_boolean := fs_db_admin.fs_exists_functions.tablespace_exists ('FS_DB_ADMIN_DATA');
+	--
+	IF l_boolean = false THEN
 		--
-		activity_stream ( '', '', 'USER EXISTS', 'fs_db_admin.', true, 1, 'P2', p_debug);
+		activity_stream ( 'CREATE SMALLFILE TABLESPACE fs_db_admin_data DATAFILE SIZE 5M AUTOEXTEND ON NEXT 100M MAXSIZE 32767M LOGGING EXTENT MANAGEMENT LOCAL SEGMENT SPACE MANAGEMENT AUTO', '',
+				  'TABLESPACE CREATED', 'fs_db_admin_data.', false, 1, 'P1', p_debug);
 		--
-		l_boolean := fs_db_admin.fs_exists_functions.tablespace_exists ('FS_DB_ADMIN_DATA');
+ 	ELSE
 		--
-		IF l_boolean = false THEN
-			--
-			activity_stream ( 'CREATE SMALLFILE TABLESPACE fs_db_admin_data DATAFILE SIZE 5M AUTOEXTEND ON NEXT 100M MAXSIZE 32767M LOGGING EXTENT MANAGEMENT LOCAL SEGMENT SPACE MANAGEMENT AUTO', '',
-					  'TABLESPACE CREATED', 'fs_db_admin_data.', false, 1, 'P1', p_debug);
-			--
- 		ELSE
-			--
-			activity_stream ( '', '', 'TABLESPACE CREATED', 'fs_db_admin_data.', true, 1, 'P2', p_debug);
-			--
-		END IF;
+		activity_stream ( '', '', 'TABLESPACE CREATED', 'fs_db_admin_data.', true, 1, 'P2', p_debug);
 		--
-		l_boolean := fs_db_admin.fs_exists_functions.tsquota_exists ('FS_DB_ADMIN', 'FS_DB_ADMIN_DATA', '', '', true);
+	END IF;
+	--
+	l_boolean := fs_db_admin.fs_exists_functions.tsquota_exists ('FS_DB_ADMIN', 'FS_DB_ADMIN_DATA', '', '', true);
+	--
+	IF l_boolean = false THEN
 		--
-		IF l_boolean = false THEN
-			--
-			activity_stream ( 'ALTER USER fs_db_admin QUOTA UNLIMITED ON fs_db_admin_data', '', 'QUOTA GRANTED', 'UNLIMITED QUOTA On fs_db_admin_data To FS_DB_ADMIN.', false, 1, 'P1', p_debug);
-			--
- 		ELSE
-			--
-			activity_stream ( '', '', 'QUOTA GRANTED', 'UNLIMITED QUOTA On fs_db_admin_data To FS_DB_ADMIN.', true, 1, 'P2', p_debug);
-			--
-		END IF;
+		activity_stream ( 'ALTER USER fs_db_admin QUOTA UNLIMITED ON fs_db_admin_data', '', 'QUOTA GRANTED', 'UNLIMITED QUOTA On fs_db_admin_data To FS_DB_ADMIN.', false, 1, 'P1', p_debug);
 		--
-		l_boolean := fs_db_admin.fs_exists_functions.grantee_syspriv_exists ('FS_DB_ADMIN','SELECT ANY DICTIONARY');
+ 	ELSE
 		--
-		IF l_boolean = false THEN
-			--
-			activity_stream ( 'GRANT SELECT ANY DICTIONARY TO fs_db_admin', '', 'SYSPRIV GRANTED', 'SELECT ANY DICTIONARY To FS_DB_ADMIN.', false, 1, 'P1', p_debug);
-			--
- 		ELSE
-			--
-			activity_stream ( '', '', 'SYSPRIV GRANTED', 'SELECT ANY DICTIONARY To FS_DB_ADMIN.', true, 1, 'P2', p_debug);
-			--
-		END IF;
+		activity_stream ( '', '', 'QUOTA GRANTED', 'UNLIMITED QUOTA On fs_db_admin_data To FS_DB_ADMIN.', true, 1, 'P2', p_debug);
 		--
-		l_boolean := fs_db_admin.fs_exists_functions.grantee_syspriv_exists ('FS_DB_ADMIN','DROP ANY TABLE');
+	END IF;
+	--
+	l_boolean := fs_db_admin.fs_exists_functions.grantee_syspriv_exists ('FS_DB_ADMIN','SELECT ANY DICTIONARY');
+	--
+	IF l_boolean = false THEN
 		--
-		IF l_boolean = false THEN
-			--
-			activity_stream ( 'GRANT DROP ANY TABLE TO fs_db_admin', '', 'SYSPRIV GRANTED', 'DROP ANY TABLE To FS_DB_ADMIN.', false, 1, 'P1', p_debug);
-			--
- 		ELSE
-			--
-			activity_stream ( '', '', 'SYSPRIV GRANTED', 'DROP ANY TABLE To FS_DB_ADMIN.', true, 1, 'P2', p_debug);
-			--
-		END IF;
+		activity_stream ( 'GRANT SELECT ANY DICTIONARY TO fs_db_admin', '', 'SYSPRIV GRANTED', 'SELECT ANY DICTIONARY To FS_DB_ADMIN.', false, 1, 'P1', p_debug);
 		--
-		l_boolean := fs_db_admin.fs_exists_functions.grantee_syspriv_exists ('FS_DB_ADMIN','GRANT ANY OBJECT PRIVILEGE');
+ 	ELSE
 		--
-		IF l_boolean = false THEN
-			--
-			activity_stream ( 'GRANT GRANT ANY OBJECT PRIVILEGE TO fs_db_admin', '', 'SYSPRIV GRANTED', 'GRANT ANY OBJECT PRIVILEGE To FS_DB_ADMIN.', false, 1, 'P1', p_debug);
-			--
- 		ELSE
-			--
-			activity_stream ( '', '', 'SYSPRIV GRANTED', 'GRANT ANY OBJECT PRIVILEGE To FS_DB_ADMIN.', true, 1, 'P2', p_debug);
-			--
-		END IF;
+		activity_stream ( '', '', 'SYSPRIV GRANTED', 'SELECT ANY DICTIONARY To FS_DB_ADMIN.', true, 1, 'P2', p_debug);
 		--
-		l_boolean := fs_db_admin.fs_exists_functions.grantee_syspriv_exists ('FS_DB_ADMIN','GRANT ANY PRIVILEGE');
+	END IF;
+	--
+	l_boolean := fs_db_admin.fs_exists_functions.user_assigned_profile_exists ('FS_DB_ADMIN','FS_OWNER_PROFILE');
+	--
+	IF l_boolean = false THEN
 		--
-		IF l_boolean = false THEN
-			--
-			activity_stream ( 'GRANT GRANT ANY PRIVILEGE TO fs_db_admin', '', 'SYSPRIV GRANTED', 'GRANT ANY PRIVILEGE To FS_DB_ADMIN.', false, 1, 'P1', p_debug);
-			--
- 		ELSE
-			--
-			activity_stream ( '', '', 'SYSPRIV GRANTED', 'GRANT ANY PRIVILEGE To FS_DB_ADMIN.', true, 1, 'P2', p_debug);
-			--
-		END IF;
+		activity_stream ( 'ALTER USER fs_db_admin PROFILE FS_OWNER_PROFILE', '', 'PROFILE ASSIGNED', 'FS_OWNER_PROFILE To FS_DB_ADMIN.', false, 1, 'P1', p_debug);
 		--
-		l_boolean := fs_db_admin.fs_exists_functions.grantee_syspriv_exists ('FS_DB_ADMIN','GRANT ANY ROLE');
+ 	ELSE
 		--
-		IF l_boolean = false THEN
-			--
-			activity_stream ( 'GRANT GRANT ANY ROLE TO fs_db_admin', '', 'SYSPRIV GRANTED', 'GRANT ANY ROLE To FS_DB_ADMIN.', false, 1, 'P1', p_debug);
-			--
- 		ELSE
-			--
-			activity_stream ( '', '', 'SYSPRIV GRANTED', 'GRANT ANY ROLE To FS_DB_ADMIN.', true, 1, 'P2', p_debug);
-			--
-		END IF;
+		activity_stream ( '', '', 'PROFILE ASSIGNED', 'FS_OWNER_PROFILE To FS_DB_ADMIN.', true, 1, 'P2', p_debug);
 		--
-		l_boolean := fs_db_admin.fs_exists_functions.grantee_syspriv_exists ('FS_DB_ADMIN','CREATE USER');
+	END IF;
+	--
+	IF LOWER(p_userchoice) = 'f'  THEN
 		--
-		IF l_boolean = false THEN
-			--
-			activity_stream ( 'GRANT CREATE USER TO fs_db_admin', '', 'SYSPRIV GRANTED', 'CREATE USER To FS_DB_ADMIN.', false, 1, 'P1', p_debug);
-			--
- 		ELSE
-			--
-			activity_stream ( '', '', 'SYSPRIV GRANTED', 'CREATE USER To FS_DB_ADMIN.', true, 1, 'P2', p_debug);
-			--
-		END IF;
+		l_boolean := fs_db_admin.fs_exists_functions.user_exists ('LOGIN_DB_INSTANCES');
 		--
-		l_boolean := fs_db_admin.fs_exists_functions.grantee_syspriv_exists ('FS_DB_ADMIN','ALTER USER');
-		--
-		IF l_boolean = false THEN
+		IF l_boolean = true THEN
 			--
-			activity_stream ( 'GRANT ALTER USER TO fs_db_admin', '', 'SYSPRIV GRANTED', 'ALTER USER To FS_DB_ADMIN.', false, 1, 'P1', p_debug);
-			--
- 		ELSE
-			--
-			activity_stream ( '', '', 'SYSPRIV GRANTED', 'ALTER USER To FS_DB_ADMIN.', true, 1, 'P2', p_debug);
-			--
-		END IF;
-		--
-		l_boolean := fs_db_admin.fs_exists_functions.grantee_syspriv_exists ('FS_DB_ADMIN','DROP USER');
-		--
-		IF l_boolean = false THEN
-			--
-			activity_stream ( 'GRANT DROP USER TO fs_db_admin', '', 'SYSPRIV GRANTED', 'DROP USER To FS_DB_ADMIN.', false, 1, 'P1', p_debug);
-			--
- 		ELSE
-			--
-			activity_stream ( '', '', 'SYSPRIV GRANTED', 'DROP USER To FS_DB_ADMIN.', true, 1, 'P2', p_debug);
-			--
-		END IF;
-		--
-		l_boolean := fs_db_admin.fs_exists_functions.grantee_syspriv_exists ('FS_DB_ADMIN','ANALYZE ANY');
-		--
-		IF l_boolean = false THEN
-			--
-			activity_stream ( 'GRANT ANALYZE ANY TO fs_db_admin', '', 'SYSPRIV GRANTED', 'ANALYZE ANY To FS_DB_ADMIN.', false, 1, 'P1', p_debug);
-			--
- 		ELSE
-			--
-			activity_stream ( '', '', 'SYSPRIV GRANTED', 'ANALYZE ANY To FS_DB_ADMIN.', true, 1, 'P2', p_debug);
-			--
-		END IF;
-		--
-		l_boolean := fs_db_admin.fs_exists_functions.grantee_syspriv_exists ('FS_DB_ADMIN','ALTER ANY INDEX');
-		--
-		IF l_boolean = false THEN
-			--
-			activity_stream ( 'GRANT ALTER ANY INDEX TO fs_db_admin', '', 'SYSPRIV GRANTED', 'ALTER ANY INDEX To FS_DB_ADMIN.', false, 1, 'P1', p_debug);
-			--
- 		ELSE
-			--
-			activity_stream ( '', '', 'SYSPRIV GRANTED', 'ALTER ANY INDEX To FS_DB_ADMIN.', true, 1, 'P2', p_debug);
-			--
-		END IF;
-		--
-		l_boolean := fs_db_admin.fs_exists_functions.user_assigned_profile_exists ('FS_DB_ADMIN','FS_OWNER_PROFILE');
-		--
-		IF l_boolean = false THEN
-			--
-			activity_stream ( 'ALTER USER fs_db_admin PROFILE FS_OWNER_PROFILE', '', 'PROFILE ASSIGNED', 'FS_OWNER_PROFILE To FS_DB_ADMIN.', false, 1, 'P1', p_debug);
-			--
- 		ELSE
-			--
-			activity_stream ( '', '', 'PROFILE ASSIGNED', 'FS_OWNER_PROFILE To FS_DB_ADMIN.', true, 1, 'P2', p_debug);
-			--
-		END IF;
-		--
-		IF LOWER(p_userchoice) = 's' THEN
-			--
-			l_boolean := fs_db_admin.fs_exists_functions.user_exists ('LOGIN_DB_INSTANCES');
+			l_boolean := fs_db_admin.fs_exists_functions.user_objects_exists ('LOGIN_DB_INSTANCES');
 			--
 			IF l_boolean = true THEN
+				drop_login_db_instances_obj (p_debug);
 				--
-				l_boolean := fs_db_admin.fs_exists_functions.user_objects_exists ('LOGIN_DB_INSTANCES');
+				activity_stream ( 'DROP USER login_db_instances', '', 'USER DOES NOT EXIST', 'LOGIN_DB_INSTANCES.', false, 1, 'P1', p_debug);
 				--
-				IF l_boolean = true THEN
-					drop_login_db_instances_legobj (p_debug);
-					--
-					activity_stream ( 'DROP USER login_db_instances', '', 'USER DOES NOT EXIST', 'LOGIN_DB_INSTANCES.', false, 1, 'P1', p_debug);
-					--
-				ELSE
-					drop_login_db_instances_legobj (p_debug);
-					--
-					activity_stream ( 'DROP USER login_db_instances', '', 'USER DOES NOT EXIST', 'LOGIN_DB_INSTANCES.', false, 1, 'P1', p_debug);
-					--
-				END IF;
 			ELSE
-				drop_login_db_instances_legobj (p_debug);
+				drop_login_db_instances_obj (p_debug);
 				--
-				activity_stream ( '', '', 'USER DOES NOT EXIST', 'LOGIN_DB_INSTANCES.', true, 1, 'P2', p_debug);
+				activity_stream ( 'DROP USER login_db_instances', '', 'USER DOES NOT EXIST', 'LOGIN_DB_INSTANCES.', false, 1, 'P1', p_debug);
 				--
 			END IF;
+		ELSE
+			drop_login_db_instances_obj (p_debug);
 			--
-			l_boolean := fs_db_admin.fs_exists_functions.user_exists ('FSDBA');
+			activity_stream ( '', '', 'USER DOES NOT EXIST', 'LOGIN_DB_INSTANCES.', true, 1, 'P2', p_debug);
 			--
-			IF l_boolean = true THEN
-				--
-				l_boolean := fs_db_admin.fs_exists_functions.user_objects_exists ('FSDBA');
-				--
-				IF l_boolean = true THEN
-					drop_fsdba_legobj (p_debug);
-					drop_fsdba_bassecobj (p_debug);
-					--
-					activity_stream ( 'DROP USER fsdba', '', 'USER DOES NOT EXIST', 'FSDBA.', false, 1, 'P1', p_debug);
-					--
-				ELSE
-					drop_fsdba_legobj (p_debug);
-					drop_fsdba_bassecobj (p_debug);
-					--
-					activity_stream ( 'DROP USER fsdba', '', 'USER DOES NOT EXIST', 'FSDBA.', false, 1, 'P1', p_debug);
-					--
-				END IF;
-			ELSE
-				drop_fsdba_legobj (p_debug);
-				drop_fsdba_bassecobj (p_debug);
-				--
-				activity_stream ( '', '', 'USER DOES NOT EXIST', 'FSDBA.', true, 1, 'P2', p_debug);
-				--
-			END IF;
 		END IF;
 		--
+		l_boolean := fs_db_admin.fs_exists_functions.user_exists ('FSDBA');
+		--
+		IF l_boolean = true THEN
+			--
+			l_boolean := fs_db_admin.fs_exists_functions.user_objects_exists ('FSDBA');
+			--
+			IF l_boolean = true THEN
+				drop_fsdba_obj (p_debug);
+				--
+				activity_stream ( 'DROP USER fsdba', '', 'USER DOES NOT EXIST', 'FSDBA.', false, 1, 'P1', p_debug);
+				--
+			ELSE
+				drop_fsdba_obj (p_debug);
+				--
+				activity_stream ( 'DROP USER fsdba', '', 'USER DOES NOT EXIST', 'FSDBA.', false, 1, 'P1', p_debug);
+				--
+			END IF;
+		ELSE
+			drop_fsdba_obj (p_debug);
+			--
+			activity_stream ( '', '', 'USER DOES NOT EXIST', 'FSDBA.', true, 1, 'P2', p_debug);
+			--
+		END IF;
 	END IF;
 	--
 	activity_stream ( '', '', '', '', true, 0, 'P8', p_debug);
@@ -3202,29 +2768,28 @@ END provide_users;
 --**           pragmas: --
 --**         Exception:	--
 --**************************************************************************************************************************
---**        Psudo code: 
+--**        Pseudo code: 
 --**			IF LOWER(p_basicsecuritychoice) = 'c'
 --**				Create fsdba.create_rpwd_lock
 --**				Create fsdba.create_rpwd
 --**			IF LOWER(p_basicsecuritychoice) = 's'
 --**				's' components already exist in pkg.
---**				drop_fsdba_bassecobj 
 --**			Create data_pump_dir
 --**************************************************************************************************************************
 --
 --
 PROCEDURE provide_basic_security
 (
- p_basicsecuritychoice		IN		VARCHAR2,				-- Selection C, S, B.
- p_status			OUT		VARCHAR2,				-- Status message to check for errors.
- p_errormessage			OUT		VARCHAR2,				-- The actual error message.
- p_debug			IN		NUMBER					-- Turn on DEBUG.
+ p_basicsecuritychoice			IN		VARCHAR2,				-- Selection C, S, B.
+ p_status				OUT		VARCHAR2,				-- Status message to check for errors.
+ p_errormessage				OUT		VARCHAR2,				-- The actual error message.
+ p_debug				IN		NUMBER					-- Turn on DEBUG.
 )
 AS
- l_localprogramname				VARCHAR2(128) := 'provide_basic_security';
- l_programmessage				CLOB;
- l_sqltext					VARCHAR2(1000);
- l_boolean					BOOLEAN;
+ l_localprogramname			VARCHAR2(128) := 'provide_basic_security';
+ l_programmessage			CLOB;
+ l_sqltext				VARCHAR2(1000);
+ l_boolean				BOOLEAN;
 BEGIN
 	--
 	g_programcontext := l_localprogramname;
@@ -3275,9 +2840,6 @@ BEGIN
 		--
 	END IF;
 	--
-        IF LOWER(p_basicsecuritychoice) = 's' THEN
-		drop_fsdba_bassecobj (p_debug);
-	END IF;
 	--*******************************
 	--** All Modes Have Directory
 	--*******************************
@@ -3314,7 +2876,6 @@ END provide_basic_security;
 --**			v$instance
 --**   Tables Modified:	--
 --**  Passed Variables:
---**			p_rolechoice		-- Selection c, b, h or s.
 --**			p_status		-- Status message to check for errors.
 --**			p_error_message		-- The actual error message.
 --**			p_debug			-- The debug level set by the original calling program.
@@ -3327,7 +2888,6 @@ END provide_basic_security;
 --**			l_count			-- Count Variable
 --**			l_boolean		-- Choice Boolean
 --**           Cursors:	
---**			c1			-- Grantees associated to the roles FS_DBA_ROLE, FS_CATALOG_ROLE.
 --**			c2			-- Select if these roles currently exist FS_DBA_ROLE, FS_CATALOG_ROLE.
 --**			c3			-- Role list FS_DBA_ROLE,FS_CATALOG_ROLE.
 --**			c5			-- Grantees associated to the role FS_DEVELOPER_ROLE.
@@ -3337,7 +2897,7 @@ END provide_basic_security;
 --**           pragmas: --
 --**         Exception:	
 --**************************************************************************************************************************
---**        Psudo code: 
+--**        Pseudo code: 
 --**			GLOBAL Agreed to Roles: FS_SESSION, FS_CREATE
 --**			IF LOWER(p_rolechoice) = 'c' OR LOWER(p_rolechoice) = 'b' OR LOWER(p_rolechoice) = 'h'
 --**				NULL
@@ -3358,29 +2918,27 @@ END provide_basic_security;
 --
 PROCEDURE provide_roles
 (
- p_rolechoice			IN		VARCHAR2,				-- Selection C, S, B.
- p_status			OUT		VARCHAR2,				-- Status message to check for errors.
- p_errormessage			OUT		VARCHAR2,				-- The actual error message.
- p_debug			IN		NUMBER					-- Turn on DEBUG.
+ p_status				OUT		VARCHAR2,				-- Status message to check for errors.
+ p_errormessage				OUT		VARCHAR2,				-- The actual error message.
+ p_debug				IN		NUMBER					-- Turn on DEBUG.
 )
 AS
+ --
  CURSOR c1 IS
-	SELECT grantee, granted_role
-	FROM dba_role_privs
-	WHERE granted_role IN (SELECT (column_value).getstringval() FROM xmltable('"FS_DBA_ROLE","FS_CATALOG_ROLE"'))
-	ORDER BY grantee;
+	SELECT (column_value).getstringval() syspriv 
+	FROM xmltable('"CREATE SESSION", "ALTER SESSION"');
+ --
+ CURSOR c2 IS
+	SELECT (column_value).getstringval() syspriv
+	FROM xmltable('"CREATE SYNONYM","CREATE SEQUENCE","CREATE VIEW","CREATE TABLE","CREATE CLUSTER"');
  --
  CURSOR c3 IS
-	SELECT (column_value).getstringval() role 
-	FROM xmltable('"FS_DBA_ROLE", "FS_CATALOG_ROLE"');
-
- --
- CURSOR c5 IS
 	SELECT grantee, granted_role
 	FROM dba_role_privs
 	WHERE granted_role IN ('FS_DEVELOPER_ROLE')
 	ORDER BY grantee;
- CURSOR c6 IS
+ --
+ CURSOR c4 IS
 	SELECT (column_value).getstringval() syspriv
 	FROM xmltable('"ALTER SESSION","CREATE SESSION",
 	"ANALYZE ANY","ANALYZE ANY DICTIONARY","ALTER ANY ASSEMBLY","CREATE ANY ASSEMBLY","DROP ANY ASSEMBLY","EXECUTE ANY ASSEMBLY",
@@ -3408,43 +2966,22 @@ AS
 	"ADMINISTER SQL TUNING SET","ADVISOR","ALTER ANY TYPE","CREATE ANY TYPE","DROP ANY TYPE","EXECUTE ANY TYPE","UNDER ANY TYPE","CREATE ANY VIEW",
 	"DROP ANY VIEW","MERGE ANY VIEW","UNDER ANY VIEW"');
  --
- CURSOR c6a IS
+ CURSOR c5 IS
 	SELECT (column_value).getstringval() syspriv
 	FROM xmltable('"CREATE ANY ANALYTIC VIEW","ALTER ANY ANALYTIC VIEW","DROP ANY ANALYTIC VIEW","CREATE ANY HIERARCHY","ALTER ANY HIERARCHY",
 	"DROP ANY HIERARCHY","CREATE ANY ATTRIBUTE DIMENSION","ALTER ANY ATTRIBUTE DIMENSION","DROP ANY ATTRIBUTE DIMENSION"');
  --
- CURSOR c7 IS
+ CURSOR c6 IS
 	SELECT (column_value).getstringval() rolepriv
 	FROM xmltable('"AQ_ADMINISTRATOR_ROLE","SCHEDULER_ADMIN","GATHER_SYSTEM_STATISTICS",
 	"SELECT_CATALOG_ROLE","EM_EXPRESS_BASIC"');
  --
- CURSOR c8 IS
-	SELECT (column_value).getstringval() syspriv 
-	FROM xmltable('"CREATE SESSION", "ALTER SESSION"');
- --
- CURSOR c9 IS
-	SELECT grantee, granted_role
-	FROM dba_role_privs
-	WHERE granted_role IN ('FS_SELECT_CATALOG_ROLE')
-	ORDER BY grantee;
- --
- CURSOR c12 IS
-	SELECT grantee, granted_role
-	FROM dba_role_privs 
-	WHERE grantee = 'SYS'
-	AND granted_role in ('FS_DBA_ROLE','FS_CATALOG_ROLE','FS_SELECT_CATALOG_ROLE' )
-	ORDER BY granted_role;
- --
- CURSOR c13 IS
-	SELECT (column_value).getstringval() syspriv
-	FROM xmltable('"CREATE SYNONYM","CREATE SEQUENCE","CREATE VIEW","CREATE TABLE","CREATE CLUSTER"');
- --
- l_localprogramname				VARCHAR2(128) := 'provide_roles';
- l_programmessage				CLOB;
- l_sqltext					VARCHAR2(1000);
- l_count					NUMBER;
- l_boolean					BOOLEAN;
- l_dbvers					VARCHAR2(5);
+ l_localprogramname			VARCHAR2(128) := 'provide_roles';
+ l_programmessage			CLOB;
+ l_sqltext				VARCHAR2(1000);
+ l_count				NUMBER;
+ l_boolean				BOOLEAN;
+ l_dbvers				VARCHAR2(5);
 BEGIN
 	--
 	g_programcontext := l_localprogramname;
@@ -3462,17 +2999,26 @@ BEGIN
 	--
 	IF l_boolean = false THEN
 		activity_stream ( 'CREATE ROLE FS_SESSION', '', 'ROLE EXISTS', 'FS_SESSION.', l_boolean, 1, 'P1', p_debug);
+		activity_stream ( 'REVOKE FS_SESSION FROM sys', '', 'ROLE GRANTED', 'FS_SESSION TO SYS.', l_boolean, 1, 'P1', p_debug);
 	ELSE
 		activity_stream ( '', '', 'ROLE EXISTS', 'FS_SESSION Created.', l_boolean, 1, 'P2', p_debug);
-	END IF;
-	--
-	FOR c8_rec IN c8 LOOP
-		l_boolean := fs_db_admin.fs_exists_functions.grantee_syspriv_exists('FS_SESSION',c8_rec.syspriv);
+		--
+		l_boolean := fs_db_admin.fs_exists_functions.grantee_rolepriv_exists('SYS', 'FS_SESSION');
 		--
 		IF l_boolean = false THEN
-			activity_stream ( 'GRANT '||c8_rec.syspriv||' TO FS_SESSION', '', 'SYSPRIV GRANTED', c8_rec.syspriv||' To FS_SESSION.', l_boolean, 1, 'P1', p_debug);
+			activity_stream ( '', '', 'ROLE NOT GRANTED', 'FS_SESSION NOT GRANTED TO SYS.', true, 1, 'P2', p_debug);
 		ELSE
-			activity_stream ( '', '', 'SYSPRIV GRANTED', c8_rec.syspriv||' To FS_SESSION.', l_boolean, 1, 'P2', p_debug);
+			activity_stream ( 'REVOKE FS_SESSION FROM sys', '', 'ROLE GRANTED', 'FS_SESSION TO SYS.', l_boolean, 1, 'P1', p_debug);
+		END IF;
+	END IF;
+	--
+	FOR c1_rec IN c1 LOOP
+		l_boolean := fs_db_admin.fs_exists_functions.grantee_syspriv_exists('FS_SESSION',c1_rec.syspriv);
+		--
+		IF l_boolean = false THEN
+			activity_stream ( 'GRANT '||c1_rec.syspriv||' TO FS_SESSION', '', 'SYSPRIV GRANTED', c1_rec.syspriv||' To FS_SESSION.', l_boolean, 1, 'P1', p_debug);
+		ELSE
+			activity_stream ( '', '', 'SYSPRIV GRANTED', c1_rec.syspriv||' To FS_SESSION.', l_boolean, 1, 'P2', p_debug);
 		END IF;
 	END LOOP;
  	--
@@ -3484,174 +3030,64 @@ BEGIN
 	--
 	IF l_boolean = false THEN
 		activity_stream ( 'CREATE ROLE FS_CREATE', '', 'ROLE EXISTS', 'FS_CREATE.', l_boolean, 1, 'P1', p_debug);
+		activity_stream ( 'REVOKE FS_CREATE FROM sys', '', 'ROLE NOT GRANTED', 'FS_CREATE TO SYS.', l_boolean, 1, 'P1', p_debug);
 	ELSE
 		activity_stream ( '', '', 'ROLE EXISTS', 'FS_CREATE.', l_boolean, 1, 'P2', p_debug);
-	END IF;
-	--
-	FOR c13_rec IN c13 LOOP
-		l_boolean := fs_db_admin.fs_exists_functions.grantee_syspriv_exists('FS_CREATE',c13_rec.syspriv);
+		--
+		l_boolean := fs_db_admin.fs_exists_functions.grantee_rolepriv_exists('SYS', 'FS_CREATE');
 		--
 		IF l_boolean = false THEN
-			activity_stream ( 'GRANT '||c13_rec.syspriv||' TO FS_CREATE', '', 'SYSPRIV GRANTED', c13_rec.syspriv||' To FS_CREATE.', l_boolean, 1, 'P1', p_debug);
+			activity_stream ( '', '', 'ROLE NOT GRANTED', 'FS_CREATE NOT GRANTED TO SYS.', true, 1, 'P2', p_debug);
 		ELSE
-			activity_stream ( '', '', 'SYSPRIV GRANTED', c13_rec.syspriv||' To FS_CREATE.', l_boolean, 1, 'P2', p_debug);
+			activity_stream ( 'REVOKE FS_CREATE FROM sys', '', 'ROLE GRANTED', 'FS_CREATE TO SYS.', false, 1, 'P1', p_debug);
+		END IF;
+	END IF;
+	--
+	FOR c2_rec IN c2 LOOP
+		l_boolean := fs_db_admin.fs_exists_functions.grantee_syspriv_exists('FS_CREATE',c2_rec.syspriv);
+		--
+		IF l_boolean = false THEN
+			activity_stream ( 'GRANT '||c2_rec.syspriv||' TO FS_CREATE', '', 'SYSPRIV GRANTED', c2_rec.syspriv||' To FS_CREATE.', l_boolean, 1, 'P1', p_debug);
+		ELSE
+			activity_stream ( '', '', 'SYSPRIV GRANTED', c2_rec.syspriv||' To FS_CREATE.', l_boolean, 1, 'P2', p_debug);
 		END IF;
 	END LOOP;
 	--
-	--********************************************************************
-	--** PROFILE CHOICE c OR b OF h
-	--********************************************************************
-	IF LOWER(p_rolechoice) = 'c' OR LOWER(p_rolechoice) = 'b' OR LOWER(p_rolechoice) = 'h' THEN
-	       	--
-		--**********************************************
-		--** REMOVE ROLES AND SYSPRIVS THAT DO NOT 
-		--** BELONG TO p_profilechoice = 'c'.
-		--**********************************************
-		--
-		IF LOWER(p_rolechoice) = 'c' THEN
-			FOR c1_rec IN c1 LOOP
-				--
-				--*****************************************
-				--** MDOFIY USERS ASSIGNED FS_DBA_ROLE
-				--*****************************************
-				--
-				IF c1_rec.granted_role = 'FS_DBA_ROLE' THEN
-					--
-					activity_stream ( 'GRANT DBA TO '||c1_rec.grantee, '', 'ROLE GRANTED', 'DBA To '||c1_rec.grantee||'.', false, 1, 'P1', p_debug);
-					--
-					activity_stream ( 'REVOKE '||c1_rec.granted_role||' FROM '||c1_rec.grantee, '', 'ROLE REVOKED', c1_rec.granted_role||' To '||c1_rec.grantee||'.', false, 1, 'P1', p_debug);
-					--
-				--
-				--*****************************************
-				--** MDOFIY USERS ASSIGNED FS_CATALOG_ROLE
-				--*****************************************
-				--
-				ELSIF c1_rec.granted_role = 'FS_CATALOG_ROLE' THEN
-					--
-					activity_stream ( 'GRANT FS_SELECT_CATALOG_ROLE TO '||c1_rec.grantee, '', 'ROLE GRANTED', 'SELECT_CATALOG_ROLE To '||c1_rec.grantee||'.', false, 1, 'P1', p_debug);
-					--
-					activity_stream ( 'REVOKE '||c1_rec.granted_role||' FROM '||c1_rec.grantee, '', 'ROLE REVOKED  ', c1_rec.granted_role||' From '||c1_rec.grantee||'.', false, 1, 'P1', p_debug);
-					--
-				END IF;
-
-			END LOOP;
-			--
-			--*****************************************
-			--** DROP FS_DBA_ROLE, 
-			--** FS_CATALOG_ROLE ROLE
-			--*****************************************
-			--
-			FOR c3_rec IN c3 LOOP
-				--
-				l_boolean := fs_db_admin.fs_exists_functions.role_exists(c3_rec.role);
-				--
-				IF l_boolean = true THEN
-					--
-					activity_stream ( 'DROP ROLE '||c3_rec.role, '', 'ROLE DOES NOT EXIST', c3_rec.role||'.', false, 1, 'P1', p_debug);
-					--
-				END IF;
-			END LOOP;
-		END IF;
-	END IF;
-	--********************************************************************
-	--**
-	--********************************************************************
-	IF LOWER(p_rolechoice) = 's' OR LOWER(p_rolechoice) = 'b' OR LOWER(p_rolechoice) = 'h' THEN
-		--
-		FOR c3_rec IN c3 LOOP
-			--
-			--*****************************************
-			--** CREATE FS_DBA_ROLE
-			--*****************************************
-			--
-			IF c3_rec.role = 'FS_DBA_ROLE' THEN
-				--
-				l_boolean := fs_db_admin.fs_exists_functions.role_exists(c3_rec.role);
-				--
-				IF l_boolean = false THEN
-					activity_stream ( 'CREATE ROLE '||c3_rec.role||' NOT IDENTIFIED', '', 'ROLE EXISTS', c3_rec.role||'.', l_boolean, 1, 'P1', p_debug);
-				ELSE
-					activity_stream ( '', '', 'ROLE EXISTS', c3_rec.role||'.', l_boolean, 1, 'P2', p_debug);
-				END IF;
-				--
-				l_boolean := fs_db_admin.fs_exists_functions.grantee_rolepriv_exists(c3_rec.role, 'DBA');
-				--
-				IF l_boolean = false THEN
-					activity_stream ( 'GRANT DBA TO '||c3_rec.role, '', 'ROLE GRANTED', 'DBA To '||c3_rec.role, l_boolean, 1, 'P1', p_debug);
-				ELSE
-					activity_stream ( '', '', 'ROLE GRANTED', 'DBA To '||c3_rec.role, l_boolean, 1, 'P2', p_debug);
-				END IF;
-				--
-			--
-			--*****************************************
-			--** CREATE FS_CATALOG_ROLE
-			--*****************************************
-			--
-			ELSIF c3_rec.role = 'FS_CATALOG_ROLE' THEN
-				--
-				l_boolean := fs_db_admin.fs_exists_functions.role_exists(c3_rec.role);
-				--
-				IF l_boolean = false THEN
-					activity_stream ( 'CREATE ROLE '||c3_rec.role||' NOT IDENTIFIED', '', 'ROLE EXISTS', c3_rec.role||' Created.', l_boolean, 1, 'P1', p_debug);
-				ELSE
-					activity_stream ( '', '', 'ROLE EXISTS', c3_rec.role||' Created.', l_boolean, 1, 'P2', p_debug);
-				END IF;
-				--
-				l_boolean := fs_db_admin.fs_exists_functions.grantee_rolepriv_exists(c3_rec.role, 'SELECT_CATALOG_ROLE');
-				--
-				IF l_boolean = false THEN
-					activity_stream ( 'GRANT SELECT_CATALOG_ROLE TO '||c3_rec.role, '', 'ROLE GRANTED', 'SELECT_CATALOG_ROLE To '||c3_rec.role, l_boolean, 1, 'P1', p_debug);
-				ELSE
-					activity_stream ( '', '', 'ROLE GRANTED', 'SELECT_CATALOG_ROLE To '||c3_rec.role, l_boolean, 1, 'P2', p_debug);
-				END IF;
-				--
-			END IF;
-		END LOOP;
-        	--
-		--**********************************************
-		--** REMOVE ROLES AND SYSPRIVS THAT DO NOT 
-		--** BELONG TO p_profilechoice = 's'.
-		--**********************************************
-		--
-		IF LOWER(p_rolechoice) = 's' OR LOWER(p_rolechoice) = 'b' OR LOWER(p_rolechoice) = 'h' THEN
-			--
-				--
-			FOR c9_rec IN c9 LOOP
-				--
-				l_boolean := fs_db_admin.fs_exists_functions.grantee_rolepriv_exists ( c9_rec.grantee, 'FS_CATALOG_ROLE');
-				--
-				IF l_boolean = false THEN
-					activity_stream ( 'GRANT FS_CATALOG_ROLE TO '||c9_rec.grantee, '', 'ROLE GRANTED', 'FS_CATALOG_ROLE To '||c9_rec.grantee||'.', l_boolean, 1, 'P1', p_debug);
-				ELSE
-					activity_stream ( '', '', 'ROLE GRANTED', 'FS_CATALOG_ROLE To '||c9_rec.grantee||'.', l_boolean, 1, 'P2', p_debug);
-				END IF;
-				--
-				activity_stream ( 'REVOKE '||c9_rec.granted_role||' FROM '||c9_rec.grantee, '', 'ROLE REVOKED  ', c9_rec.granted_role||' From '||c9_rec.grantee||'.', false, 1, 'P1', p_debug);
-				--
-			END LOOP;
-			--
-		END IF;
-	END IF;
-	--
-	--********************************************************************
-	--** FS_DEVELOPER_ROLE Activities
-	--********************************************************************
+	--***************************
+	--** Setup FS_DEVELOPER_ROLE
+	--***************************
 	--
 	l_boolean := fs_db_admin.fs_exists_functions.role_exists('FS_DEVELOPER_ROLE');
 	--
-	IF LOWER(SYS_CONTEXT ('USERENV', 'DB_DOMAIN')) LIKE 'fdc%' OR (LOWER(SYS_CONTEXT ('USERENV', 'DB_DOMAIN')) LIKE 'wrk%' AND LOWER(SYS_CONTEXT ('USERENV', 'DB_NAME')) LIKE '%t')
+	IF  LOWER(SYS_CONTEXT ('USERENV', 'DB_DOMAIN')) LIKE 'fdc%' OR  (LOWER(SYS_CONTEXT ('USERENV', 'DB_DOMAIN')) LIKE 'wrk%'  AND LOWER(SYS_CONTEXT ('USERENV', 'DB_NAME')) LIKE '%t')
 		AND l_boolean = false THEN 
 		--
-		activity_stream ( '', '', 'ROLE EXISTS Non-Dev Environment', 'FS_DEVELOPER_ROLE', true, 1, 'P2', p_debug);
+		activity_stream ( '', '', 'ROLE DOES NOT EXIST IN Non-Dev Environment', 'FS_DEVELOPER_ROLE', true, 1, 'P2', p_debug);
 		--
-	ELSIF LOWER(SYS_CONTEXT ('USERENV', 'DB_DOMAIN')) LIKE 'fdc%' OR (LOWER(SYS_CONTEXT ('USERENV', 'DB_DOMAIN')) LIKE 'wrk%' AND LOWER(SYS_CONTEXT ('USERENV', 'DB_NAME')) LIKE '%t')
+		l_boolean := fs_db_admin.fs_exists_functions.grantee_rolepriv_exists('SYS', 'FS_DEVELOPER_ROLE');
+		--
+		IF l_boolean = false THEN
+			activity_stream ( '', '', 'ROLE NOT GRANTED', 'FS_DEVELOPER_ROLE NOT GRANTED TO SYS.', true, 1, 'P2', p_debug);
+		ELSE
+			activity_stream ( 'REVOKE FS_DEVELOPER_ROLE FROM sys', '', 'ROLE GRANTED', 'FS_DEVELOPER_ROLE TO SYS.', false, 1, 'P1', p_debug);
+		END IF;
+		--
+	ELSIF ( LOWER(SYS_CONTEXT ('USERENV', 'DB_DOMAIN')) LIKE 'fdc%' OR (LOWER(SYS_CONTEXT ('USERENV', 'DB_DOMAIN')) LIKE 'wrk%' ) AND LOWER(SYS_CONTEXT ('USERENV', 'DB_NAME')) LIKE '%t')
 		AND l_boolean = true THEN
 		--
-		FOR c5_rec IN c5 LOOP
+		FOR c3_rec IN c3 LOOP
 			--
-			activity_stream ('REVOKE ROLE FS_DEVELOPER_ROLE FROM '||c5_rec.grantee, '', 'ROLE GRANTED', 'FS_DEVELOPER_ROLE Granted To '||c5_rec.grantee||'.', false, 1, 'P1', p_debug);
+			activity_stream ('REVOKE ROLE FS_DEVELOPER_ROLE FROM '||c3_rec.grantee, '', 'ROLE GRANTED', 'FS_DEVELOPER_ROLE Granted To '||c3_rec.grantee||'.', false, 1, 'P1', p_debug);
 			--
 		END LOOP;
+		--
+		l_boolean := fs_db_admin.fs_exists_functions.grantee_rolepriv_exists('SYS', 'FS_DEVELOPER_ROLE');
+		--
+		IF l_boolean = false THEN
+			activity_stream ( '', '', 'ROLE NOT GRANTED', 'FS_DEVELOPER_ROLE NOT GRANTED TO SYS.', true, 1, 'P2', p_debug);
+		ELSE
+			activity_stream ( 'REVOKE FS_DEVELOPER_ROLE FROM sys', '', 'ROLE GRANTED', 'FS_DEVELOPER_ROLE TO SYS.', false, 1, 'P1', p_debug);
+		END IF;
 		--
 		activity_stream ('DROP ROLE FS_DEVELOPER_ROLE', '', 'ROLE EXISTS Non-Dev Environment', 'FS_DEVELOPER_ROLE', false, 1, 'P1', p_debug);
 		--
@@ -3660,65 +3096,65 @@ BEGIN
 			--
 			activity_stream ( '', '', 'ROLE EXISTS', 'FS_DEVELOPER_ROLE.', true, 1, 'P2', p_debug);
 			--
+			l_boolean := fs_db_admin.fs_exists_functions.grantee_rolepriv_exists('SYS', 'FS_DEVELOPER_ROLE');
+			--
+			IF l_boolean = false THEN
+				activity_stream ( '', '', 'ROLE NOT GRANTED', 'FS_DEVELOPER_ROLE NOT GRANTED TO SYS.', true, 1, 'P2', p_debug);
+			ELSE
+				activity_stream ( 'REVOKE FS_DEVELOPER_ROLE FROM sys', '', 'ROLE GRANTED', 'FS_DEVELOPER_ROLE TO SYS.', false, 1, 'P1', p_debug);
+			END IF;
+		--
 		ELSE
 			--
 			activity_stream ('CREATE ROLE FS_DEVELOPER_ROLE NOT IDENTIFIED', '', 'ROLE EXISTS', 'FS_DEVELOPER_ROLE.', false, 1, 'P1', p_debug);
+			activity_stream ( 'REVOKE FS_DEVELOPER_ROLE FROM sys', '', 'ROLE NOT GRANTED', 'FS_DEVELOPER_ROLE TO SYS.', l_boolean, 1, 'P1', p_debug);
 			--
 		END IF;
 		--
 		IF l_dbvers IN ('12.1', '12.2', '18.1') THEN
-			FOR c6_rec IN c6 LOOP
-				l_boolean := fs_db_admin.fs_exists_functions.grantee_syspriv_exists('FS_DEVELOPER_ROLE', c6_rec.syspriv);
+			FOR c4_rec IN c4 LOOP
+				l_boolean := fs_db_admin.fs_exists_functions.grantee_syspriv_exists('FS_DEVELOPER_ROLE', c4_rec.syspriv);
 				IF l_boolean = true THEN
 					--
-					activity_stream ( '', '', 'SYSPRIV GRANTED', c6_rec.syspriv||' To FS_DEVELOPER_ROLE.', true, 1, 'P2', p_debug);
+					activity_stream ( '', '', 'SYSPRIV GRANTED', c4_rec.syspriv||' To FS_DEVELOPER_ROLE.', true, 1, 'P2', p_debug);
 					--
 				ELSE
 					--
-					activity_stream ('GRANT '||c6_rec.syspriv|| ' TO FS_DEVELOPER_ROLE', '', 'SYSPRIV GRANTED', c6_rec.syspriv||' To FS_DEVELOPER_ROLE.', false, 1, 'P1', p_debug);
+					activity_stream ('GRANT '||c4_rec.syspriv|| ' TO FS_DEVELOPER_ROLE', '', 'SYSPRIV GRANTED', c4_rec.syspriv||' To FS_DEVELOPER_ROLE.', false, 1, 'P1', p_debug);
 					--
 				END IF;
 			END LOOP;
 		END IF;
 		--
 		IF l_dbvers IN ('12.2', '18.1') THEN
-			FOR c6a_rec IN c6a LOOP
-				l_boolean := fs_db_admin.fs_exists_functions.grantee_syspriv_exists('FS_DEVELOPER_ROLE', c6a_rec.syspriv);
+			FOR c5_rec IN c5 LOOP
+				l_boolean := fs_db_admin.fs_exists_functions.grantee_syspriv_exists('FS_DEVELOPER_ROLE', c5_rec.syspriv);
 				IF l_boolean = true THEN
 					--
-					activity_stream ( '', '', 'SYSPRIV GRANTED', c6a_rec.syspriv||' To FS_DEVELOPER_ROLE.', true, 1, 'P2', p_debug);
+					activity_stream ( '', '', 'SYSPRIV GRANTED', c5_rec.syspriv||' To FS_DEVELOPER_ROLE.', true, 1, 'P2', p_debug);
 					--
 				ELSE
 					--
-					activity_stream ('GRANT '||c6a_rec.syspriv|| ' TO FS_DEVELOPER_ROLE', '', 'SYSPRIV GRANTED', c6a_rec.syspriv||' To FS_DEVELOPER_ROLE.', false, 1, 'P1', p_debug);
+					activity_stream ('GRANT '||c5_rec.syspriv|| ' TO FS_DEVELOPER_ROLE', '', 'SYSPRIV GRANTED', c5_rec.syspriv||' To FS_DEVELOPER_ROLE.', false, 1, 'P1', p_debug);
 					--
 				END IF;
 			END LOOP;
 		END IF;
 		--
-		FOR c7_rec IN c7 LOOP
-			l_boolean := fs_db_admin.fs_exists_functions.grantee_rolepriv_exists('FS_DEVELOPER_ROLE', c7_rec.rolepriv);
+		FOR c6_rec IN c6 LOOP
+			l_boolean := fs_db_admin.fs_exists_functions.grantee_rolepriv_exists('FS_DEVELOPER_ROLE', c6_rec.rolepriv);
 			IF l_boolean = true THEN
 				--
-				activity_stream ( '', '', 'ROLE GRANTED', c7_rec.rolepriv||' to FS_DEVELOPER_ROLE.', true, 1, 'P2', p_debug);
+				activity_stream ( '', '', 'ROLE GRANTED', c6_rec.rolepriv||' to FS_DEVELOPER_ROLE.', true, 1, 'P2', p_debug);
 				--
 			ELSE
 				--
-				activity_stream ('GRANT '||c7_rec.rolepriv|| ' TO FS_DEVELOPER_ROLE', '', 'ROLE GRANTED', c7_rec.rolepriv||' To FS_DEVELOPER_ROLE.', false, 1, 'P1', p_debug);
+				activity_stream ('GRANT '||c6_rec.rolepriv|| ' TO FS_DEVELOPER_ROLE', '', 'ROLE GRANTED', c6_rec.rolepriv||' To FS_DEVELOPER_ROLE.', false, 1, 'P1', p_debug);
 				--
 			END IF;
 		END LOOP;
 		--
 	END IF;
-	--
-	FOR c12_rec IN c12 LOOP
-		l_boolean := fs_db_admin.fs_exists_functions.grantee_rolepriv_exists ( c12_rec.grantee, c12_rec.granted_role);
-		--
-		IF l_boolean = true THEN
-			activity_stream ('REVOKE '||c12_rec.granted_role||' FROM '||c12_rec.grantee, '', 'ROLE REVOKED', c12_rec.granted_role||' Granted To '||c12_rec.grantee||'.', false, 0, 'P1', p_debug);
-		END IF;
-		--
-	END LOOP;
 	--
 	activity_stream ( '', '', '', '', true, 0, 'P8', p_debug);
 	--
@@ -3739,46 +3175,40 @@ END provide_roles;
 --**			dual
 --**   Tables Modified:	--
 --**  Passed Variables:
---**			p_profilechoice		-- Choice Variable
---**			p_status		-- Status message to check for errors.
+--**			p_status			-- Status message to check for errors.
 --**			p_error_message		-- The actual error message.
---**			p_debug			-- The debug level set by the original calling program.
+--**			p_debug				-- The debug level set by the original calling program.
 --** Passed Global Var:	--
 --**   Global Var Mods:	--
 --**   Local Variables:
 --**			l_localprogramname	-- This programs name. (For debugging purposes.)
 --**			l_programmessage	-- The local debugging message.
---**			l_sqltext		-- The DDL text
---**			l_count			-- Count Variable
---**			l_boolean		-- Choice Boolean
+--**			l_sqltext			-- The DDL text
+--**			l_count				-- Count Variable
+--**			l_boolean			-- Choice Boolean
 --**           Cursors:	
---**			c1			-- The Profile List.
---**			c2			-- Username asociated to the profile list.
---**			c3			-- Profile Exceptions SESSIONS_PER_USER,IDLE_TIME,PASSWORD_LIFE_TIME
---**			c4			-- Profile exceptions SESSIONS_PER_USER
---**			c5			-- Profile exceptions SESSIONS_PER_USER,FAILED_LOGIN_ATTEMPTS,
---**						-- PASSWORD_LIFE_TIME,PASSWORD_GRACE_TIME
---**			c6			-- Default Profile Required Exceptions
---**			c7			-- Default Profile Original Delivered Exceptions
+--**			c1					-- The Profile List.
+--**			c2					-- Username asociated to the profile list.
+--**			c3					-- Profile Exceptions SESSIONS_PER_USER,IDLE_TIME,PASSWORD_LIFE_TIME
+--**			c4					-- Profile exceptions SESSIONS_PER_USER
+--**			c5					-- Profile exceptions SESSIONS_PER_USER,FAILED_LOGIN_ATTEMPTS,
+--**								-- PASSWORD_LIFE_TIME,PASSWORD_GRACE_TIME
+--**			c6					-- Default Profile Required Exceptions
+--**			c7					-- Default Profile Original Delivered Exceptions
 --**           pragmas: --
 --**         Exception:	--
 --**************************************************************************************************************************
---**        Psudo code: 
---**			IF LOWER(p_profilechoice) = 'c'
---**				Change users to default profile that have the a profile list profile. 
---**				Drop the profile list profiles
---**			ELSIF LOWER(p_profilechoice) = 's'
---**				IF new profile exists verfiy execptions set correctly.
---**				If new profiles don'r exist create them
+--**        Pseudo code: 
+--**			IF new profile exists verfiy execeptions set correctly.
+--**			IF new profiles don'r exist create them
 --**************************************************************************************************************************
 --
 --
 PROCEDURE provide_profiles
 (
- p_profilechoice		IN		VARCHAR2,				-- Selection c, s.
- p_status			OUT		VARCHAR2,				-- Status message to check for errors.
- p_errormessage			OUT		VARCHAR2,				-- The actual error message.
- p_debug			IN		NUMBER DEFAULT 0				-- Turn on DEBUG.
+ p_status				OUT		VARCHAR2,			-- Status message to check for errors.
+ p_errormessage				OUT		VARCHAR2,			-- The actual error message.
+ p_debug				IN		NUMBER DEFAULT 0		-- Turn on DEBUG.
 )
 AS
  CURSOR c1 IS
@@ -3860,11 +3290,11 @@ AS
 	WHERE p.resource_name = do.resource_name
 	AND p.profile = 'DEFAULT';
  --
- l_localprogramname				VARCHAR2(128) := 'provide_profiles';
- l_programmessage				CLOB;
- l_sqltext					VARCHAR2(1000);
- l_boolean					BOOLEAN;
- l_count					NUMBER;
+ l_localprogramname			VARCHAR2(128) := 'provide_profiles';
+ l_programmessage			CLOB;
+ l_sqltext				VARCHAR2(1000);
+ l_boolean				BOOLEAN;
+ l_count				NUMBER;
 BEGIN
 	--
 	g_programcontext := l_localprogramname;
@@ -3876,535 +3306,476 @@ BEGIN
 	--**
 	--********************************************************************
 	--
-	IF LOWER(p_profilechoice) = 'c' THEN
+	--
+	FOR c1_rec IN c1 LOOP
 		--
-		SELECT count(*) INTO l_count
-		FROM dba_profiles
-		WHERE profile in ('FS_APP_PROFILE', 'FS_USER_PROFILE','FS_OWNER_PROFILE','FS_ADMIN_PROFILE','FS_TEMP_PROFILE');
+		l_boolean := fs_db_admin.fs_exists_functions.profile_exists (c1_rec.profile);
 		--
-		IF l_count > 0 THEN
-			FOR c2_rec IN c2 LOOP
-				--
-				activity_stream ('ALTER USER '||c2_rec.username||' PROFILE DEFAULT', '', 'PROFILE ASSIGNED', 'DEFAULT To '||c2_rec.username||'.', false, 1, 'P1', p_debug);
-				--
-			END LOOP;
+		IF l_boolean = true THEN
 			--
-			FOR c1_rec IN c1 LOOP
+			activity_stream ( '', '', 'PROFILE EXISTS', c1_rec.profile||'.', true, 1, 'P2', p_debug);
+			--
+			IF c1_rec.profile = 'FS_APP_PROFILE' THEN
+				l_boolean := fs_db_admin.fs_exists_functions.profile_limit_exists (c1_rec.profile, 'SESSIONS_PER_USER', '400');
 				--
-				activity_stream ('DROP PROFILE '||c1_rec.profile, '', 'PROFILE ASSIGNED ', 'DEFAULT To '||c1_rec.profile||'.', false, 1, 'P1', p_debug);
+				IF l_boolean = true THEN
+					--
+					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', 'SESSIONS_PER_USER=400 On '||c1_rec.profile||'.', true, 1, 'P2', p_debug);
+					--
+				ELSE
+					--
+					activity_stream ( 'ALTER PROFILE '||c1_rec.profile||' LIMIT SESSIONS_PER_USER 400', '', 
+					'PROFILE RESOURCE LIMIT', 'SESSIONS_PER_USER=400 On '||c1_rec.profile||'.', false, 1, 'P1', p_debug);
+					--
+				END IF;
+				l_boolean := fs_db_admin.fs_exists_functions.profile_limit_exists (c1_rec.profile, 'IDLE_TIME', '30');
 				--
-			END LOOP;
+				IF l_boolean = true THEN
+					--
+					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', 'IDLE_TIME=30 On '||c1_rec.profile||'.', true, 1, 'P2', p_debug);
+					--
+				ELSE
+					--
+					activity_stream ( 'ALTER PROFILE '||c1_rec.profile||' LIMIT IDLE_TIME 30', '', 
+					'PROFILE RESOURCE LIMIT', 'IDLE_TIME=30 On '||c1_rec.profile||'.', false, 1, 'P1', p_debug);
+					--
+				END IF;
+				--
+				l_boolean := fs_db_admin.fs_exists_functions.profile_limit_exists (c1_rec.profile, 'PASSWORD_LIFE_TIME', '365');
+				--
+				IF l_boolean = true THEN
+					--
+					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', 'PASSWORD_LIFE_TIME=365 On '||c1_rec.profile||'.', true, 1, 'P2', p_debug);
+					--
+				ELSE
+					--
+					activity_stream ( 'ALTER PROFILE '||c1_rec.profile||' LIMIT PASSWORD_LIFE_TIME 365', '', 
+					'PROFILE RESOURCE LIMIT SET', 'PASSWORD_LIFE_TIME=365 On '||c1_rec.profile||'.', false, 1, 'P1', p_debug);
+					--
+				END IF;
+				--
+				FOR c3_rec IN c3 (c1_rec.profile) LOOP
+					IF c3_rec.limit = 'DEFAULT' THEN
+						--
+						activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c3_rec.resource_name||'='||c3_rec.limit||' On '||c3_rec.profile||'.', true, 1, 'P2', p_debug);
+						--
+					ELSE
+						--
+						activity_stream ( 'ALTER PROFILE '||c3_rec.profile||' LIMIT '||c3_rec.resource_name||' DEFAULT', '', 
+						'PROFILE RESOURCE LIMIT SET', c3_rec.resource_name||'=DEFAULT On '||c3_rec.profile||'.', false, 1, 'P1', p_debug);
+						--
+					END IF;
+				END LOOP;
+			--
+			ELSIF c1_rec.profile = 'FS_ADMIN_PROFILE' THEN
+				l_boolean := fs_db_admin.fs_exists_functions.profile_limit_exists (c1_rec.profile, 'SESSIONS_PER_USER', '20');
+				--
+				IF l_boolean = true THEN
+					--
+					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', 'SESSIONS_PER_USER=20 On '||c1_rec.profile||'.', true, 1, 'P2', p_debug);
+					--
+				ELSE
+					--
+					activity_stream ( 'ALTER PROFILE '||c1_rec.profile||' LIMIT SESSIONS_PER_USER 20', '', 
+					'PROFILE RESOURCE LIMIT SET', 'SESSIONS_PER_USER=20 On '||c1_rec.profile||'.', false, 1, 'P1', p_debug);
+					--
+				END IF;
+				l_boolean := fs_db_admin.fs_exists_functions.profile_limit_exists (c1_rec.profile, 'IDLE_TIME', '20');
+				--
+				IF l_boolean = true THEN
+					--
+					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', 'IDLE_TIME=20 On '||c1_rec.profile||'.', true, 1, 'P2', p_debug);
+					--
+				ELSE
+					--
+					activity_stream ( 'ALTER PROFILE '||c1_rec.profile||' LIMIT IDLE_TIME 30', '', 
+					'PROFILE RESOURCE LIMIT SET', 'IDLE_TIME=20 On '||c1_rec.profile||'.', false, 1, 'P1', p_debug);
+					--
+				END IF;
+				--
+				l_boolean := fs_db_admin.fs_exists_functions.profile_limit_exists (c1_rec.profile, 'PASSWORD_LIFE_TIME', '365');
+				--
+				IF l_boolean = true THEN
+					--
+					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', 'PASSWORD_LIFE_TIME=365 On '||c1_rec.profile||'.', true, 1, 'P2', p_debug);
+					--
+				ELSE
+					--
+					activity_stream ( 'ALTER PROFILE '||c1_rec.profile||' LIMIT PASSWORD_LIFE_TIME 365', '', 
+					'PROFILE RESOURCE LIMIT SET', 'PASSWORD_LIFE_TIME=365 On '||c1_rec.profile||'.', false, 1, 'P1', p_debug);
+					--
+				END IF;
+				--
+				FOR c3_rec IN c3 (c1_rec.profile) LOOP
+					IF c3_rec.limit = 'DEFAULT' THEN
+						--
+						activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c3_rec.resource_name||'='||c3_rec.limit||' On '||c3_rec.profile||'.', true, 1, 'P2', p_debug);
+						--
+					ELSE
+						--
+						activity_stream ( 'ALTER PROFILE '||c3_rec.profile||' LIMIT '||c3_rec.resource_name||' DEFAULT', '', 
+						'PROFILE RESOURCE LIMIT SET', c3_rec.resource_name||'=DEFAULT On '||c3_rec.profile||'.', false, 1, 'P1', p_debug);
+						--
+					END IF;
+				END LOOP;
+				--
+			ELSIF c1_rec.profile = 'FS_USER_PROFILE' THEN
+				l_boolean := fs_db_admin.fs_exists_functions.profile_limit_exists (c1_rec.profile, 'SESSIONS_PER_USER', '5');
+				--
+				IF l_boolean = true THEN
+					--
+					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', 'SESSIONS_PER_USER=5 On '||c1_rec.profile||'.', true, 1, 'P2', p_debug);
+					--
+				ELSE
+					--
+					activity_stream ( 'ALTER PROFILE '||c1_rec.profile||' LIMIT SESSIONS_PER_USER 5', '', 
+						'PROFILE RESOURCE LIMIT SET', 'SESSIONS_PER_USER=5 On '||c1_rec.profile||'.', false, 1, 'P1', p_debug);
+					--
+				END IF;
+				--
+				FOR c4_rec IN c4 (c1_rec.profile) LOOP
+					IF c4_rec.limit = 'DEFAULT' THEN
+						--
+						activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c4_rec.resource_name||'='||c4_rec.limit||' On '||c4_rec.profile||'.', true, 1, 'P2', p_debug);
+						--
+					ELSE
+						--
+						activity_stream ( 'ALTER PROFILE '||c4_rec.profile||' LIMIT '||c4_rec.resource_name||' DEFAULT', '', 
+						'PROFILE RESOURCE LIMIT SET', c4_rec.resource_name||'=DEFAULT On '||c4_rec.profile||'.', false, 1, 'P1', p_debug);
+						--
+					END IF;
+				END LOOP;
+				--
+			ELSIF c1_rec.profile = 'FS_TEMP_PROFILE' THEN
+				l_boolean := fs_db_admin.fs_exists_functions.profile_limit_exists (c1_rec.profile, 'SESSIONS_PER_USER', '5');
+				--
+				IF l_boolean = true THEN
+					--
+					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', 'SESSIONS_PER_USER=5 On '||c1_rec.profile||'.', true, 1, 'P2', p_debug);
+					--
+				ELSE
+					--
+					activity_stream ( 'ALTER PROFILE '||c1_rec.profile||' LIMIT SESSIONS_PER_USER 5', '', 
+						'PROFILE RESOURCE LIMIT SET', 'SESSIONS_PER_USER=5 On '||c1_rec.profile||'.', false, 1, 'P1', p_debug);
+					--
+				END IF;
+				--
+				FOR c4_rec IN c4 (c1_rec.profile) LOOP
+					IF c4_rec.limit = 'DEFAULT' THEN
+						--
+						activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c4_rec.resource_name||'='||c4_rec.limit||' On '||c4_rec.profile||'.', true, 1, 'P2', p_debug);
+						--
+					ELSE
+						--
+						activity_stream ( 'ALTER PROFILE '||c4_rec.profile||' LIMIT '||c4_rec.resource_name||' DEFAULT', '', 
+						'PROFILE RESOURCE LIMIT SET', c4_rec.resource_name||'=DEFAULT On '||c4_rec.profile||'.', false, 1, 'P1', p_debug);
+						--
+					END IF;
+				END LOOP;
+				--
+			ELSIF c1_rec.profile = 'FS_OWNER_PROFILE' THEN
+				l_boolean := fs_db_admin.fs_exists_functions.profile_limit_exists (c1_rec.profile, 'SESSIONS_PER_USER', '1');
+				--
+				IF l_boolean = true THEN
+					--
+					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', 'SESSIONS_PER_USER=1 On '||c1_rec.profile||'.', true, 1, 'P2', p_debug);
+					--
+				ELSE
+					--
+					activity_stream ( 'ALTER PROFILE '||c1_rec.profile||' LIMIT SESSIONS_PER_USER 1', '', 
+					'PROFILE RESOURCE LIMIT SET', 'SESSIONS_PER_USER=1 On '||c1_rec.profile||'.', false, 1, 'P1', p_debug);
+					--
+				END IF;
+				l_boolean := fs_db_admin.fs_exists_functions.profile_limit_exists (c1_rec.profile, 'FAILED_LOGIN_ATTEMPTS', '1');
+				--
+				IF l_boolean = true THEN
+					--
+					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', 'FAILED_LOGIN_ATTEMPTS=1 On '||c1_rec.profile||'.', true, 1, 'P2', p_debug);
+					--
+				ELSE
+					--
+					activity_stream ( 'ALTER PROFILE '||c1_rec.profile||' LIMIT IDLE_TIME 1', '', 
+					'PROFILE RESOURCE LIMIT SET', 'FAILED_LOGIN_ATTEMPTS=1 On '||c1_rec.profile||'.', false, 1, 'P1', p_debug);
+					--
+				END IF;
+				--
+				--********************************************
+				--** Profile Limit PASSWORD_LIFE_TIME cannot
+				--** be set to 0. Hasto have value > 0. When
+				--** set to value < than .0001 it becomes 0.
+				--********************************************
+				l_boolean := fs_db_admin.fs_exists_functions.profile_limit_exists (c1_rec.profile, 'PASSWORD_LIFE_TIME', '0');
+				--
+				IF l_boolean = true THEN
+					--
+					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', 'PASSWORD_LIFE_TIME=0.00001 On '||c1_rec.profile||'.', true, 1, 'P2', p_debug);
+					--
+				ELSE
+					--
+					activity_stream ( 'ALTER PROFILE '||c1_rec.profile||' LIMIT PASSWORD_LIFE_TIME 0.00001', '', 
+					'PROFILE RESOURCE LIMIT SET', 'PASSWORD_LIFE_TIME=0.00001 On '||c1_rec.profile||'.', false, 1, 'P1', p_debug);
+					--
+				END IF;
+				--
+				l_boolean := fs_db_admin.fs_exists_functions.profile_limit_exists (c1_rec.profile, 'PASSWORD_GRACE_TIME', '0');
+				--
+				IF l_boolean = true THEN
+					--
+					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', 'PASSWORD_GRACE_TIME=0 On '||c1_rec.profile||'.', true, 1, 'P2', p_debug);
+					--
+				ELSE
+					--
+					activity_stream ( 'ALTER PROFILE '||c1_rec.profile||' LIMIT PASSWORD_GRACE_TIME 0', '', 
+					'PROFILE RESOURCE LIMIT SET', 'PASSWORD_GRACE_TIME=0 On '||c1_rec.profile||'.', false, 1, 'P1', p_debug);
+					--
+				END IF;
+				--
+				FOR c5_rec IN c5 (c1_rec.profile) LOOP
+					IF c5_rec.limit = 'DEFAULT' THEN
+						--
+						activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c5_rec.resource_name||'='||c5_rec.limit||' On '||c5_rec.profile||'.', true, 1, 'P2', p_debug);
+						--
+					ELSE
+						--
+						activity_stream ( 'ALTER PROFILE '||c5_rec.profile||' LIMIT '||c5_rec.resource_name||' DEFAULT', '', 
+						'PROFILE RESOURCE LIMIT SET', c5_rec.resource_name||'=DEFAULT On '||c5_rec.profile||'.', false, 1, 'P1', p_debug);
+						--
+					END IF;
+				END LOOP;
+				--
+			ELSE
+				activity_stream ( '', '', 'CODE PATH ERROR', 'On '||c1_rec.profile||'.', false, 1, 'P5', p_debug);
+			END IF;
+			--
+		ELSIF l_boolean = false THEN
+			l_sqltext := 'CREATE PROFILE '||c1_rec.profile;
+			--
+			IF c1_rec.profile = 'FS_APP_PROFILE' THEN
+				l_sqltext := l_sqltext || 
+						' LIMIT 
+						SESSIONS_PER_USER		400 
+						IDLE_TIME			30 
+						PASSWORD_LIFE_TIME		365';
+				--
+				activity_stream ( l_sqltext, '', 'PROFILE EXISTS', c1_rec.profile||'.', false, 1, 'P1', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource COMPOSITE_LIMIT=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource CONNECT_TIME=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource CPU_PER_CALL=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource CPU_PER_SESSION=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource FAILED_LOGIN_ATTEMPTS=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource IDLE_TIME=30.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource LOGICAL_READS_PER_CALL=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource LOGICAL_READS_PER_SESSION=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_GRACE_TIME=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_LIFE_TIME=365.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_LOCK_TIME=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_REUSE_MAX=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_REUSE_TIME=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_VERIFY_FUNCTION=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PRIVATE_SGA=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource SESSIONS_PER_USER=400.', false, 1, 'P5', p_debug);
+				--
+			ELSIF c1_rec.profile = 'FS_USER_PROFILE' THEN
+				l_sqltext := l_sqltext || 
+						' LIMIT 
+						SESSIONS_PER_USER		5';
+				--
+				activity_stream ( l_sqltext, '', 'PROFILE EXISTS', c1_rec.profile||'.', false, 1, 'P1', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource COMPOSITE_LIMIT=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource CONNECT_TIME=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource CPU_PER_CALL=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource CPU_PER_SESSION=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource FAILED_LOGIN_ATTEMPTS=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource IDLE_TIME=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource LOGICAL_READS_PER_CALL=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource LOGICAL_READS_PER_SESSION=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_GRACE_TIME=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_LIFE_TIME=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_LOCK_TIME=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_REUSE_MAX=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_REUSE_TIME=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_VERIFY_FUNCTION=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PRIVATE_SGA=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource SESSIONS_PER_USER=5.', false, 1, 'P5', p_debug);
+				--
+			ELSIF c1_rec.profile = 'FS_OWNER_PROFILE' THEN
+				l_sqltext := l_sqltext || 
+						' LIMIT 
+						SESSIONS_PER_USER		1 
+						FAILED_LOGIN_ATTEMPTS		1
+						PASSWORD_LIFE_TIME		0.00001
+						PASSWORD_GRACE_TIME		0';
+				--
+				activity_stream ( l_sqltext, '', 'PROFILE EXISTS', c1_rec.profile||'.', false, 1, 'P1', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource COMPOSITE_LIMIT=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource CONNECT_TIME=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource CPU_PER_CALL=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource CPU_PER_SESSION=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource FAILED_LOGIN_ATTEMPTS=1.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource IDLE_TIME=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource LOGICAL_READS_PER_CALL=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource LOGICAL_READS_PER_SESSION=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_GRACE_TIME=0.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_LIFE_TIME=0.00001.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_LOCK_TIME=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_REUSE_MAX=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_REUSE_TIME=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_VERIFY_FUNCTION=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PRIVATE_SGA=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource SESSIONS_PER_USER=1.', false, 1, 'P5', p_debug);
+				--
+			ELSIF c1_rec.profile = 'FS_ADMIN_PROFILE' THEN
+				l_sqltext := l_sqltext || 
+						' LIMIT 
+						SESSIONS_PER_USER		20 
+						IDLE_TIME			20 
+						PASSWORD_LIFE_TIME		365';
+				--
+				activity_stream ( l_sqltext, '', 'PROFILE EXISTS', c1_rec.profile||'.', false, 1, 'P1', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource COMPOSITE_LIMIT=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource CONNECT_TIME=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource CPU_PER_CALL=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource CPU_PER_SESSION=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource FAILED_LOGIN_ATTEMPTS=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource IDLE_TIME=20.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource LOGICAL_READS_PER_CALL=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource LOGICAL_READS_PER_SESSION=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_GRACE_TIME=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_LIFE_TIME=365.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_LOCK_TIME=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_REUSE_MAX=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_REUSE_TIME=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_VERIFY_FUNCTION=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PRIVATE_SGA=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource SESSIONS_PER_USER=20.', false, 1, 'P5', p_debug);
+				--
+			ELSIF c1_rec.profile = 'FS_TEMP_PROFILE' THEN
+				l_sqltext := l_sqltext || 
+						' LIMIT 
+						SESSIONS_PER_USER		5';
+				--
+				activity_stream ( l_sqltext, '', 'PROFILE EXISTS', c1_rec.profile||'.', false, 1, 'P1', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource COMPOSITE_LIMIT=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource CONNECT_TIME=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource CPU_PER_CALL=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource CPU_PER_SESSION=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource FAILED_LOGIN_ATTEMPTS=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource IDLE_TIME=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource LOGICAL_READS_PER_CALL=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource LOGICAL_READS_PER_SESSION=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_GRACE_TIME=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_LIFE_TIME=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_LOCK_TIME=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_REUSE_MAX=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_REUSE_TIME=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_VERIFY_FUNCTION=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PRIVATE_SGA=DEFAULT.', false, 1, 'P5', p_debug);
+				--
+				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource SESSIONS_PER_USER=5.', false, 1, 'P5', p_debug);
+				--
+			END IF;
+			--
+		END IF;
+	END LOOP;
+	--
+	activity_stream ('', '', 'PROFILE EXISTS ', 'DEFAULT.', true, 0, 'P2', p_debug);
+	--
+	FOR c6_rec IN c6 LOOP
+		--
+		IF c6_rec.decision = 0 THEN
+			--
+			activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c6_rec.resource_name||'='||c6_rec.req_limit||' On '||c6_rec.profile||'.', true, 1, 'P2', p_debug);
+			--
+		ELSIF c6_rec.decision = 1 THEN
+			--
+			activity_stream ( 'ALTER PROFILE '||c6_rec.profile||' LIMIT '||c6_rec.resource_name||'  '||c6_rec.req_limit, '', 
+				'PROFILE RESOURCE LIMIT SET', c6_rec.resource_name||'='||c6_rec.req_limit||' On '||c6_rec.profile||'.', false, 1, 'P1', p_debug);
 			--
 		ELSE
 			--
-			activity_stream ('', '', 'PROFILE EXISTS', 'FS_APP_PROFILE.', true, 1, 'P2', p_debug);
-			activity_stream ('', '', 'PROFILE EXISTS', 'FS_USER_PROFILE.', true, 1, 'P2', p_debug);
-			activity_stream ('', '', 'PROFILE EXISTS', 'FS_OWNER_PROFILE.', true, 1, 'P2', p_debug);
-			activity_stream ('', '', 'PROFILE EXISTS', 'FS_ADMIN_PROFILE.', true, 1, 'P2', p_debug);
-			activity_stream ('', '', 'PROFILE EXISTS', 'FS_TEMP_PROFILE.', true, 1, 'P2', p_debug);
+			activity_stream ( '', '', 'CODE ERROR: provide_profiles c6', 'Decision Point '||c6_rec.decision||' On '||c6_rec.profile||' Bad Value.', false, 1, 'P5', p_debug);
 			--
 		END IF;
-		--
-		activity_stream ('', '', 'PROFILE EXISTS ', 'DEFAULT.', true, 0, 'P2', p_debug);
-		--
-		FOR c7_rec IN c7 LOOP
-			IF c7_rec.decision = 0 THEN
-				--
-				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT', c7_rec.resource_name||'='||c7_rec.req_limit||' On '||c7_rec.profile||'.', true, 1, 'P2', p_debug);
-				--
-			ELSIF c7_rec.decision = 1 THEN
-				--
-				activity_stream ( 'ALTER PROFILE '||c7_rec.profile||' LIMIT '||c7_rec.resource_name||'  '||c7_rec.req_limit, '',  
-					'PROFILE RESOURCE LIMIT', c7_rec.resource_name||'='||c7_rec.req_limit||' On '||c7_rec.profile||'.', false, 1, 'P1', p_debug);
-				--
-			ELSE
-				--
-				activity_stream ( '', '', 'CODE ERROR: PROFILE LIMIT', 'Decision Point '||c7_rec.decision||' On '||c7_rec.profile||' Bad Value.', false, 1, 'P5', p_debug);
-				--
-			END IF;
-		END LOOP;
-	--
-	--********************************************************************
-	--**
-	--********************************************************************
-	--
-	ELSIF LOWER(p_profilechoice) = 's' THEN
-		--
-		FOR c1_rec IN c1 LOOP
-			--
-			l_boolean := fs_db_admin.fs_exists_functions.profile_exists (c1_rec.profile);
-			--
-			IF l_boolean = true THEN
-				--
-				activity_stream ( '', '', 'PROFILE EXISTS', c1_rec.profile||'.', true, 1, 'P2', p_debug);
-				--
-				IF c1_rec.profile = 'FS_APP_PROFILE' THEN
-					l_boolean := fs_db_admin.fs_exists_functions.profile_limit_exists (c1_rec.profile, 'SESSIONS_PER_USER', '400');
-					--
-					IF l_boolean = true THEN
-						--
-						activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', 'SESSIONS_PER_USER=400 On '||c1_rec.profile||'.', true, 1, 'P2', p_debug);
-						--
-					ELSE
-						--
-						activity_stream ( 'ALTER PROFILE '||c1_rec.profile||' LIMIT SESSIONS_PER_USER 400', '', 
-						'PROFILE RESOURCE LIMIT', 'SESSIONS_PER_USER=400 On '||c1_rec.profile||'.', false, 1, 'P1', p_debug);
-						--
-					END IF;
-					l_boolean := fs_db_admin.fs_exists_functions.profile_limit_exists (c1_rec.profile, 'IDLE_TIME', '30');
-					--
-					IF l_boolean = true THEN
-						--
-						activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', 'IDLE_TIME=30 On '||c1_rec.profile||'.', true, 1, 'P2', p_debug);
-						--
-					ELSE
-						--
-						activity_stream ( 'ALTER PROFILE '||c1_rec.profile||' LIMIT IDLE_TIME 30', '', 
-						'PROFILE RESOURCE LIMIT', 'IDLE_TIME=30 On '||c1_rec.profile||'.', false, 1, 'P1', p_debug);
-						--
-					END IF;
-					--
-					l_boolean := fs_db_admin.fs_exists_functions.profile_limit_exists (c1_rec.profile, 'PASSWORD_LIFE_TIME', '365');
-					--
-					IF l_boolean = true THEN
-						--
-						activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', 'PASSWORD_LIFE_TIME=365 On '||c1_rec.profile||'.', true, 1, 'P2', p_debug);
-						--
-					ELSE
-						--
-						activity_stream ( 'ALTER PROFILE '||c1_rec.profile||' LIMIT PASSWORD_LIFE_TIME 365', '', 
-						'PROFILE RESOURCE LIMIT SET', 'PASSWORD_LIFE_TIME=365 On '||c1_rec.profile||'.', false, 1, 'P1', p_debug);
-						--
-					END IF;
-					--
-					FOR c3_rec IN c3 (c1_rec.profile) LOOP
-						IF c3_rec.limit = 'DEFAULT' THEN
-							--
-							activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c3_rec.resource_name||'='||c3_rec.limit||' On '||c3_rec.profile||'.', true, 1, 'P2', p_debug);
-							--
-						ELSE
-							--
-							activity_stream ( 'ALTER PROFILE '||c3_rec.profile||' LIMIT '||c3_rec.resource_name||' '||c3_rec.limit, '', 
-							'PROFILE RESOURCE LIMIT SET', c3_rec.resource_name||'='||c3_rec.limit||' On '||c3_rec.profile||'.', false, 1, 'P1', p_debug);
-							--
-						END IF;
-					END LOOP;
-					--
-				ELSIF c1_rec.profile = 'FS_ADMIN_PROFILE' THEN
-					l_boolean := fs_db_admin.fs_exists_functions.profile_limit_exists (c1_rec.profile, 'SESSIONS_PER_USER', '20');
-					--
-					IF l_boolean = true THEN
-						--
-						activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', 'SESSIONS_PER_USER=20 On '||c1_rec.profile||'.', true, 1, 'P2', p_debug);
-						--
-					ELSE
-						--
-						activity_stream ( 'ALTER PROFILE '||c1_rec.profile||' LIMIT SESSIONS_PER_USER 20', '', 
-						'PROFILE RESOURCE LIMIT SET', 'SESSIONS_PER_USER=20 On '||c1_rec.profile||'.', false, 1, 'P1', p_debug);
-						--
-					END IF;
-					l_boolean := fs_db_admin.fs_exists_functions.profile_limit_exists (c1_rec.profile, 'IDLE_TIME', '20');
-					--
-					IF l_boolean = true THEN
-						--
-						activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', 'IDLE_TIME=20 On '||c1_rec.profile||'.', true, 1, 'P2', p_debug);
-						--
-					ELSE
-						--
-						activity_stream ( 'ALTER PROFILE '||c1_rec.profile||' LIMIT IDLE_TIME 30', '', 
-						'PROFILE RESOURCE LIMIT SET', 'IDLE_TIME=20 On '||c1_rec.profile||'.', false, 1, 'P1', p_debug);
-						--
-					END IF;
-					--
-					l_boolean := fs_db_admin.fs_exists_functions.profile_limit_exists (c1_rec.profile, 'PASSWORD_LIFE_TIME', '365');
-					--
-					IF l_boolean = true THEN
-						--
-						activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', 'PASSWORD_LIFE_TIME=365 On '||c1_rec.profile||'.', true, 1, 'P2', p_debug);
-						--
-					ELSE
-						--
-						activity_stream ( 'ALTER PROFILE '||c1_rec.profile||' LIMIT PASSWORD_LIFE_TIME 365', '', 
-						'PROFILE RESOURCE LIMIT SET', 'PASSWORD_LIFE_TIME=365 On '||c1_rec.profile||'.', false, 1, 'P1', p_debug);
-						--
-					END IF;
-					--
-					FOR c3_rec IN c3 (c1_rec.profile) LOOP
-						IF c3_rec.limit = 'DEFAULT' THEN
-							--
-							activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c3_rec.resource_name||'='||c3_rec.limit||' On '||c3_rec.profile||'.', true, 1, 'P2', p_debug);
-							--
-						ELSE
-							--
-							activity_stream ( 'ALTER PROFILE '||c3_rec.profile||' LIMIT '||c3_rec.resource_name||' '||c3_rec.limit, '', 
-							'PROFILE RESOURCE LIMIT SET', c3_rec.resource_name||'='||c3_rec.limit||' On '||c3_rec.profile||'.', false, 1, 'P1', p_debug);
-							--
-						END IF;
-					END LOOP;
-					--
-				ELSIF c1_rec.profile = 'FS_USER_PROFILE' THEN
-					l_boolean := fs_db_admin.fs_exists_functions.profile_limit_exists (c1_rec.profile, 'SESSIONS_PER_USER', '5');
-					--
-					IF l_boolean = true THEN
-						--
-						activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', 'SESSIONS_PER_USER=5 On '||c1_rec.profile||'.', true, 1, 'P2', p_debug);
-						--
-					ELSE
-						--
-						activity_stream ( 'ALTER PROFILE '||c1_rec.profile||' LIMIT SESSIONS_PER_USER 5', '', 
-							'PROFILE RESOURCE LIMIT SET', 'SESSIONS_PER_USER=5 On '||c1_rec.profile||'.', false, 1, 'P1', p_debug);
-						--
-					END IF;
-					--
-					FOR c4_rec IN c4 (c1_rec.profile) LOOP
-						IF c4_rec.limit = 'DEFAULT' THEN
-							--
-							activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c4_rec.resource_name||'='||c4_rec.limit||' On '||c4_rec.profile||'.', true, 1, 'P2', p_debug);
-							--
-						ELSE
-							--
-							activity_stream ( 'ALTER PROFILE '||c4_rec.profile||' LIMIT '||c4_rec.resource_name||' '||c4_rec.limit, '', 
-							'PROFILE RESOURCE LIMIT SET', c4_rec.resource_name||'='||c4_rec.limit||' On '||c4_rec.profile||'.', false, 1, 'P1', p_debug);
-							--
-						END IF;
-					END LOOP;
-					--
-				ELSIF c1_rec.profile = 'FS_TEMP_PROFILE' THEN
-					l_boolean := fs_db_admin.fs_exists_functions.profile_limit_exists (c1_rec.profile, 'SESSIONS_PER_USER', '5');
-					--
-					IF l_boolean = true THEN
-						--
-						activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', 'SESSIONS_PER_USER=5 On '||c1_rec.profile||'.', true, 1, 'P2', p_debug);
-						--
-					ELSE
-						--
-						activity_stream ( 'ALTER PROFILE '||c1_rec.profile||' LIMIT SESSIONS_PER_USER 5', '', 
-							'PROFILE RESOURCE LIMIT SET', 'SESSIONS_PER_USER=5 On '||c1_rec.profile||'.', false, 1, 'P1', p_debug);
-						--
-					END IF;
-					--
-					FOR c4_rec IN c4 (c1_rec.profile) LOOP
-						IF c4_rec.limit = 'DEFAULT' THEN
-							--
-							activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c4_rec.resource_name||'='||c4_rec.limit||' On '||c4_rec.profile||'.', true, 1, 'P2', p_debug);
-							--
-						ELSE
-							--
-							activity_stream ( 'ALTER PROFILE '||c4_rec.profile||' LIMIT '||c4_rec.resource_name||' '||c4_rec.limit, '', 
-							'PROFILE RESOURCE LIMIT SET', c4_rec.resource_name||'='||c4_rec.limit||' On '||c4_rec.profile||'.', false, 1, 'P1', p_debug);
-							--
-						END IF;
-					END LOOP;
-					--
-				ELSIF c1_rec.profile = 'FS_OWNER_PROFILE' THEN
-					l_boolean := fs_db_admin.fs_exists_functions.profile_limit_exists (c1_rec.profile, 'SESSIONS_PER_USER', '1');
-					--
-					IF l_boolean = true THEN
-						--
-						activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', 'SESSIONS_PER_USER=1 On '||c1_rec.profile||'.', true, 1, 'P2', p_debug);
-						--
-					ELSE
-						--
-						activity_stream ( 'ALTER PROFILE '||c1_rec.profile||' LIMIT SESSIONS_PER_USER 1', '', 
-						'PROFILE RESOURCE LIMIT SET', 'SESSIONS_PER_USER=1 On '||c1_rec.profile||'.', false, 1, 'P1', p_debug);
-						--
-					END IF;
-					l_boolean := fs_db_admin.fs_exists_functions.profile_limit_exists (c1_rec.profile, 'FAILED_LOGIN_ATTEMPTS', '1');
-					--
-					IF l_boolean = true THEN
-						--
-						activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', 'FAILED_LOGIN_ATTEMPTS=1 On '||c1_rec.profile||'.', true, 1, 'P2', p_debug);
-						--
-					ELSE
-						--
-						activity_stream ( 'ALTER PROFILE '||c1_rec.profile||' LIMIT IDLE_TIME 1', '', 
-						'PROFILE RESOURCE LIMIT SET', 'FAILED_LOGIN_ATTEMPTS=1 On '||c1_rec.profile||'.', false, 1, 'P1', p_debug);
-						--
-					END IF;
-					--
-					--********************************************
-					--** Profile Limit PASSWORD_LIFE_TIME cannot
-					--** be set to 0. Hasto have value > 0. When
-					--** set to value < than .0001 it becomes 0.
-					--********************************************
-					l_boolean := fs_db_admin.fs_exists_functions.profile_limit_exists (c1_rec.profile, 'PASSWORD_LIFE_TIME', '0');
-					--
-					IF l_boolean = true THEN
-						--
-						activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', 'PASSWORD_LIFE_TIME=0.00001 On '||c1_rec.profile||'.', true, 1, 'P2', p_debug);
-						--
-					ELSE
-						--
-						activity_stream ( 'ALTER PROFILE '||c1_rec.profile||' LIMIT PASSWORD_LIFE_TIME 0.00001', '', 
-						'PROFILE RESOURCE LIMIT SET', 'PASSWORD_LIFE_TIME=0.00001 On '||c1_rec.profile||'.', false, 1, 'P1', p_debug);
-						--
-					END IF;
-					--
-					l_boolean := fs_db_admin.fs_exists_functions.profile_limit_exists (c1_rec.profile, 'PASSWORD_GRACE_TIME', '0');
-					--
-					IF l_boolean = true THEN
-						--
-						activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', 'PASSWORD_GRACE_TIME=0 On '||c1_rec.profile||'.', true, 1, 'P2', p_debug);
-						--
-					ELSE
-						--
-						activity_stream ( 'ALTER PROFILE '||c1_rec.profile||' LIMIT PASSWORD_GRACE_TIME 0', '', 
-						'PROFILE RESOURCE LIMIT SET', 'PASSWORD_GRACE_TIME=0 On '||c1_rec.profile||'.', false, 1, 'P1', p_debug);
-						--
-					END IF;
-					--
-					FOR c5_rec IN c5 (c1_rec.profile) LOOP
-						IF c5_rec.limit = 'DEFAULT' THEN
-							--
-							activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c5_rec.resource_name||'='||c5_rec.limit||' On '||c5_rec.profile||'.', true, 1, 'P2', p_debug);
-							--
-						ELSE
-							--
-							activity_stream ( 'ALTER PROFILE '||c5_rec.profile||' LIMIT '||c5_rec.resource_name||' '||c5_rec.limit, '', 
-							'PROFILE RESOURCE LIMIT SET', c5_rec.resource_name||'='||c5_rec.limit||' On '||c5_rec.profile||'.', false, 1, 'P1', p_debug);
-							--
-						END IF;
-					END LOOP;
-					--
-				ELSE
-					activity_stream ( '', '', 'CODE PATH ERROR', 'On '||c1_rec.profile||'.', false, 1, 'P5', p_debug);
-				END IF;
-				--
-    			ELSE
-				--
-				l_sqltext := 'CREATE PROFILE '||c1_rec.profile;
-				--
-				IF c1_rec.profile = 'FS_APP_PROFILE' THEN
-					l_sqltext := l_sqltext || 
-							' LIMIT 
-							SESSIONS_PER_USER		400 
-							IDLE_TIME			30 
-							PASSWORD_LIFE_TIME		365';
-					--
-					activity_stream ( l_sqltext, '', 'PROFILE EXISTS', c1_rec.profile||'.', false, 1, 'P1', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource COMPOSITE_LIMIT=UNLIMITED.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource CONNECT_TIME=UNLIMITED.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource CPU_PER_CALL=UNLIMITED.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource CPU_PER_SESSION=UNLIMITED.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource FAILED_LOGIN_ATTEMPTS=5.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource IDLE_TIME=30.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource LOGICAL_READS_PER_CALL=UNLIMITED.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource LOGICAL_READS_PER_SESSION=UNLIMITED.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_GRACE_TIME=5.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_LIFE_TIME=365.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_LOCK_TIME=UNLIMITED.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_REUSE_MAX=24.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_REUSE_TIME=365.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_VERIFY_FUNCTION=FS_PASSWORD_VERIFY.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PRIVATE_SGA=UNLIMITED.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource SESSIONS_PER_USER=400.', false, 1, 'P5', p_debug);
-					--
-				ELSIF c1_rec.profile = 'FS_USER_PROFILE' THEN
-					l_sqltext := l_sqltext || 
-							' LIMIT 
-							SESSIONS_PER_USER		5';
-					--
-					activity_stream ( l_sqltext, '', 'PROFILE EXISTS', c1_rec.profile||'.', false, 1, 'P1', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource COMPOSITE_LIMIT=UNLIMITED.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource CONNECT_TIME=UNLIMITED.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource CPU_PER_CALL=UNLIMITED.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource CPU_PER_SESSION=UNLIMITED.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource FAILED_LOGIN_ATTEMPTS=5.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource IDLE_TIME=15.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource LOGICAL_READS_PER_CALL=UNLIMITED.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource LOGICAL_READS_PER_SESSION=UNLIMITED.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_GRACE_TIME=5.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_LIFE_TIME=60.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_LOCK_TIME=UNLIMITED.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_REUSE_MAX=24.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_REUSE_TIME=365.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_VERIFY_FUNCTION=FS_PASSWORD_VERIFY.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PRIVATE_SGA=UNLIMITED.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource SESSIONS_PER_USER=5.', false, 1, 'P5', p_debug);
-					--
-				ELSIF c1_rec.profile = 'FS_OWNER_PROFILE' THEN
-					l_sqltext := l_sqltext || 
-							' LIMIT 
-							SESSIONS_PER_USER		1 
-							FAILED_LOGIN_ATTEMPTS		1
-							PASSWORD_LIFE_TIME		0.00001
-							PASSWORD_GRACE_TIME		0';
-					--
-					activity_stream ( l_sqltext, '', 'PROFILE EXISTS', c1_rec.profile||'.', false, 1, 'P1', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource COMPOSITE_LIMIT=UNLIMITED.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource CONNECT_TIME=UNLIMITED.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource CPU_PER_CALL=UNLIMITED.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource CPU_PER_SESSION=UNLIMITED.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource FAILED_LOGIN_ATTEMPTS=1.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource IDLE_TIME=15.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource LOGICAL_READS_PER_CALL=UNLIMITED.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource LOGICAL_READS_PER_SESSION=UNLIMITED.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_GRACE_TIME=0.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_LIFE_TIME=0.00001.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_LOCK_TIME=UNLIMITED.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_REUSE_MAX=24.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_REUSE_TIME=365.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_VERIFY_FUNCTION=FS_PASSWORD_VERIFY.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PRIVATE_SGA=UNLIMITED.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource SESSIONS_PER_USER=1.', false, 1, 'P5', p_debug);
-					--
-				ELSIF c1_rec.profile = 'FS_ADMIN_PROFILE' THEN
-					l_sqltext := l_sqltext || 
-							' LIMIT 
-							SESSIONS_PER_USER		20 
-							IDLE_TIME			20 
-							PASSWORD_LIFE_TIME		365';
-					--
-					activity_stream ( l_sqltext, '', 'PROFILE EXISTS', c1_rec.profile||'.', false, 1, 'P1', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource COMPOSITE_LIMIT=UNLIMITED.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource CONNECT_TIME=UNLIMITED.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource CPU_PER_CALL=UNLIMITED.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource CPU_PER_SESSION=UNLIMITED.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource FAILED_LOGIN_ATTEMPTS=5.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource IDLE_TIME=20.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource LOGICAL_READS_PER_CALL=UNLIMITED.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource LOGICAL_READS_PER_SESSION=UNLIMITED.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_GRACE_TIME=5.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_LIFE_TIME=365.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_LOCK_TIME=UNLIMITED.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_REUSE_MAX=24.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_REUSE_TIME=365.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_VERIFY_FUNCTION=FS_PASSWORD_VERIFY.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PRIVATE_SGA=UNLIMITED.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource SESSIONS_PER_USER=20.', false, 1, 'P5', p_debug);
-					--
-				ELSIF c1_rec.profile = 'FS_TEMP_PROFILE' THEN
-					l_sqltext := l_sqltext || 
-							' LIMIT 
-							SESSIONS_PER_USER		5';
-					--
-					activity_stream ( l_sqltext, '', 'PROFILE EXISTS', c1_rec.profile||'.', false, 1, 'P1', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource COMPOSITE_LIMIT=UNLIMITED.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource CONNECT_TIME=UNLIMITED.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource CPU_PER_CALL=UNLIMITED.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource CPU_PER_SESSION=UNLIMITED.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource FAILED_LOGIN_ATTEMPTS=5.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource IDLE_TIME=15.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource LOGICAL_READS_PER_CALL=UNLIMITED.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource LOGICAL_READS_PER_SESSION=UNLIMITED.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_GRACE_TIME=5.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_LIFE_TIME=60.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_LOCK_TIME=UNLIMITED.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_REUSE_MAX=24.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_REUSE_TIME=365.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PASSWORD_VERIFY_FUNCTION=FS_PASSWORD_VERIFY.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource PRIVATE_SGA=UNLIMITED.', false, 1, 'P5', p_debug);
-					--
-					activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c1_rec.profile||' Resource SESSIONS_PER_USER=5.', false, 1, 'P5', p_debug);
-					--
-				END IF;
-				--
-			END IF;
-		END LOOP;
-		--
-		activity_stream ('', '', 'PROFILE EXISTS ', 'DEFAULT.', true, 0, 'P2', p_debug);
-		--
-		FOR c6_rec IN c6 LOOP
-			--
-			IF c6_rec.decision = 0 THEN
-				--
-				activity_stream ( '', '', 'PROFILE RESOURCE LIMIT SET', c6_rec.resource_name||'='||c6_rec.req_limit||' On '||c6_rec.profile||'.', true, 1, 'P2', p_debug);
-				--
-			ELSIF c6_rec.decision = 1 THEN
-				--
-				activity_stream ( 'ALTER PROFILE '||c6_rec.profile||' LIMIT '||c6_rec.resource_name||'  '||c6_rec.req_limit, '', 
-					'PROFILE RESOURCE LIMIT SET', c6_rec.resource_name||'='||c6_rec.req_limit||' On '||c6_rec.profile||'.', false, 1, 'P1', p_debug);
-				--
-			ELSE
-				--
-				activity_stream ( '', '', 'CODE ERROR: provide_profiles c6', 'Decision Point '||c6_rec.decision||' On '||c6_rec.profile||' Bad Value.', false, 1, 'P5', p_debug);
-				--
-			END IF;
-		END LOOP;
-	ELSE
-		--
-		activity_stream ( '', '', 'CODE ERROR: provide_profiles', 'Input Value '||LOWER(p_profilechoice)||' Is A Bad Value.', false, 1, 'P5', p_debug);
-		--
-	END IF;
+	END LOOP;
 	--
 	activity_stream ( '', '', '', '', true, 0, 'P8', p_debug);
 	--
@@ -4415,8 +3786,7 @@ END provide_profiles;
 --
 --**************************************************************************************************************************
 --**         Procedure:	provide_gis_roles
---**           Purpose:	This procedure createsd the GIS roles based on the setting 
---**			p_providegisroles 
+--**           Purpose:	This procedure createsd the GIS roles based on the setting p_providegisroles
 --**				t = Build the GIS Roles
 --**				f = Do not Build the GIS Roles
 --**  Calling Programs:	--
@@ -4427,25 +3797,25 @@ END provide_profiles;
 --**   Tables Modified:	--
 --**  Passed Variables: 
 --**			p_gisroleschoice	-- Choice Variable
---**			p_status		-- Status message to check for errors.
+--**			p_status			-- Status message to check for errors.
 --**			p_error_message		-- The actual error message.
---**			p_debug			-- The debug level set by the original calling program.
+--**			p_debug				-- The debug level set by the original calling program.
 --** Passed Global Var:	--
 --**   Global Var Mods:	--
 --**   Local Variables:
 --**			l_localprogramname	-- This programs name. (For debugging purposes.)
 --**			l_programmessage	-- The local debugging message.
---**			l_sqltext		-- The DDL text
---**			l_boolean		-- Choice Boolean
+--**			l_sqltext			-- The DDL text
+--**			l_boolean			-- Choice Boolean
 --**           Cursors:	C1			-- Privileges for FS_GIS role.
---**			C2			-- Privileges for FS_GIS_ADMIN role.
---**			C3			-- Grantee's of FS_GIS role.
---**			C4			-- Grantee's of FS_GIS_ADMIN role.
+--**			C2					-- Privileges for FS_GIS_ADMIN role.
+--**			C3					-- Grantee's of FS_GIS role.
+--**			C4					-- Grantee's of FS_GIS_ADMIN role.
 --**           pragmas: --
 --**         Exception:	
 --**			soau_failure
 --**************************************************************************************************************************
---**        Psudo code: 
+--**        Pseudo code: 
 --**			IF p_providegisroles = 't'
 --**				CREATE FS_GIS role
 --**				GRANT privileges to FS_GIS role
@@ -4462,10 +3832,10 @@ END provide_profiles;
 --
 PROCEDURE provide_gis_roles
 (
- p_gisroleschoice		IN		VARCHAR2,				-- Selection t, f.
- p_status			OUT		VARCHAR2,				-- Status message to check for errors.
- p_errormessage			OUT		VARCHAR2,				-- The actual error message.
- p_debug			IN		NUMBER					-- Turn on DEBUG.
+ p_gisroleschoice			IN		VARCHAR2,		-- Selection t, f.
+ p_status				OUT		VARCHAR2,		-- Status message to check for errors.
+ p_errormessage				OUT		VARCHAR2,		-- The actual error message.
+ p_debug				IN		NUMBER			-- Turn on DEBUG.
 )
 AS
  CURSOR c1 IS
@@ -4584,198 +3954,37 @@ END provide_gis_roles;
 --
 --
 --**************************************************************************************************************************
---**         Procedure:	provide_public_grants
---**           Purpose:	This procedure grants public grants 
---**			p_providepublicgrants 
---**				c = Grant the Public Grants
---**				s = Do not grant the public grants. Reovke of the grants happens in other procedure because
---**				    12c security dependency once public grant happens.
---**  Calling Programs:	--
---**   Programs Called:	fs_db_admin.fs_exists_functions
---**			fs_security_pkg.activity_stream
---**   Tables Accessed:	--
---**   Tables Modified:	--
---**  Passed Variables: 
---**			p_publicgrantschoice	-- Choice Variable
---**			p_status		-- Status message to check for errors.
---**			p_error_message		-- The actual error message.
---**			p_debug			-- The debug level set by the original calling program.
---** Passed Global Var:	--
---**   Global Var Mods:	--
---**   Local Variables:
---**			l_localprogramname	-- This programs name. (For debugging purposes.)
---**			l_programmessage	-- The local debugging message.
---**			l_sqltext		-- The DDL text
---**			l_count			-- Count Variable
---**			l_boolean		-- Choice Boolean
---**           Cursors:	C1			-- TABLES that SELECT privilege granted.
---**			C2			-- Packages/Procedure that EXECUTE privileges granted.
---**           pragmas: --
---**         Exception:	
---**			soau_failure
---**************************************************************************************************************************
---**        Psudo code: 
---**			IF p_providepublicgrants = 'c'
---**				LOOP C1 SELECT
---**				LOOP C2 EXECUTE
---**			No 's' as the revoke has to happen outside of package.
---**************************************************************************************************************************
---
---
-PROCEDURE provide_public_grants
-(
- p_publicgrantschoice		IN		VARCHAR2,				-- Selection C, S.
- p_status			OUT		VARCHAR2,				-- Status message to check for errors.
- p_errormessage			OUT		VARCHAR2,				-- The actual error message.
- p_debug			IN		NUMBER					-- Turn on DEBUG.
-)
-AS
- CURSOR c1 IS
-	SELECT (column_value).getstringval() tabs
-	FROM xmltable('"dba_free_space","dba_data_files","dba_tablespaces","dba_roles","dba_role_privs","role_role_privs",
-			"role_sys_privs","role_tab_privs","session_roles","user_role_privs","dba_jobs","dba_rgroup",
-			"dba_snapshots","v_$locked_object","dba_sequences","v_$parameter","dba_constraints","v_$database",
-			"v_$session"');
- --
- CURSOR c2 IS
-	SELECT (column_value).getstringval() tabs
-	FROM xmltable('"dbms_pipe","dbms_lock","utl_smtp"');
- --
- l_localprogramname				VARCHAR2(128) := 'provide_public_grants';
- l_programmessage				CLOB;
- l_sqltext					CLOB;
- l_boolean					BOOLEAN;
-BEGIN
-	--
-	g_programcontext := l_localprogramname;
-	g_providepublicgrantspasscnt := 0;
-	g_providepublicgrantsfailcnt := 0;
-	activity_stream ( '', '', 'DETAIL', 'PROVIDE PUBLIC GRANTS', true, 0, 'P6', p_debug);
-	--
-	IF LOWER(p_publicgrantschoice) = 'c' THEN
-		--
-		FOR c1_rec IN c1 LOOP
-			--
-			l_boolean := fs_db_admin.fs_exists_functions.tabprivs_exists ('SYS',c1_rec.tabs,'PUBLIC', 'SELECT');
-			--
-			IF l_boolean = false THEN
-				l_sqltext := 'GRANT SELECT ON '||c1_rec.tabs||' TO PUBLIC';
-				--
-				activity_stream ( l_sqltext, '', 'TABPRIV EXISTS', 'SELECT On '||c1_rec.tabs||' To PUBLIC.', false, 1, 'P1', p_debug);
-				--
-			ELSE 
-				--
-				activity_stream ( '', '', 'TABPRIV EXISTS', 'SELECT On '||c1_rec.tabs||' To PUBLIC.', true, 1, 'P2', p_debug);
-				--
-			END IF;
-		END LOOP;
-		--
-		--
-		FOR c2_rec IN c2 LOOP
-			--
-			l_boolean := fs_db_admin.fs_exists_functions.tabprivs_exists ('SYS',c2_rec.tabs,'PUBLIC', 'EXECUTE');
-			--
-			IF l_boolean = false THEN
-				l_sqltext := 'GRANT EXECUTE ON '||c2_rec.tabs||' TO PUBLIC';
-				--
-				activity_stream ( l_sqltext, '', 'TABPRIV EXISTS', 'EXECUTE On '||c2_rec.tabs||' To PUBLIC.', false, 1, 'P1', p_debug);
-				--
-			ELSE 
-				--
-				activity_stream ( '', '', 'TABPRIV EXISTS', 'EXECUTE On '||c2_rec.tabs||' To PUBLIC.', true, 1, 'P2', p_debug);
-				--
-			END IF;
-		END LOOP;
-		--
-	ELSIF LOWER(p_publicgrantschoice) = 's' THEN
-		--
-		FOR c1_rec IN c1 LOOP
-			--
-			l_boolean := fs_db_admin.fs_exists_functions.tabprivs_exists ('SYS',c1_rec.tabs,'PUBLIC', 'SELECT');
-			--
-			IF l_boolean = true THEN
-				l_sqltext := 'REVOKE SELECT ON '||c1_rec.tabs||' FROM PUBLIC';
-				--
-				activity_stream ( '', '', 'TABPRIV DOES NOT EXIST', 'SELECT On '||c1_rec.tabs||' To PUBLIC.:EXTERNAL SCRIPT', false, 1, 'P5', p_debug);
-				--
-			ELSE 
-				--
-				activity_stream ( '', '', 'TABPRIV DOES NOT EXIST', 'SELECT On '||c1_rec.tabs||' To PUBLIC.', true, 1, 'P2', p_debug);
-				--
-			END IF;
-			--
-		END LOOP;
-		--
-		FOR c2_rec IN c2 LOOP
-			--
-			l_boolean := fs_db_admin.fs_exists_functions.tabprivs_exists ('SYS',c2_rec.tabs,'PUBLIC', 'EXECUTE');
-			--
-			IF l_boolean = true THEN
-				l_sqltext := 'REVOKE EXECUTE ON '||c2_rec.tabs||' FROM PUBLIC';
-				--
-				activity_stream ( l_sqltext, '', 'TABPRIV DOES NOT EXIST', 'EXECUTE On '||c2_rec.tabs||' To PUBLIC.', false, 1, 'P1', p_debug);
-				--
-			ELSE 
-				--
-				activity_stream ( '', '', 'TABPRIV DOES NOT EXIST', 'EXECUTE On '||c2_rec.tabs||' To PUBLIC.', true, 1, 'P2', p_debug);
-				--
-			END IF;
-			--
-		END LOOP;
-		--
-	ELSE
-		--
-		activity_stream ( '', '', 'CODE ERROR: provide_public_grants Improper Input Value', LOWER(p_publicgrantschoice)||'.', false, 1, 'P5', p_debug);
-		--
-	END IF;
-	--
-	activity_stream ( '', '', '', '', true, 0, 'P8', p_debug);
-	--
-	activity_stream ( '', '', 'SUMMARY', 'PROVIDE PUBLIC GRANTS', true, 0, 'P7', p_debug);
-	--
-END provide_public_grants;
---
---
---**************************************************************************************************************************
 --**         Procedure:	secure_database
 --**           Purpose:	This procedure creates or destroys the FSDBA legacy objects based on the value of the 
---**			p_legacyobjectschoice 
---**				c = Build Original Legacy Objects
+--**			p_legacydbinstanceschoice 
+--**				c = Build Original DBInstances Objects
 --**				s = Do not build Original Legacy Objects and remove them if they exist.
 --**  Calling Programs:	--
 --**   Programs Called:
---**			provide_roles
---**			provide_profiles
---**			provide_public_grants
---**			provide_users
---**			provide_basic_security
---**			provide_legacy_objects
+--**			provide_dbinstances_objects
+--**			provide_gis_roles
 --**   Tables Accessed:	--
 --**   Tables Modified:	--
 --**  Passed Variables: 
---**			p_provideroles		--
---**			p_provideprofiles	--
---**			p_providepublicgrants	--
---**			p_provideusers		--
---**			p_providebasicsecurity	--
---**			p_providelegacyobjects	--
---**			p_status		-- Status message to check for errors.
---**			p_errormessage		-- The actual error message.
---**			p_debug			-- The debug level set by the original calling program.
+--**			p_providedbinstancesobjects	--
+--**			p_providegisroles		--
+--**			p_status			-- Status message to check for errors.
+--**			p_errormessage			-- The actual error message.
+--**			p_debug				-- The debug level set by the original calling program.
 --** Passed Global Var:	--
 --**   Global Var Mods:	--
 --**   Local Variables:
---**			l_localprogramname	-- This programs name. (For debugging purposes.)
---**			l_programmessage	-- The local debugging message.
---**			l_sqltext		-- The DDL text
---**			l_count			-- Count Variable
---**			l_boolean		-- Choice Boolean
---**           Cursors:	--
---**           pragmas: --
+--**			l_localprogramname		-- This programs name. (For debugging purposes.)
+--**			l_programmessage		-- The local debugging message.
+--**			l_sqltext			-- The DDL text
+--**			l_count				-- Count Variable
+--**			l_boolean			-- Choice Boolean
+--**           Cursors:					--
+--**           pragmas: 				--
 --**         Exception:	
 --**			soau_failure
 --**************************************************************************************************************************
---**        Psudo code: 
+--**        Pseudo code: 
 --**			Check Input Variables Have Correct Possible Inputs and set local variable
 --**			IF no errors found on Input variables
 --**				Modify local variables based on setting of p_provideusers to enure all variables have 
@@ -4783,12 +3992,8 @@ END provide_public_grants;
 --**				==
 --**				IF p_debug <> -2 
 --**					Execute Internal Enforcement
---**					provide_roles
---**					provide_profiles
---**					provide_public_grants
---**					provide_users
---**					provide_basic_security
---**					provide_legacy_objects
+--**					provide_dbinstances_objects
+--**					provide_gis_roles
 --**				ELSE
 --**					NULL;
 --**			EXCEPTION
@@ -4797,31 +4002,21 @@ END provide_public_grants;
 --
 PROCEDURE secure_database
 (
- p_provideroles			IN		VARCHAR2,		-- c, b, h, s
- p_provideprofiles		IN		VARCHAR2,		-- c, s
- p_providepublicgrants		IN		VARCHAR2,		-- c, s
- p_provideusers			IN		VARCHAR2,		-- c, b, h, s
- p_providebasicsecurity		IN		VARCHAR2,		-- c, s
- p_providelegacyobjects		IN		VARCHAR2,		-- c, s
- p_providegisroles		IN		VARCHAR2,		-- t, f
- p_passcnt			OUT		NUMBER,			-- Pass Count Variable for Summary
- p_failcnt			OUT		NUMBER,			-- Fail Count Variable for Summary
- p_status			OUT		VARCHAR2,		-- Status message to check for errors.
- p_errormessage			OUT		VARCHAR2,		-- The actual error message.
- p_debug			IN		NUMBER			-- Turn on DEBUG.
+ p_providedbinstancesobjects		IN		VARCHAR2,		-- t, f
+ p_providegisroles			IN		VARCHAR2,		-- t, f
+ p_passcnt				OUT		NUMBER,			-- Pass Count Variable for Summary
+ p_failcnt				OUT		NUMBER,			-- Fail Count Variable for Summary
+ p_status				OUT		VARCHAR2,		-- Status message to check for errors.
+ p_errormessage				OUT		VARCHAR2,		-- The actual error message.
+ p_debug				IN		NUMBER			-- Turn on DEBUG.
 )
 AS
- l_localprogramname			VARCHAR2(128) := 'secure_database';
+ l_localprogramname			VARCHAR2(128)		:= 'secure_database';
  l_programmessage			CLOB;
  l_errormessage				VARCHAR2(1000);
  l_status				VARCHAR2(15);
  l_badtrackingcnt			NUMBER			:=0;
- l_provideroles				VARCHAR2(1);
- l_provideprofiles			VARCHAR2(1);
- l_providepublicgrants			VARCHAR2(1);
- l_provideusers				VARCHAR2(1);
- l_providebasicsecurity			VARCHAR2(1);
- l_providelegacyobjects			VARCHAR2(1);
+ l_providedbinstancesobjects		VARCHAR2(1);
  l_providegisroles			VARCHAR2(1);
  l_temp1				XMLTYPE;
 BEGIN
@@ -4848,47 +4043,11 @@ BEGIN
 	--** Check Basic Variable Input
 	--*******************************************
 	--
-	IF LOWER(p_provideroles) IN ('c', 'b', 'h', 's') THEN
-		l_provideroles := LOWER(p_provideroles);
+	IF LOWER(p_providedbinstancesobjects) IN ('t', 'f') THEN
+		l_providedbinstancesobjects := LOWER(p_providedbinstancesobjects);
 	ELSE
 		l_badtrackingcnt := l_badtrackingcnt+1;
-		activity_stream ( '', '', 'CODE ERROR: Improper Input Value', 'Provide Roles: '||LOWER(p_provideroles)||'.', false, 1, 'P5', p_debug);
-	END IF;
-	--
-	IF LOWER(p_provideprofiles) IN ('c', 's') THEN
-		l_provideprofiles := LOWER(p_provideprofiles);
-	ELSE
-		l_badtrackingcnt := l_badtrackingcnt+1;
-		activity_stream ( '', '', 'CODE ERROR: Improper Input Value', 'Provide Profiles: '||LOWER(p_provideprofiles)||'.', false, 1, 'P5', p_debug);
-	END IF;
-	--
-	IF LOWER(p_providepublicgrants) IN ('c', 's') THEN
-		l_providepublicgrants := LOWER(p_providepublicgrants);
-	ELSE
-		l_badtrackingcnt := l_badtrackingcnt+1;
-		activity_stream ( '', '', 'CODE ERROR: Improper Input Value', 'Provide Public Grants: '||LOWER(p_providepublicgrants)||'.', false, 1, 'P5', p_debug);
-	END IF;
-	--
-	IF LOWER(p_provideusers) IN ('c', 'b', 'h', 's') THEN
-		l_provideusers := LOWER(p_provideusers);
-		g_provideusers := LOWER(p_provideusers);
-	ELSE
-		l_badtrackingcnt := l_badtrackingcnt+1;
-		activity_stream ( '', '', 'CODE ERROR: Improper Input Value', 'Provide Users: '||LOWER(p_provideusers)||'.', false, 1, 'P5', p_debug);
-	END IF;
-	--
-	IF LOWER(p_providebasicsecurity) IN ('c', 'b', 's') THEN
-		l_providebasicsecurity := LOWER(p_providebasicsecurity);
-	ELSE
-		l_badtrackingcnt := l_badtrackingcnt+1;
-		activity_stream ( '', '', 'CODE ERROR: Improper Input Value', 'Provide Basic Security: '||LOWER(p_providebasicsecurity)||'.', false, 1, 'P5', p_debug);
-	END IF;
-	--
-	IF LOWER(p_providelegacyobjects) IN ('c', 's') THEN
-		l_providelegacyobjects := LOWER(p_providelegacyobjects);
-	ELSE
-		l_badtrackingcnt := l_badtrackingcnt+1;
-		activity_stream ( '', '', 'CODE ERROR: Improper Input Value', 'Provide Legacy Objects: '||LOWER(p_providelegacyobjects)||'.', false, 1, 'P5', p_debug);
+		activity_stream ( '', '', 'CODE ERROR: Improper Input Value', 'Provide Legacy Objects: '||LOWER(p_providedbinstancesobjects)||'.', false, 1, 'P5', p_debug);
 	END IF;
 	--
 	IF LOWER(p_providegisroles) IN ('t', 'f') THEN
@@ -4901,92 +4060,29 @@ BEGIN
 	IF l_badtrackingcnt = 0 THEN
 		--
 		--*******************************************
-		--** Modify Variable Input If Necessary.
-		--*******************************************
-		--
-		IF l_provideusers = 'c' THEN
-			IF l_provideroles IN ('s') THEN
-				activity_stream ( '', '', 'CODE ERROR: Improper Input value', 'Modify Provide Roles: '||l_provideroles||' TO '||l_provideusers||'.', false, 1, 'P5', p_debug);
-				l_provideroles := 'h';
-			END IF;
-			--
-			IF l_providebasicsecurity = 's' THEN
-				activity_stream ( '', '', 'CODE ERROR: Improper Input value', 'Modify Provide Basic Security: '||l_providebasicsecurity||' TO '||l_provideusers||'.', false, 1, 'P5', p_debug);
-				l_providebasicsecurity := l_provideusers;
-			END IF;
-			--
-			IF l_provideprofiles = 's' THEN
-				activity_stream ( '', '', 'CODE ERROR: Improper Input value', 'Modify Provide Profiles: '||l_provideprofiles||' TO '||l_provideusers||'.', false, 1, 'P5', p_debug);
-				l_provideprofiles := l_provideusers;
-			END IF;
-			--
-			IF l_providepublicgrants = 's' THEN
-				activity_stream ( '', '', 'CODE ERROR: Improper Input value', 'Modify Provide Public Grants: '||l_providepublicgrants||' TO '||l_provideusers||'.', false, 1, 'P5', p_debug);
-				l_providepublicgrants := l_provideusers;
-			END IF;
-			--
-			IF l_providelegacyobjects = 's' THEN
-				activity_stream ( '', '', 'CODE ERROR: Improper Input value', 'Modify Provide Legacy Objects: '||l_providelegacyobjects||' TO '||l_provideusers||'.', false, 1, 'P5', p_debug);
-				l_providelegacyobjects := l_provideusers;
-			END IF;
-		END IF;
-		--
-		IF l_providelegacyobjects = 'c' AND l_provideusers IN ('s') THEN
-			activity_stream ( '', '', 'CODE ERROR: Improper Input value', 'Modify Provide Users: '||l_provideusers||' TO '||l_providelegacyobjects||'.', false, 1, 'P5', p_debug);
-			l_provideusers := l_providelegacyobjects;
-		END IF;
-		--
-		IF l_provideusers IN ('b', 'h', 's') THEN
-			IF l_provideroles = 'c' THEN
-				activity_stream ( '', '', 'CODE ERROR: Improper Input value', 'Modify Provide Roles: '||l_provideroles||' TO '||l_provideusers||'.', false, 1, 'P5', p_debug);
-				l_provideroles := CASE WHEN l_provideusers = 'h' THEN 'b' ELSE l_provideusers END;
-			END IF;
-			IF l_providebasicsecurity = 'c' THEN
-				activity_stream ( '', '', 'CODE ERROR: Improper Input value', 'Modify Provide Basic Security: '||l_providebasicsecurity||' TO '||l_provideusers||'.', false, 1, 'P5', p_debug);
-				l_providebasicsecurity := l_provideusers;
-			END IF;
-			IF l_provideprofiles IN ('c') THEN
-				activity_stream ( '', '', 'CODE ERROR: Improper Input value', 'Modify Provide Profiles: '||l_provideprofiles||' TO '||l_provideusers||'.', false, 1, 'P5', p_debug);
-				l_provideprofiles := 's';
-			END IF;
-		END IF;
-		--
-		--*******************************************
 		--** Execute Security Enforcement..
 		--*******************************************
 		--
 		IF p_debug <> -2 THEN
-			provide_roles (l_provideroles, l_status, l_errormessage, p_debug);
+			provide_roles (l_status, l_errormessage, p_debug);
 			IF l_status = 'ERROR' THEN
 				p_status := 'ERROR';
 				p_errormessage := p_errormessage||l_errormessage;
 			END IF;
 			--
-			provide_profiles (l_provideprofiles, l_status, l_errormessage, p_debug);
+			provide_profiles (l_status, l_errormessage, p_debug);
 			IF l_status = 'ERROR' THEN
 				p_status := 'ERROR';
 				p_errormessage := p_errormessage||l_errormessage;
 			END IF;
 			--
-			provide_public_grants (l_providepublicgrants, l_status, l_errormessage, p_debug);
+			provide_users (l_providedbinstancesobjects, l_status, l_errormessage, p_debug);
 			IF l_status = 'ERROR' THEN
 				p_status := 'ERROR';
 				p_errormessage := p_errormessage||l_errormessage;
 			END IF;
 			--
-			provide_users (l_provideusers, l_status, l_errormessage, p_debug);
-			IF l_status = 'ERROR' THEN
-				p_status := 'ERROR';
-				p_errormessage := p_errormessage||l_errormessage;
-			END IF;
-			--
-			provide_basic_security (l_providebasicsecurity, l_status, l_errormessage, p_debug);
-			IF l_status = 'ERROR' THEN
-				p_status := 'ERROR';
-				p_errormessage := p_errormessage||l_errormessage;
-			END IF;
-			--
-			provide_legacy_objects (l_providelegacyobjects, l_status, l_errormessage, p_debug);
+			provide_dbinstances_objects (l_providedbinstancesobjects, l_status, l_errormessage, p_debug);
 			IF l_status = 'ERROR' THEN
 				p_status := 'ERROR';
 				p_errormessage := p_errormessage||l_errormessage;
@@ -5001,10 +4097,8 @@ BEGIN
 		END IF;
 	END IF;
 	--
-	g_fssecuritypasscnt := g_providerolespasscnt + g_provideprofilespasscnt + g_providepublicgrantspasscnt + g_provideuserspasscnt + g_providebasicsecuritypasscnt + g_providelegacyobjectspasscnt + g_providegisrolespasscnt;
-	g_fssecurityfailcnt := g_providerolesfailcnt + g_provideprofilesfailcnt + g_providepublicgrantsfailcnt + g_provideusersfailcnt + g_providebasicsecurityfailcnt + g_providelegacyobjectsfailcnt + g_providegisrolesfailcnt;
-	g_fssecuritypasswarncnt := g_providelegobjpasswarncnt+g_providebassecpasswarncnt;
-	g_fssecurityfailwarncnt := g_providelegobjfailwarncnt+g_providebassecfailwarncnt;
+	g_fssecuritypasscnt := g_providerolespasscnt + g_provideprofilespasscnt  + g_provideuserspasscnt  + g_providedbinstancesobjectspasscnt + g_providegisrolespasscnt;
+	g_fssecurityfailcnt := g_providerolesfailcnt + g_provideprofilesfailcnt  + g_provideusersfailcnt  + g_providedbinstancesobjectsfailcnt + g_providegisrolesfailcnt;
 	--
 	p_passcnt := g_fssecuritypasscnt;
 	p_failcnt := g_fssecurityfailcnt;
@@ -5024,5 +4118,6 @@ END fs_security_pkg;
 /
 
 exit;
+
 
 

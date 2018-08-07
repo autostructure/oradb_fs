@@ -25,7 +25,7 @@ COL admin_option FORMAT a3   HEAD 'ADMIN OPTION'   	JUSTIFY LEFT
 
 SELECT grantee, granted_role, admin_option
   FROM dba_role_privs
- WHERE granted_role in ('RESOURCE','DBA', 'FS_DBA_ROLE', 'FS_RESOURCE_ROLE')
+ WHERE granted_role in ('RESOURCE','DBA', 'FS_CREATE')
    AND grantee not in ('SYSTEM',
                        'SYS',
 		       'SYSMAN',
@@ -69,7 +69,6 @@ COL sysasm        FORMAT a10  HEAD 'SYSASM'      JUSTIFY LEFT
 SELECT * 
   FROM v$pwfile_users 
  WHERE username not in (
-  			'FSDBA',
                         'SYS',
                         'SYSBACKUP',
 			'SYSDG',

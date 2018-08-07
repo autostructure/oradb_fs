@@ -67,7 +67,7 @@ BEGIN
    END IF;
    --
    EXECUTE IMMEDIATE 'CREATE USER fs_db_admin ' ||
-                    'IDENTIFIED BY "temporary_pw_2_use_4_install" ' ||
+                    'IDENTIFIED BY "temporary_PW_2_use_4_install" ' ||
                     'DEFAULT TABLESPACE fs_db_admin_data ' ||
                     'TEMPORARY TABLESPACE temp ' ||
                     'PASSWORD EXPIRE ' ||
@@ -80,21 +80,10 @@ BEGIN
  IF lv_count = 1 THEN
    --
    EXECUTE IMMEDIATE 'ALTER USER fs_db_admin QUOTA UNLIMITED ON fs_db_admin_data';
-   EXECUTE IMMEDIATE 'GRANT EXECUTE ON dbms_qopatch TO fs_db_admin';
+   EXECUTE IMMEDIATE 'GRANT EXECUTE ON sys.dbms_qopatch TO fs_db_admin';
    EXECUTE IMMEDIATE 'GRANT SELECT ANY DICTIONARY TO fs_db_admin';
-   EXECUTE IMMEDIATE 'GRANT DROP ANY TABLE TO fs_db_admin';
-   EXECUTE IMMEDIATE 'GRANT GRANT ANY OBJECT privilege TO fs_db_admin';
-   EXECUTE IMMEDIATE 'GRANT GRANT ANY PRIVILEGE TO fs_db_admin';
-   EXECUTE IMMEDIATE 'GRANT GRANT ANY ROLE TO fs_db_admin';
-   EXECUTE IMMEDIATE 'GRANT CREATE USER TO fs_db_admin';
-   EXECUTE IMMEDIATE 'GRANT ALTER USER TO fs_db_admin';
-   EXECUTE IMMEDIATE 'GRANT DROP USER TO fs_db_admin';
-   EXECUTE IMMEDIATE 'GRANT ANALYZE ANY TO fs_db_admin';
-   EXECUTE IMMEDIATE 'GRANT ALTER ANY INDEX TO fs_db_admin';
    --
    EXECUTE IMMEDIATE 'GRANT INHERIT PRIVILEGES ON USER sys TO fs_db_admin';
-   EXECUTE IMMEDIATE 'GRANT INHERIT PRIVILEGES ON USER sys TO fsdba';
-   EXECUTE IMMEDIATE 'GRANT EXECUTE ON sys.dbms_qopatch TO fs_db_admin';
    --
    SELECT count(*) INTO lv_count FROM dba_tab_privs
    WHERE privilege = 'SELECT' 

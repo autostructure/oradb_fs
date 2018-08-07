@@ -1461,8 +1461,8 @@ BEGIN
 	--
 	IF LOWER(g_dbtemplate) = 'db01g_8k' THEN
 		-- processes=300
-		-- sga_target=786432000
-		-- pga_aggregate_target=262144000
+		-- sga_target=788529152
+		-- pga_aggregate_target=260046848
 		l_dbblocksize:='8192';
 		l_processes:='300';
 		l_sgatarget:='788529152';
@@ -1472,8 +1472,8 @@ BEGIN
 		END LOOP;
 	ELSIF LOWER(g_dbtemplate) = 'db02g_8k' THEN
 		-- processes=500
-		-- sga_target=1572864000
-		-- pga_aggregate_target=524288000
+		-- sga_target=1577058304
+		-- pga_aggregate_target=520093696
 		l_dbblocksize:='8192';
 		l_processes:='300';
 		l_sgatarget:='1577058304';
@@ -1483,8 +1483,8 @@ BEGIN
 		END LOOP;
 	ELSIF LOWER(g_dbtemplate) = 'db04g_8k' THEN
 		-- processes=500
-		-- sga_target=3145728000
-		-- pga_aggregate_target=1048576000
+		-- sga_target=3154116608
+		-- pga_aggregate_target=1040187392
 		l_dbblocksize:='8192';
 		l_processes:='500';
 		l_sgatarget:='3154116608';
@@ -1505,12 +1505,12 @@ BEGIN
 		END LOOP;
 	ELSIF LOWER(g_dbtemplate) = 'db12g_8k' THEN
 		-- processes=750
-		-- sga_target=9437184000
-		-- pga_aggregate_target=3145728000
+		-- sga_target=9462349824
+		-- pga_aggregate_target=3120562176
 		l_dbblocksize:='8192';
 		l_processes:='750';
-		l_sgatarget:='9445572608';
-		l_pgaaggregatetarget:='3137339392';
+		l_sgatarget:='9462349824';
+		l_pgaaggregatetarget:='3120562176';
 		FOR c2_rec IN c2 LOOP
 			init_params_special (c2_rec.name,c2_rec.memval,c2_rec.spval,l_dbblocksize,l_processes,l_sgatarget,l_pgaaggregatetarget,g_debug);
 		END LOOP;
@@ -1527,12 +1527,12 @@ BEGIN
 		END LOOP;
 	ELSIF LOWER(g_dbtemplate) = 'db24g_8k' THEN
 		-- processes=1000
-		-- sga_target=18874368000
-		-- pga_aggregate_target=6291456000
+		-- sga_target=18924699648
+		-- pga_aggregate_target=6241124352
 		l_dbblocksize:='8192';
 		l_processes:='1000';
-		l_sgatarget:='18874368000';
-		l_pgaaggregatetarget:='6291456000';
+		l_sgatarget:='18924699648';
+		l_pgaaggregatetarget:='6241124352';
 		FOR c2_rec IN c2 LOOP
 			init_params_special (c2_rec.name,c2_rec.memval,c2_rec.spval,l_dbblocksize,l_processes,l_sgatarget,l_pgaaggregatetarget,g_debug);
 		END LOOP;
@@ -1789,7 +1789,8 @@ END fs_puppet_structures;
 --
 /
 
-exit
+exit;
+
 
 
 
