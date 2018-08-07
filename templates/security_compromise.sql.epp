@@ -11,8 +11,7 @@ declare
  l_errormessage		CLOB;
 
 BEGIN
- fs_db_admin.fs_security_pkg.secure_database ('<%= $roles %>','<%= $profiles %>','<%= $public_grants %>','<%= $users %>','<%= $basic_security %>','<%= $legacy_objects %>','<%= $gis_roles %>',l_passcnt, l_failcnt, l_status, l_errormessage, '0');
- dbms_output.put_line(l_passcnt||':'||l_failcnt);
+ fs_db_admin.fs_security_pkg.secure_database ('<%= $dbinstances_objects %>','<%= $gis_roles %>',l_passcnt, l_failcnt, l_status, l_errormessage, '0');
 end;
 /
 

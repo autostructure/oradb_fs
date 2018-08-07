@@ -153,11 +153,13 @@ define oradb_fs::build_db (
      db_name      => $db_name,
      oracle_home  => $home_path,
     } ->
+/*
     oradb_fs::user_role_post_build{"Call to create users and roles: ${db_name}" :
      db_name      => $db_name,
      oracle_home  => $home_path,
      working_dir  => "/opt/oracle/sw/working_dir/${home}",
     } ->
+*/
     oradb_fs::sig_file{ "SI DB Signature file: ${db_name}" :
      product          => 'Oracle Database' ,
      sig_version      => "${version}",

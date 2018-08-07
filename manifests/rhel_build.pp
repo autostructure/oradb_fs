@@ -109,7 +109,7 @@ define oradb_fs::rhel_build (
       default  => flatten($db_info_list.map | String $db_info | { split($db_info, ':') }),
      }
 
-     $default_db_info = compare_arrays($expanded_db_info, ['yzzzzzzz', 'yyyyy_xxk', 'xx', 'y~y~y~y~y~y', 'xxxx' ])
+     $default_db_info = compare_arrays($expanded_db_info, ['yzzzzzzz', 'yyxxg_xk', 'xx', 'y~y', 'xxxx' ])
  
      $default_detected = $default_db_info ? {
       'T'      => true,

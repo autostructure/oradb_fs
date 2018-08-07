@@ -32,7 +32,7 @@ define oradb_fs::sig_file(
  String  $sig_file_name  = '',
 )
 {
- $date = generate('/bin/date','+%Y-%m-%d'), #should replace with function to move work from the master to the node
+ $date = generate('/bin/date','+%Y-%m-%d') #should replace with function to move work from the master to the node
 
  $host_name = $facts['networking']['hostname']
 
