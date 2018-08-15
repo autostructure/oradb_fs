@@ -3078,7 +3078,7 @@ do
      fi
      sw_verification_fail=$((sw_verification_fail+1))
     fi
-    if [ ! $(stat -c %a:%U:%G $i/network/admin/ldap.ora) = '774:oracle:oinstall' ] ; then
+    if [ ! $(stat -c %a:%U:%G $i/network/admin/ldap.ora) = '744:oracle:oinstall' ] ; then
      if [[ "$2" = "detail" ]] ; then
       echo -e "${RED}#`printf " %-54s" "File Permissions:Owner:Group:World"`#`printf " %-72s" "$i/network/admin/ldap.ora"`# FAIL   #${NC}"
      fi
