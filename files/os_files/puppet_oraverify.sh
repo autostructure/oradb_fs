@@ -1,4 +1,4 @@
-z#!/bin/bash
+#!/bin/bash
 ################################################################################
 # File   : /usr/local/bin/puppet_oraverify.sh
 # Author : matthewparker
