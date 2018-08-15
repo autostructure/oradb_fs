@@ -741,14 +741,19 @@ if [ -f /etc/postfix/main.cf ] ; then
   linux_ora_os_file_verification_fail=$((linux_ora_os_file_verification_fail+1))
  fi
  #
- if [ `/bin/cat /etc/postfix/main.cf | grep relayhost | grep smtp | awk -F= '{print $2}' | awk '{$1=$1;print}' | sed "s/\r//"` = '[smtp.fs.usda.gov]' ] ; then
+# if [ `/bin/cat /etc/postfix/main.cf | grep relayhost | grep smtp | awk -F= '{print $2}' | awk '{$1=$1;print}' | sed "s/\r//"` = '[smtp.fs.usda.gov]' ] ; then
+ mapfile -t postfix_maincf < <(/bin/cat /etc/postfix/main.cf | grep relayhost | grep smtp | awk -F= '{print $2}' | awk '{$1=$1;print}' | sed "s/\r//")
+ last_val=${postfix_maincf[${#postfix_maincf[@]} - 1]}
+ if [[ "$last_val" = "[smtp.fs.usda.gov]" ]] || [[ "$last_val" = "smtp.fs.usda.gov" ]] ; then
   if [[ "$2" = "detail" ]] ; then
-   echo -e "${GREEN}#`printf " %-54s" "/etc/postfix/main.cf Value relayhost"`#`printf " %-72s" "[smtp.fs.usda.gov]"`# PASS   #${NC}"
+#   echo -e "${GREEN}#`printf " %-54s" "/etc/postfix/main.cf Value relayhost"`#`printf " %-72s" "[smtp.fs.usda.gov]"`# PASS   #${NC}"
+   echo -e "${GREEN}#`printf " %-54s" "/etc/postfix/main.cf Value relayhost"`#`printf " %-72s" "$last_val"`# PASS   #${NC}"
   fi
   linux_ora_os_file_verification_pass=$((linux_ora_os_file_verification_pass+1 ))
  else
   if [[ "$2" = "detail" ]] ; then
-   echo -e "${RED}#`printf " %-54s" "/etc/postfix/main.cf Value relayhost"`#`printf " %-72s" "[smtp.fs.usda.gov]"`# FAIL   #${NC}"
+#   echo -e "${RED}#`printf " %-54s" "/etc/postfix/main.cf Value relayhost"`#`printf " %-72s" "[smtp.fs.usda.gov]"`# FAIL   #${NC}"
+   echo -e "${RED}#`printf " %-54s" "/etc/postfix/main.cf Value relayhost"`#`printf " %-72s" "expected: [smtp.fs.usda.gov], actual: $last_val"`# FAIL   #${NC}"
   fi
   linux_ora_os_file_verification_fail=$((linux_ora_os_file_verification_fail+1))
  fi
@@ -757,6 +762,40 @@ else
   echo -e "${RED}#`printf " %-54s" "File Existence"`#`printf " %-72s" "/etc/postfix/main.cf"`# FAIL   #${NC}"
  fi
  linux_ora_os_file_verification_fail=$((linux_ora_os_file_verification_fail+8))
+fi
+
+if [ -f /etc/krb5.conf ] ; then
+ if [[ "$2" = "detail" ]] ; then
+  echo -e "${GREEN}#`printf " %-54s" "File Existence"`#`printf " %-72s" "/etc/krb5.conf"`# PASS   #${NC}"
+ fi
+ linux_ora_os_file_verification_pass=$((linux_ora_os_file_verification_pass+1))
+ if [ $(sha256sum /etc/krb5.conf | awk '{print $1}') = 'b0cfb3af912501259a0f9e8c55fca41edf7bdf71e2b8ed0d4eaf14ba2ba94c4f' ] ; then
+  if [[ "$2" = "detail" ]] ; then
+   echo -e "${GREEN}#`printf " %-54s" "File Checksum"`#`printf " %-72s" "/etc/krb5.conf"`# PASS   #${NC}"
+  fi
+  linux_ora_os_file_verification_pass=$((linux_ora_os_file_verification_pass+1))
+ else
+  if [[ "$2" = "detail" ]] ; then
+   echo -e "${RED}#`printf " %-54s" "File Checksum"`#`printf " %-72s" "/etc/krb5.conf"`# FAIL   #${NC}"
+  fi
+  linux_ora_os_file_verification_fail=$((linux_ora_os_file_verification_fail+1))
+ fi
+ if [ ! $(stat -c %a:%U:%G /etc/krb5.conf) = '644:root:root' ] ; then
+  if [[ "$2" = "detail" ]] ; then
+   echo -e "${RED}#`printf " %-54s" "File Permissions:Owner:Group:World"`#`printf " %-72s" "/etc/krb5.conf"`# FAIL   #${NC}"
+  fi
+  linux_ora_os_file_verification_fail=$((linux_ora_os_file_verification_fail+5))
+ else
+  if [[ "$2" = "detail" ]] ; then
+   echo -e "${GREEN}#`printf " %-54s" "File Permissions:Owner:Group:World"`#`printf " %-72s" "/etc/krb5.conf"`# PASS   #${NC}"
+  fi
+  linux_ora_os_file_verification_pass=$((linux_ora_os_file_verification_pass+5))
+ fi
+else
+ if [[ "$2" = "detail" ]] ; then
+  echo -e "${RED}#`printf " %-54s" "File Existence"`#`printf " %-72s" "/etc/krb5.conf"`# FAIL   #${NC}"
+ fi
+ linux_ora_os_file_verification_fail=$((linux_ora_os_file_verification_fail+7))
 fi
 
 if [ -f /etc/profile.d/oracle.sh ] ; then
@@ -792,55 +831,6 @@ else
  fi
  linux_ora_os_file_verification_fail=$((linux_ora_os_file_verification_fail+7))
 fi
-
-
-if [ -f /etc/init.d/dbora ] ; then
- if [[ "$2" = "detail" ]] ; then
-  echo -e "${GREEN}#`printf " %-54s" "File Existence"`#`printf " %-72s" "/etc/init.d/dbora"`# PASS   #${NC}"
- fi
- linux_ora_os_file_verification_pass=$((linux_ora_os_file_verification_pass+1))
- if [ $(sha256sum /etc/init.d/dbora | awk '{print $1}') = 'a0b24820a1f5521c08f403e09307e1d69a6243f0c78e88ef1085e277c5271bac' ] ; then
-  if [[ "$2" = "detail" ]] ; then
-   echo -e "${GREEN}#`printf " %-54s" "File Checksum"`#`printf " %-72s" "/etc/init.d/dbora"`# PASS   #${NC}"
-  fi
-  linux_ora_os_file_verification_pass=$((linux_ora_os_file_verification_pass+1))
-  if [ ! $(stat -c %a:%U:%G /etc/init.d/dbora) = '750:root:root' ] ; then
-   if [[ "$2" = "detail" ]] ; then
-    echo -e "${RED}#`printf " %-54s" "File Permissions:Owner:Group:World"`#`printf " %-72s" "/etc/init.d/dbora"`# FAIL   #${NC}"
-   fi
-   linux_ora_os_file_verification_fail=$((linux_ora_os_file_verification_fail+5))
-  else
-   if [[ "$2" = "detail" ]] ; then
-    echo -e "${GREEN}#`printf " %-54s" "File Permissions:Owner:Group:World"`#`printf " %-72s" "/etc/init.d/dbora"`# PASS   #${NC}"
-   fi
-   linux_ora_os_file_verification_pass=$((linux_ora_os_file_verification_pass+5))
-  fi
- else
-  if [[ "$2" = "detail" ]] ; then
-   echo -e "${RED}#`printf " %-54s" "File Checksum"`#`printf " %-72s" "/etc/init.d/dbora"`# FAIL   #${NC}"
-  fi
-  linux_ora_os_file_verification_fail=$((linux_ora_os_file_verification_fail+1))
- fi
-else
- if [[ "$2" = "detail" ]] ; then
-  echo -e "${RED}#`printf " %-54s" "File Existence"`#`printf " %-72s" "/etc/init.d/dbora"`# FAIL   #${NC}"
- fi
- linux_ora_os_file_verification_fail=$((linux_ora_os_file_verification_fail+7))
-fi
-
-
-if [ ! $(chkconfig 2>/dev/null | grep dbora | awk '{print $1}') = 'dbora' ] ; then
- if [[ "$2" = "detail" ]] ; then
-  echo -e "${RED}#`printf " %-54s" "Service Enabled"`#`printf " %-72s" "/etc/init.d/dbora"`# FAIL   #${NC}"
- fi
- linux_ora_os_file_verification_fail=$((linux_ora_os_file_verification_fail+1))
-else
- if [[ "$2" = "detail" ]] ; then
-  echo -e "${GREEN}#`printf " %-54s" "Service Enabled"`#`printf " %-72s" "/etc/init.d/dbora"`# PASS   #${NC}"
- fi
- linux_ora_os_file_verification_pass=$((linux_ora_os_file_verification_pass+1))
-fi
-
 
 if [ -f /etc/oraInst.loc ] ; then
  if [[ "$2" = "detail" ]] ; then
@@ -2832,7 +2822,7 @@ do
   fi
  else
   if [[ "$2" = "detail" ]] ; then
-   echo -e "${RED}#`printf " %-54s" "Directory Existence"`#`printf " %-72s" "/home/oracle/.bash_profile"`# FAIL   #${NC}"
+   echo -e "${RED}#`printf " %-54s" "Directory Existence"`#`printf " %-72s" "$i"`# FAIL   #${NC}"
   fi
   db_maintenance_scripts_verification_fail=$((db_maintenance_scripts_verification_fail+6))
  fi
@@ -2859,7 +2849,7 @@ FILE_LIST=(8a1828c17727124a3d134facb581fc183d0a41efaf65603d911c3dbb33607e8b:arch
            f23b96c8e68cdf460dbef822248e6f5512cb3bf39782227b9e7b77e239ea1241:FSutlrp.sql
            0c2e0c01205f56b0cc7e92cf7fd142f451d840cf24e46f481a88ce91bc4e28d8:get_sid.ksh
            83846d36ed1437dfa6c46cfda4f5662ee07f558f0799b3dc7abb9dca18cdfeaa:global_name.sql
-           13dc5686b6e98c4a3c0bf21b8362b13e19df0daedb76f0100bb667acc823a478:list_user_privs.sql
+           a4c59b971e704b801d062cbc80d9c85e3f9e370032453960778d24ab8d3741c6:list_user_privs.sql
            f0690fdcd42231530bdf363b03c626a88d95d04d7ac5c204ba9a60dc11902728:logswitch.sql
            a3a0e24620e91b2c21df4f0052f0f8d69d4b8fa1adbb231d4583ac8df2a11fd7:options_packs_usage_statistics.sql
            9020a96f684e62ee283f72ebde025f906e27dd514ae6c3f4ad78dbc26155f608:parms.sql
@@ -3071,6 +3061,41 @@ do
     fi
     sw_verification_fail=$((sw_verification_fail+1))
    fi
+
+   if [ -f $i/network/admin/ldap.ora ] ; then
+    if [[ "$2" = "detail" ]] ; then
+     echo -e "${GREEN}#`printf " %-54s" "File Existence"`#`printf " %-72s" "$i/network/admin/ldap.ora"`# PASS   #${NC}"
+    fi
+    sw_verification_pass=$((sw_verification_pass+1))
+    if [ $(sha256sum $i/network/admin/ldap.ora | awk '{print $1}') = '3e6b7937eb36ab99211b390cac666b0fbb2ac4babac6e57aac51ff964ac84ae9' ] ; then
+     if [[ "$2" = "detail" ]] ; then
+      echo -e "${GREEN}#`printf " %-54s" "File Checksum"`#`printf " %-72s" "$i/network/admin/ldap.ora"`# PASS   #${NC}"
+     fi
+     sw_verification_pass=$((sw_verification_pass+1))
+    else
+     if [[ "$2" = "detail" ]] ; then
+      echo -e "${RED}#`printf " %-54s" "File Checksum"`#`printf " %-72s" "$i/network/admin/ldap.ora"`# FAIL   #${NC}"
+     fi
+     sw_verification_fail=$((sw_verification_fail+1))
+    fi
+    if [ ! $(stat -c %a:%U:%G $i/network/admin/ldap.ora) = '774:oracle:oinstall' ] ; then
+     if [[ "$2" = "detail" ]] ; then
+      echo -e "${RED}#`printf " %-54s" "File Permissions:Owner:Group:World"`#`printf " %-72s" "$i/network/admin/ldap.ora"`# FAIL   #${NC}"
+     fi
+     sw_verification_fail=$((sw_verification_fail+5))
+    else
+     if [[ "$2" = "detail" ]] ; then
+      echo -e "${GREEN}#`printf " %-54s" "File Permissions:Owner:Group:World"`#`printf " %-72s" "$i/network/admin/ldap.ora"`# PASS   #${NC}"
+     fi
+     sw_verification_pass=$((sw_verification_pass+5))
+    fi
+   else
+    if [[ "$2" = "detail" ]] ; then
+     echo -e "${RED}#`printf " %-54s" "File Existence"`#`printf " %-72s" "$i/network/admin/ldap.ora"`# FAIL   #${NC}"
+    fi
+    sw_verification_fail=$((sw_verification_fail+7))
+   fi
+
   else
    if [[ "$2" = "detail" ]] ; then
     echo -e "${RED}#`printf " %-54s" "File Existence"`#`printf " %-72s" "$i/bin/oracle"`# FAIL   #${NC}"
