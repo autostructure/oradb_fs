@@ -442,7 +442,7 @@ if [ -f /usr/local/bin/puppet_oraverify.sh ] ; then
   echo -e "${GREEN}#`printf " %-54s" "File Existence"`#`printf " %-72s" "/usr/local/bin/puppet_oraverify.sh"`# PASS   #${NC}"
  fi
  ora_bootstrap_verification_pass=$((ora_bootstrap_verification_pass+1))
- if [ $(/bin/cat /usr/local/bin/puppet_oraverify.sh | grep -v '##~DO NOT REMOVE THIS~##' | sha256sum | awk '{print $1}') = 'dd37a6a0b53acb5414cfd8243bd67e2eb0c5ddc3f295a5382ba61850fe6da17c' ] ; then ##~DO NOT REMOVE THIS~##
+ if [ $(/bin/cat /usr/local/bin/puppet_oraverify.sh | grep -v '##~DO NOT REMOVE THIS~##' | sha256sum | awk '{print $1}') = '3ad3ccb953a74e49c2e2f8e4ee8c6f243a047e5a55bb68226d270821d2c5577d' ] ; then ##~DO NOT REMOVE THIS~##
   if [[ "$2" = "detail" ]] ; then
     echo -e "${GREEN}#`printf " %-54s" "File Checksum"`#`printf " %-72s" "/usr/local/bin/puppet_oraverify.sh"`# PASS   #${NC}"
   fi
