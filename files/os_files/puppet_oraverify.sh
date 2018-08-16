@@ -442,7 +442,7 @@ if [ -f /usr/local/bin/puppet_oraverify.sh ] ; then
   echo -e "${GREEN}#`printf " %-54s" "File Existence"`#`printf " %-72s" "/usr/local/bin/puppet_oraverify.sh"`# PASS   #${NC}"
  fi
  ora_bootstrap_verification_pass=$((ora_bootstrap_verification_pass+1))
- if [ $(/bin/cat /usr/local/bin/puppet_oraverify.sh | grep -v '##~DO NOT REMOVE THIS~##' | sha256sum | awk '{print $1}') = '71f9b375161916060cf3bb65e31263bf172e8aaab062ad5fe53b8a32da32a231' ] ; then ##~DO NOT REMOVE THIS~##
+ if [ $(/bin/cat /usr/local/bin/puppet_oraverify.sh | grep -v '##~DO NOT REMOVE THIS~##' | sha256sum | awk '{print $1}') = '4e3810ffe81c84f1f9eece68281d6039fd4712fd8a3fd7fb2602a8a33591e813' ] ; then ##~DO NOT REMOVE THIS~##
   if [[ "$2" = "detail" ]] ; then
     echo -e "${GREEN}#`printf " %-54s" "File Checksum"`#`printf " %-72s" "/usr/local/bin/puppet_oraverify.sh"`# PASS   #${NC}"
   fi
@@ -762,40 +762,6 @@ else
   echo -e "${RED}#`printf " %-54s" "File Existence"`#`printf " %-72s" "/etc/postfix/main.cf"`# FAIL   #${NC}"
  fi
  linux_ora_os_file_verification_fail=$((linux_ora_os_file_verification_fail+8))
-fi
-
-if [ -f /etc/krb5.conf ] ; then
- if [[ "$2" = "detail" ]] ; then
-  echo -e "${GREEN}#`printf " %-54s" "File Existence"`#`printf " %-72s" "/etc/krb5.conf"`# PASS   #${NC}"
- fi
- linux_ora_os_file_verification_pass=$((linux_ora_os_file_verification_pass+1))
- if [ $(sha256sum /etc/krb5.conf | awk '{print $1}') = 'b0cfb3af912501259a0f9e8c55fca41edf7bdf71e2b8ed0d4eaf14ba2ba94c4f' ] ; then
-  if [[ "$2" = "detail" ]] ; then
-   echo -e "${GREEN}#`printf " %-54s" "File Checksum"`#`printf " %-72s" "/etc/krb5.conf"`# PASS   #${NC}"
-  fi
-  linux_ora_os_file_verification_pass=$((linux_ora_os_file_verification_pass+1))
- else
-  if [[ "$2" = "detail" ]] ; then
-   echo -e "${RED}#`printf " %-54s" "File Checksum"`#`printf " %-72s" "/etc/krb5.conf"`# FAIL   #${NC}"
-  fi
-  linux_ora_os_file_verification_fail=$((linux_ora_os_file_verification_fail+1))
- fi
- if [ ! $(stat -c %a:%U:%G /etc/krb5.conf) = '644:root:root' ] ; then
-  if [[ "$2" = "detail" ]] ; then
-   echo -e "${RED}#`printf " %-54s" "File Permissions:Owner:Group:World"`#`printf " %-72s" "/etc/krb5.conf"`# FAIL   #${NC}"
-  fi
-  linux_ora_os_file_verification_fail=$((linux_ora_os_file_verification_fail+5))
- else
-  if [[ "$2" = "detail" ]] ; then
-   echo -e "${GREEN}#`printf " %-54s" "File Permissions:Owner:Group:World"`#`printf " %-72s" "/etc/krb5.conf"`# PASS   #${NC}"
-  fi
-  linux_ora_os_file_verification_pass=$((linux_ora_os_file_verification_pass+5))
- fi
-else
- if [[ "$2" = "detail" ]] ; then
-  echo -e "${RED}#`printf " %-54s" "File Existence"`#`printf " %-72s" "/etc/krb5.conf"`# FAIL   #${NC}"
- fi
- linux_ora_os_file_verification_fail=$((linux_ora_os_file_verification_fail+7))
 fi
 
 if [ -f /etc/profile.d/oracle.sh ] ; then
@@ -3092,6 +3058,96 @@ do
    else
     if [[ "$2" = "detail" ]] ; then
      echo -e "${RED}#`printf " %-54s" "File Existence"`#`printf " %-72s" "$i/network/admin/ldap.ora"`# FAIL   #${NC}"
+    fi
+    sw_verification_fail=$((sw_verification_fail+7))
+   fi
+
+   if [ -f $i/network/admin/krb5.conf ] ; then
+    if [[ "$2" = "detail" ]] ; then
+     echo -e "${GREEN}#`printf " %-54s" "File Existence"`#`printf " %-72s" "$i/network/admin/krb5.conf"`# PASS   #${NC}"
+    fi
+    sw_verification_pass=$((sw_verification_pass+1))
+    if [ $(sha256sum $i/network/admin/krb5.conf | awk '{print $1}') = 'b0cfb3af912501259a0f9e8c55fca41edf7bdf71e2b8ed0d4eaf14ba2ba94c4f' ] ; then
+     if [[ "$2" = "detail" ]] ; then
+      echo -e "${GREEN}#`printf " %-54s" "File Checksum"`#`printf " %-72s" "$i/network/admin/krb5.conf"`# PASS   #${NC}"
+     fi
+     sw_verification_pass=$((sw_verification_pass+1))
+    else
+     if [[ "$2" = "detail" ]] ; then
+      echo -e "${RED}#`printf " %-54s" "File Checksum"`#`printf " %-72s" "$i/network/admin/krb5.conf"`# FAIL   #${NC}"
+     fi
+     sw_verification_fail=$((sw_verification_fail+1))
+    fi
+    if [ ! $(stat -c %a:%U:%G $i/network/admin/krb5.conf) = '744:oracle:oinstall' ] ; then
+     if [[ "$2" = "detail" ]] ; then
+      echo -e "${RED}#`printf " %-54s" "File Permissions:Owner:Group:World"`#`printf " %-72s" "$i/network/admin/krb5.conf"`# FAIL   #${NC}"
+     fi
+     sw_verification_fail=$((sw_verification_fail+5))
+    else
+     if [[ "$2" = "detail" ]] ; then
+      echo -e "${GREEN}#`printf " %-54s" "File Permissions:Owner:Group:World"`#`printf " %-72s" "$i/network/admin/krb5.conf"`# PASS   #${NC}"
+     fi
+     sw_verification_pass=$((sw_verification_pass+5))
+    fi
+   else
+    if [[ "$2" = "detail" ]] ; then
+     echo -e "${RED}#`printf " %-54s" "File Existence"`#`printf " %-72s" "$i/network/admin/krb5.conf"`# FAIL   #${NC}"
+    fi
+    sw_verification_fail=$((sw_verification_fail+7))
+   fi
+
+   if [ -f $i/network/admin/sqlnet.ora ] ; then
+    if [[ "$2" = "detail" ]] ; then
+     echo -e "${GREEN}#`printf " %-54s" "File Existence"`#`printf " %-72s" "$i/network/admin/sqlnet.ora"`# PASS   #${NC}"
+    fi
+    sw_verification_pass=$((sw_verification_pass+1))
+    if [ $(/bin/cat $i/network/admin/sqlnet.ora | grep sqlnet.kerberos5_keytab= | awk -F= '{print $2}') = "/etc/aso.$(hostname -f).keytab" ]  ; then
+     if [[ "$2" = "detail" ]] ; then
+      echo -e "${GREEN}#`printf " %-54s" "sqlnet.kerberos5_keytab"`#`printf " %-72s" "/etc/aso.$(hostname -f).keytab"`# PASS   #${NC}"
+     fi
+     sw_verification_pass=$((sw_verification_pass+1))
+    else
+     if [[ "$2" = "detail" ]] ; then
+      echo -e "${RED}#`printf " %-54s" "sqlnet.kerberos5_keytab"`#`printf " %-72s" "/etc/aso.$(hostname -f).keytab"`# FAIL   #${NC}"
+     fi
+     sw_verification_fail=$((sw_verification_fail+1))
+    fi
+    if [ $(/bin/cat $i/network/admin/sqlnet.ora | grep sqlnet.kerberos5_conf= | awk -F= '{print $2}') = "$i/network/admin/krb5.conf" ]  ; then
+     if [[ "$2" = "detail" ]] ; then
+      echo -e "${GREEN}#`printf " %-54s" "sqlnet.kerberos5_conf"`#`printf " %-72s" "$i/network/admin/krb5.conf"`# PASS   #${NC}"
+     fi
+     sw_verification_pass=$((sw_verification_pass+1))
+    else
+     if [[ "$2" = "detail" ]] ; then
+      echo -e "${RED}#`printf " %-54s" "sqlnet.kerberos5_conf"`#`printf " %-72s" "$i/network/admin/krb5.conf"`# FAIL   #${NC}"
+     fi
+     sw_verification_fail=$((sw_verification_fail+1))
+    fi
+    if [ $(/bin/cat $i/network/admin/sqlnet.ora | grep -v sqlnet.kerberos5_conf= | grep -v sqlnet.kerberos5_keytab= | sha256sum | awk '{print $1}') = '8f592815e63920fb30c44a9123949b8ea3252988cfc956e2d5070e7a79aa7d2b' ]  ; then
+     if [[ "$2" = "detail" ]] ; then
+      echo -e "${GREEN}#`printf " %-54s" "File Checksum for other contents"`#`printf " %-72s" "$i/network/admin/sqlnet.ora"`# PASS   #${NC}"
+     fi
+     sw_verification_pass=$((sw_verification_pass+1))
+    else
+     if [[ "$2" = "detail" ]] ; then
+      echo -e "${RED}#`printf " %-54s" "File Checksum for other contents"`#`printf " %-72s" "$i/network/admin/sqlnet.ora"`# FAIL   #${NC}"
+     fi
+     sw_verification_fail=$((sw_verification_fail+1))
+    fi
+    if [ ! $(stat -c %a:%U:%G $i/network/admin/sqlnet.ora) = '744:oracle:oinstall' ] ; then
+     if [[ "$2" = "detail" ]] ; then
+      echo -e "${RED}#`printf " %-54s" "File Permissions:Owner:Group:World"`#`printf " %-72s" "$i/network/admin/sqlnet.ora"`# FAIL   #${NC}"
+     fi
+     sw_verification_fail=$((sw_verification_fail+5))
+    else
+     if [[ "$2" = "detail" ]] ; then
+      echo -e "${GREEN}#`printf " %-54s" "File Permissions:Owner:Group:World"`#`printf " %-72s" "$i/network/admin/sqlnet.ora"`# PASS   #${NC}"
+     fi
+     sw_verification_pass=$((sw_verification_pass+5))
+    fi
+   else
+    if [[ "$2" = "detail" ]] ; then
+     echo -e "${RED}#`printf " %-54s" "File Existence"`#`printf " %-72s" "$i/network/admin/sqlnet.ora"`# FAIL   #${NC}"
     fi
     sw_verification_fail=$((sw_verification_fail+7))
    fi

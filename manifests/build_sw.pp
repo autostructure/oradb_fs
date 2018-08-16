@@ -131,7 +131,6 @@ define oradb_fs::build_sw (
     mode     => '0744',
     owner    => oracle,
     group    => oinstall,
-    backup   => ".${facts['the_date']}",
    } ->
    file { "${home_path}/network/admin/ldap.ora" :
     ensure  => present,
@@ -140,6 +139,13 @@ define oradb_fs::build_sw (
     owner   => 'oracle',
     group   => 'oinstall',
    } ->
+   file { '${home_path}/network/admin/krb5.conf':
+    ensure         => 'file',
+    source         => 'puppet:///modules/oradb_fs/os_files/krb5_r7.conf',
+    owner          => 'oracle',
+    group          => 'oinstall',
+    mode           => '0744',
+   }
    oradb::listener { "Start listener after patching new home: ${home}":
     oracle_base    => '/opt/oracle',
     oracle_home    => $home_path,
