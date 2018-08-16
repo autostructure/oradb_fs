@@ -45,8 +45,6 @@ define oradb_fs::build_sw (
 
  $version_holding = split($version,'[.]')
 
- $short_version = "${version_holding[0]}.${version_holding[1]}.${version_holding[2]}"
-
  $download_dir_sw = $version ? {
   '12.2.0.1'                      => $facts["oradb_fs::ora_sw_dir_path_12_2_0_0"],
   /[0-9][0-9].[0-9]?[0-9].[0-2]/  => $facts["oradb_fs::ora_sw_dir_path_${version_holding[0]}_0_0"],
@@ -61,7 +59,7 @@ define oradb_fs::build_sw (
 
  if $download_dir_sw != 'fail' {
   if $found == false {
-   file { [ "/opt/oracle/product/${short_version}", "${home_path}" ] :
+   file { "${home_path}" :
     ensure   => 'directory',
     owner    => 'oracle',
     group    => 'oinstall',
@@ -139,7 +137,7 @@ define oradb_fs::build_sw (
     owner   => 'oracle',
     group   => 'oinstall',
    } ->
-   file { '${home_path}/network/admin/krb5.conf':
+   file { "${home_path}/network/admin/krb5.conf" :
     ensure         => 'file',
     source         => 'puppet:///modules/oradb_fs/os_files/krb5_r7.conf',
     owner          => 'oracle',
