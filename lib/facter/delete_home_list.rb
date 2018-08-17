@@ -1,4 +1,10 @@
-#/tmp/puppet_deletehome_db_NUM
+####
+# delete_home_list
+#
+# returns an array of home variable sets that have the 'delete home' destructor enabled
+# destructor is enabled by creating /tmp/puppet_deletehome_db_NUM as the Oracle user
+#
+####
 Facter.add(:delete_home_list) do
  confine :kernel => 'Linux'
  setcode do

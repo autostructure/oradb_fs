@@ -442,7 +442,7 @@ if [ -f /usr/local/bin/puppet_oraverify.sh ] ; then
   echo -e "${GREEN}#`printf " %-54s" "File Existence"`#`printf " %-72s" "/usr/local/bin/puppet_oraverify.sh"`# PASS   #${NC}"
  fi
  ora_bootstrap_verification_pass=$((ora_bootstrap_verification_pass+1))
- if [ $(/bin/cat /usr/local/bin/puppet_oraverify.sh | grep -v '##~DO NOT REMOVE THIS~##' | sha256sum | awk '{print $1}') = '4e3810ffe81c84f1f9eece68281d6039fd4712fd8a3fd7fb2602a8a33591e813' ] ; then ##~DO NOT REMOVE THIS~##
+ if [ $(/bin/cat /usr/local/bin/puppet_oraverify.sh | grep -v '##~DO NOT REMOVE THIS~##' | sha256sum | awk '{print $1}') = '1df058ba31846620c005239cee62bc74de5e84a7d1fa9bac340a884534243173' ] ; then ##~DO NOT REMOVE THIS~##
   if [[ "$2" = "detail" ]] ; then
     echo -e "${GREEN}#`printf " %-54s" "File Checksum"`#`printf " %-72s" "/usr/local/bin/puppet_oraverify.sh"`# PASS   #${NC}"
   fi
@@ -3173,8 +3173,11 @@ do
    echo -e "${RED}#`printf " %-54s" "File Existence"`#`printf " %-72s" "$i/bin/oracle"`# FAIL   #${NC}"
    echo -e "${RED}#`printf " %-54s" "lsinventory Successful"`#`printf " %-72s" "$i"`# FAIL   #${NC}"
    echo -e "${RED}#`printf " %-54s" "Partitioning Disabled"`#`printf " %-72s" "$i"`# FAIL   #${NC}"
+   echo -e "${RED}#`printf " %-54s" "File Existence"`#`printf " %-72s" "$i/network/admin/sqlnet.ora"`# FAIL   #${NC}"
+   echo -e "${RED}#`printf " %-54s" "File Existence"`#`printf " %-72s" "$i/network/admin/krb5.conf"`# FAIL   #${NC}"
+   echo -e "${RED}#`printf " %-54s" "File Existence"`#`printf " %-72s" "$i/network/admin/ldap.ora"`# FAIL   #${NC}"
   fi
-  sw_verification_fail=$((sw_verification_fail+9))
+  sw_verification_fail=$((sw_verification_fail+31))
  fi
  else
     echo -e "${YELLOW}#`printf " %-54s" "DEFAULT ORACLE HOME"`#`printf " %-72s" "$i"`# WARN   #${NC}"

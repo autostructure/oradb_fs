@@ -1,3 +1,11 @@
+####
+# cron_allow_exists
+#
+# returns 0 or 1 based on the existence of /etc/cron.deny
+#  1 exists
+#  0 DNE
+#
+####
 Facter.add(:cron_deny_exists) do
  confine :kernel => 'Linux'
  setcode do

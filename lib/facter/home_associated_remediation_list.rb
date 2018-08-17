@@ -1,4 +1,13 @@
-#/tmp/puppet_remediate_db_NUM_SID_ACTION
+####
+# home_associated_remediation_list
+#
+# returns an array of home variable set assciated database names that are marked for remediation
+# remediation is enabled by creating /tmp/puppet_remediate_db_NUM_SID_ACTION as the Oracle user
+#
+# each array member takes the form of: HOME_VARIABLE_SET:SID~ACTION~ACTION...:SID~ACTION...
+# example: [ 'db_1:test01a~all:test02a~security', 'db_2:test03a~patch~security' ]
+#
+####
 Facter.add(:home_associated_remediation_list) do
  confine :kernel => 'Linux'
  setcode do

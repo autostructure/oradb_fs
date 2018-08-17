@@ -63,7 +63,7 @@ define oradb_fs::build_sw (
     ensure   => 'directory',
     owner    => 'oracle',
     group    => 'oinstall',
-    mode     => '0755',
+    mode     => '0775',
    } ->
    file { "${home_path}/ops-perms" :
     ensure => 'absent',
@@ -143,7 +143,7 @@ define oradb_fs::build_sw (
     owner          => 'oracle',
     group          => 'oinstall',
     mode           => '0744',
-   }
+   } ->
    oradb::listener { "Start listener after patching new home: ${home}":
     oracle_base    => '/opt/oracle',
     oracle_home    => $home_path,

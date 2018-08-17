@@ -192,7 +192,13 @@ define oradb_fs::rhel_build (
        db_info_list       => $db_info_list,
        default_detected   => $default_detected,
       } ->
-      oradb_fs::db_remediation { "Patch remediation: ${home}" :
+      oradb_fs::sw_remediation { "Home remediation: ${home}" :
+       home        => $home,
+       home_path   => $home_path,
+       patch_path  => $patch_path,       
+       db_list     => $db_info_list,
+      } ->
+      oradb_fs::db_remediation { "DB remediation: ${home}" :
        home               => $home,
        home_path          => $home_path,
        db_list            => $db_info_list,

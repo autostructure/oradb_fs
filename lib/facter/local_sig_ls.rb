@@ -1,3 +1,11 @@
+####
+# local_sig_ls
+#
+# returns an array of all signature files stored locally on the server
+#
+# each member of the array is a single filename: NAME.xml
+#
+####
 Facter.add(:local_sig_ls) do
  confine :kernel => 'Linux'
  setcode do

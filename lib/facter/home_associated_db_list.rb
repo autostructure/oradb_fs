@@ -1,3 +1,13 @@
+####
+# home_associated_db_list
+#
+# returns an array of Oracle home path associated database lists
+# reads /etc/oratab to construct array
+#
+# each array member takes the form: HOME_PATH:SID:SID:...
+# example: [ '/opt/oracle/product/12.2.0/db_1:test01a:test02a', '/opt/oracle/product/12.2.0/db_2:test03a' ]
+# 
+####
 Facter.add(:home_associated_db_list) do
  confine :kernel => 'Linux'
  setcode do

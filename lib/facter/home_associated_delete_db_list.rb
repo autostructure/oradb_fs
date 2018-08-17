@@ -1,4 +1,13 @@
-#/tmp/puppet_delete_db_NUM_SID
+####
+# home_associated_delete_db_list
+#
+# returns an array of home variable set assciated database names that have the 'delete database' destructor enabled
+# destructor is enabled by creating /tmp/puppet_delete_db_NUM_SID as the Oracle user
+#
+# each array member takes the form of: HOME_VARIABLE_SET:SID:SID:...
+# example: [ 'db_1:test01a:test02a', 'db_2:test03a' ]
+#
+####
 Facter.add(:home_associated_delete_db_list) do
  confine :kernel => 'Linux'
  setcode do

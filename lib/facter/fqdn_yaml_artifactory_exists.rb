@@ -1,3 +1,16 @@
+####
+# fqdn_yaml_artifactory_exists
+#
+# returns -2, -1, 0, 1, or 2 based on the availabilty of artifactory,
+# the checksum of /opt/puppetlabs/facter/facts.d/FQDN.yaml, and the checksum of the FQDN.yaml file stored in artifcatory
+#
+# -2 no FQND.yaml file in Art. and the FQDN.yaml file locally is not the default file
+# -1 servers domain not recognized or Art. is currently unreachable
+# 0 checksums of Art. FQDN.yaml file and local FQDN.yaml file match
+# 1 checksums of Art. FQDN.yaml file and local FQDN.yaml file do not match
+# 2 no FQND.yaml exists in Art. and no FQDN.yaml exists locally
+#
+####
 Facter.add(:fqdn_yaml_artifactory_exists) do
  confine :kernel => 'Linux'
  setcode do

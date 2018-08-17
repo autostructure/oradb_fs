@@ -1,3 +1,11 @@
+####
+#
+# this is a straight copy over of code out of the oradb module by Biemond.
+#
+# this was to support checking for the existence of an Oracle home before
+# a fresh installation was attempted
+#
+####
 # oracle_database_homes.rb
 require 'rexml/document'
 require 'facter'
