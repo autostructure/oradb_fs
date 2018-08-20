@@ -44,7 +44,8 @@ define oradb_fs::rhel_build (
   matches => ['puppet_run_db_[0-9]**', 'puppet_deletehome_db_[0-9]**', 
               'puppet_delete_db_[0-9]**', 'puppet_remediate_db_[0-9]**',
               'puppet_recover_db_[0-9]**', 'puppet_recoverhome_db_[0-9]**', 
-              'puppet_rollback_db_[0-9]**', 'puppet_replace_db_[0-9]**'],
+              'puppet_rollback_db_[0-9]**', 'puppet_replace_db_[0-9]**',
+              'puppet_remediatehome_db_[0-9]**'],
   recurse => 1,
   rmdirs  => false,
  }

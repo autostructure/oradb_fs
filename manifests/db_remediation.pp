@@ -32,7 +32,7 @@ define oradb_fs::db_remediation (
 
    $remediation_fact = $facts['home_associated_remediation_list']
    if $remediation_fact == [ '' ] {
-    notify { "No remediation for home : ${home}" : }
+    notify { "No DB remediation for home : ${home}" : }
    }
    else {
     $sid_action_list = return_sid_list($remediation_fact, $home, $home_path)
