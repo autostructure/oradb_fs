@@ -21,7 +21,7 @@
 #
 ####
 define oradb_fs::sig_file(
- String  $product        = '',   
+ String  $product        = '',
  String  $sig_version    = '1.0',
  String  $type           = '',
  String  $sig_desc       = '',
@@ -38,14 +38,14 @@ define oradb_fs::sig_file(
 
  file { "/opt/oracle/signatures/${sig_file_name}.xml":
   ensure  => present,
-  content => template("oradb_fs/sig_template.xml.erb"),
+  content => template('oradb_fs/sig_template.xml.erb'),
   owner   => 'oracle',
   group   => 'oinstall',
   mode    => '0644',
- } ->
- file { "/fslink/sysinfra/signatures/oracle/${host_name}/${sig_file_name}.xml":
+ }
+ -> file { "/fslink/sysinfra/signatures/oracle/${host_name}/${sig_file_name}.xml":
   ensure  => present,
-  content => template("oradb_fs/sig_template.xml.erb"),
+  content => template('oradb_fs/sig_template.xml.erb'),
   owner   => 'oracle',
   group   => 'oinstall',
   mode    => '0644',

@@ -26,18 +26,18 @@ define oradb_fs::dbactions_loop (
   default            => 'fail',
  }
 
- if $real_action == 'fail' { 
+ if $real_action == 'fail' {
   fail('Wrong input action: dbactions_loop')
  }
- else { 
+ else {
   $db_list.each | String $db_sid | {
    $holding = $db_sid.split(':')
    oradb::dbactions{ "${home}: ${action} ${db_sid}":
-    oracle_home             => $home_path,
-    user                    => 'oracle',
-    group                   => 'dba',
-    action                  => $real_action,
-    db_name                 => $holding[0],
+    oracle_home => $home_path,
+    user        => 'oracle',
+    group       => 'dba',
+    action      => $real_action,
+    db_name     => $holding[0],
    }
   }
  }

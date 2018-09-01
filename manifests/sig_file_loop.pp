@@ -21,7 +21,7 @@
 #
 ####
 define oradb_fs::sig_file_loop(
- String         $home             = '', 
+ String         $home             = '',
  String         $product          = '',
  String         $sig_version      = '1.0',
  String         $type             = '',
@@ -39,16 +39,16 @@ define oradb_fs::sig_file_loop(
 
  $global_name.each | String $sid | {
   $holding = $sid.split(':')
-  oradb_fs::sig_file { "Patch sig file for ${sig_desc} : ${home} : ${sid}" : 
-   product          => $product,
-   sig_version      => $sig_version,
-   type             => $type,
-   sig_desc         => $sig_desc,
-   global_name      => $holding[0],
-   scanid           => $scanid,
-   nodeid           => $node_id,
-   oracle_home      => $oracle_home,
-   sig_file_name    => "${sig_file_name}_${sid}_${short_home_path}",
-  } 
+  oradb_fs::sig_file { "Patch sig file for ${sig_desc} : ${home} : ${sid}" :
+   product       => $product,
+   sig_version   => $sig_version,
+   type          => $type,
+   sig_desc      => $sig_desc,
+   global_name   => $holding[0],
+   scanid        => $scanid,
+   nodeid        => $nodeid,
+   oracle_home   => $oracle_home,
+   sig_file_name => "${sig_file_name}_${sid}_${short_home_path}",
+  }
  }
 }

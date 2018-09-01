@@ -58,30 +58,30 @@ define oradb_fs::sw_remediation (
         group         => 'dba',
         action        => 'stop',
         listener_name => 'LISTENER',
-       } ->
-       oradb_fs::dbactions_loop { "Stop all dbs in home prior to home remediation : ${home}" :
-        home           => $home,
-        db_list        => $db_list,
-        action         => 'stop1',
-        home_path      => $home_path,
-       } ->
-       exec { "Disable partitioning for home: ${home}":
-        command  => "${home_path}/bin/chopt disable partitioning",
-        user     => 'oracle',
-       } ->
-       exec { "Relink all for home: ${home}":
-        command      => "relink >> /tmp/relink.out",
-        user         => 'oracle',
-        path         => "${home_path}/bin",
-        environment  => [ "ORACLE_BASE=/opt/oracle", "ORACLE_HOME=${home_path}", "LD_LIBRARY_PATH=${home_path}/lib:/usr/lib"]
-       } ->
-       oradb_fs::dbactions_loop { "Start all dbs in home after home remediation : ${home}" :
-        home           => $home,
-        db_list        => $db_list,
-        action         => 'start1',
-        home_path      => $home_path,
-       } ->
-       oradb::listener { "Ensure listener is up after home remediation: ${home}" :
+       }
+       -> oradb_fs::dbactions_loop { "Stop all dbs in home prior to home remediation : ${home}" :
+        home      => $home,
+        db_list   => $db_list,
+        action    => 'stop1',
+        home_path => $home_path,
+       }
+       -> exec { "Disable partitioning for home: ${home}":
+        command => "${home_path}/bin/chopt disable partitioning",
+        user    => 'oracle',
+       }
+       -> exec { "Relink all for home: ${home}":
+        command     => 'relink >> /tmp/relink.out',
+        user        => 'oracle',
+        path        => "${home_path}/bin",
+        environment => [ 'ORACLE_BASE=/opt/oracle', "ORACLE_HOME=${home_path}", "LD_LIBRARY_PATH=${home_path}/lib:/usr/lib"]
+       }
+       -> oradb_fs::dbactions_loop { "Start all dbs in home after home remediation : ${home}" :
+        home      => $home,
+        db_list   => $db_list,
+        action    => 'start1',
+        home_path => $home_path,
+       }
+       -> oradb::listener { "Ensure listener is up after home remediation: ${home}" :
         oracle_base   => '/opt/oracle',
         oracle_home   => $home_path,
         user          => 'oracle',

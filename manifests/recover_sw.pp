@@ -20,14 +20,14 @@ define oradb_fs::recover_sw (
  String  $home_path  = undef,
 )
 {
- 
+
  $recovery_home_list  = $facts['recovery_home_list']
-  
+
  $oratab_entries = $facts['home_associated_db_list']
  $ps_entries = $facts['home_associated_running_db_list']
 
  if $recovery_home_list != [''] {
- 
+
   $oratab_home = return_home($oratab_entries, $home, $home_path, 'N')
   $ps_home = return_home($ps_entries, $home, $home_path, 'N')
   $recovery_home = return_home($recovery_home_list, $home, $home_path, 'N')
@@ -42,7 +42,7 @@ define oradb_fs::recover_sw (
   }
   else { #elsif $recovery_in_oratab == 'S' or $recovery_in_oratab == 'F' {
    if $recovery_in_running_ps == 'B' or $recovery_in_running_ps == 'C' {
-   } 
+   }
    elsif $recovery_in_running_ps == 'T' or $recovery_in_running_ps == 'P' {
     fail("Ps -ef contains at least one DB running against the requested home to recover: ${home}")
    }
@@ -52,7 +52,7 @@ define oradb_fs::recover_sw (
      command   => "pkill -u oracle -f ${home_path}/bin/tnslsnr | wc \$1>/dev/null",
      path      => '/bin',
      logoutput => true,
-    } 
+    }
 
     exec { "Wipe home Path : ${home_path}":
      command   => "rm -rf ${home_path}/*",

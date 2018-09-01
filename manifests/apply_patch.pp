@@ -6,11 +6,13 @@
 #
 # variables:
 #  String         $home              - home variable set in use (db_#)
-#  String         $patch_path        - patch version the Oracle home is supposed to be patched to in Oracle 18c version format (12_2.xx.x, 18.xx.x, ...)
+#  String         $patch_path        - patch version the Oracle home is supposed to be patched to in 
+#                                      Oracle 18c version format (12_2.xx.x, 18.xx.x, ...)
 #  String         $home_path         - full path to the Oracle home
 #  Array[String]  $db_list           - array of database sids associated to the Oracle home being patched
 #  String         $version           - version of the base install of the Oracle home (12.2.0.1)
-#  Boolean        $default_detected  - set to true if the db_info_list_db_# array associated to the home being patched contains any default value
+#  Boolean        $default_detected  - set to true if the db_info_list_db_# array associated to the home
+#                                      being patched contains any default value
 #  String         $agent_home        - full path of the em agent home
 #
 # calls the following manifests:
@@ -190,7 +192,7 @@ define oradb_fs::apply_patch (
          sig_desc         => "${patch_path} database PSU",
          global_name      => $db_list,
          oracle_home      => $home_path,
-         sig_file_name    => "db${major_ver}_dbpsu_${patch_path}",
+         sig_file_name    => "db12c_dbpsu_${patch_path}",
          home_path        => $home_path,
         } ->
         oradb_fs::sig_file_loop { "Create OJVM patch sig files for ${home} DBs" :
@@ -201,7 +203,7 @@ define oradb_fs::apply_patch (
          sig_desc         => "${patch_path} Java VM PSU",
          global_name      => $db_list,
          oracle_home      => $home_path,
-         sig_file_name    => "db${major_ver}_jvmpsu_${patch_path}",
+         sig_file_name    => "db12c_jvmpsu_${patch_path}",
          home_path        => $home_path,
         } ->
         oradb::listener { "Restart listener after patching: ${home}" :

@@ -15,7 +15,7 @@
 define oradb_fs::new_db_post_patch_tree (
  String   $home           = undef,
  String   $home_path      = undef,
- String   $db_name        = undef, 
+ String   $db_name        = undef,
  String   $short_version  = undef,
 )
 {

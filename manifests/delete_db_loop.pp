@@ -14,8 +14,10 @@
 #  oradb::database - deletes Oracle database
 #
 # removes:
-#  /opt/oracle/signatures/${local_file_name}                              - regex matched sig file names associated to the database being removed
-#  /fslink/sysinfra/signatures/oracle/${host_name}/${sysinfra_file_name}  - regex matched sig file names associated to the database being removed
+#  /opt/oracle/signatures/${local_file_name}                              - regex matched sig file names associated
+#                                                                           to the database being removed
+#  /fslink/sysinfra/signatures/oracle/${host_name}/${sysinfra_file_name}  - regex matched sig file names associated
+#                                                                           to the database being removed
 #
 ####
 define oradb_fs::delete_db_loop (
@@ -35,7 +37,7 @@ define oradb_fs::delete_db_loop (
  if $delete_entries != [''] {
 
   notify{"In delete: ${home}":}
- 
+
   $oratab_home = return_sid_list($oratab_entries, $home, $home_path)
   $ps_home = return_sid_list($ps_entries, $home, $home_path)
   $db_home = return_sid_list($db_list, $home, $home_path)
@@ -52,7 +54,7 @@ define oradb_fs::delete_db_loop (
   }
   else { #elsif delete_in_oratab = 'T' {
    if $delete_in_running_ps == 'B' or $delete_in_running_ps == 'C' {
-   } 
+   }
    elsif $delete_in_running_ps == 'S' or $delete_in_running_ps == 'F' or $delete_in_running_ps == 'P' {
     fail("Ps -ef does not contain the complete requested delete list running for home: ${home}")
    }
@@ -63,9 +65,9 @@ define oradb_fs::delete_db_loop (
      fail("Delete list is fully or partially contained in yaml file db list for home: ${home}")
     }
     else { #elsif $delete_in_db_list == 'S' or $delete_in_db_list == 'F'{    
-   
+
      $version_holding = split($version, '[.]')
-   
+
      $short_home_path = split($home_path,'/')[-1]
 
      $container_database = "${version_holding[0]}.${version_holding[1]}" ? {
@@ -75,21 +77,21 @@ define oradb_fs::delete_db_loop (
 
      $delete_db_list_home.each | String $db_sid | {
       oradb::database{ "Delete db ${db_sid} for home: ${home}" :
-       oracle_base               => '/opt/oracle',
-       oracle_home               => $home_path,
-       version                   => "${version_holding[0]}.${version_holding[1]}",
-       user                      => 'oracle',
-       group                     => 'dba',
-       download_dir              => "/opt/oracle/sw/working_dir/${home}",
-       action                    => 'delete',
-       db_name                   => $db_sid,
-       db_domain                 => $db_domain,
-       sys_password              => $facts['oradb_fs::ora_db_passwords'],
-       container_database        => $container_database,
+       oracle_base        => '/opt/oracle',
+       oracle_home        => $home_path,
+       version            => "${version_holding[0]}.${version_holding[1]}",
+       user               => 'oracle',
+       group              => 'dba',
+       download_dir       => "/opt/oracle/sw/working_dir/${home}",
+       action             => 'delete',
+       db_name            => $db_sid,
+       db_domain          => $db_domain,
+       sys_password       => $facts['oradb_fs::ora_db_passwords'],
+       container_database => $container_database,
       }
 
       $host_name = $facts['networking']['hostname']
-      
+
       $sysinfra_ls = $facts['sysinfra_sig_ls']
       $local_ls = $facts['local_sig_ls']
 

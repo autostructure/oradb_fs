@@ -26,15 +26,15 @@
 #
 ####
 define oradb_fs::db_maintenance_scripts (
- String  $optional_mail_list  = undef, 
+ String  $optional_mail_list  = undef,
 )
 {
  file { [ '/home/oracle/dbcheck', '/home/oracle/dbcheck/scripts', '/home/oracle/dbcheck/logs',
           '/opt/oracle/diag/bkp', '/opt/oracle/diag/bkp/alertlogs', '/opt/oracle/diag/bkp/rman', '/opt/oracle/diag/bkp/rman/log' ]:
-  ensure   => 'directory',
-  owner    => 'oracle',
-  group    => 'oinstall',
-  mode     => '0775',
+  ensure => 'directory',
+  owner  => 'oracle',
+  group  => 'oinstall',
+  mode   => '0775',
  }
 # Removed '12c_reset_profile_pwd.sql', from scripts. BUG script.
  $scripts =   ['archloglist.sql',
@@ -83,43 +83,43 @@ define oradb_fs::db_maintenance_scripts (
 
  if $optional_mail_list != null {
   file { '/home/oracle/dbcheck/scripts/emailto':
-   ensure   => present,
-   content  => $optional_mail_list,
-   mode     => '0774',
-   owner    => 'oracle',
-   group    => 'oinstall',
-   require  => File['/home/oracle/dbcheck/scripts'],
+   ensure  => present,
+   content => $optional_mail_list,
+   mode    => '0774',
+   owner   => 'oracle',
+   group   => 'oinstall',
+   require => File['/home/oracle/dbcheck/scripts'],
   }
  }
  else {
   file { '/home/oracle/dbcheck/scripts/emailto' :
-   ensure   => present,
-   source   => 'puppet:///modules/oradb_fs/db_maintenance/emailto',
-   mode     => '0774',
-   owner    => 'oracle',
-   group    => 'oinstall',
-   require  => File['/home/oracle/dbcheck/scripts'],
+   ensure  => present,
+   source  => 'puppet:///modules/oradb_fs/db_maintenance/emailto',
+   mode    => '0774',
+   owner   => 'oracle',
+   group   => 'oinstall',
+   require => File['/home/oracle/dbcheck/scripts'],
   }
- } 
+ }
 
  cron { 'rotate alert log files on the 1st of every month':
-   command       => '/home/oracle/dbcheck/scripts/rotate_alertlogs.sh > /home/oracle/dbcheck/logs/alert.log 2>&1',
-   user          => 'oracle',
-   minute        => 0,
-   hour          => 0,
-   monthday      => 1,
-   month         => absent,
-   weekday       => absent,
+   command  => '/home/oracle/dbcheck/scripts/rotate_alertlogs.sh > /home/oracle/dbcheck/logs/alert.log 2>&1',
+   user     => 'oracle',
+   minute   => 0,
+   hour     => 0,
+   monthday => 1,
+   month    => absent,
+   weekday  => absent,
  }
- 
+
  cron { 'run db maintenance scripts daily':
-   command       => '/home/oracle/dbcheck/scripts/dbmaint_start.job all > /tmp/dbmaint_daily.log 2>&1',
-   user          => 'oracle',
-   minute        => 0,
-   hour          => 05,
-   monthday      => absent, 
-   month         => absent,
-   weekday       => absent,
+   command  => '/home/oracle/dbcheck/scripts/dbmaint_start.job all > /tmp/dbmaint_daily.log 2>&1',
+   user     => 'oracle',
+   minute   => 0,
+   hour     => 05,
+   monthday => absent,
+   month    => absent,
+   weekday  => absent,
  }
 }
 

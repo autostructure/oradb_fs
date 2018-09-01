@@ -8,14 +8,17 @@
 #  String         $home              - home variable set in use (db_#)
 #  String         $home_path         - full path of the em agent home
 #  Array[String]  $db_list           - flat fact array of information required to build a new database(s) using this module 
-#  String         $patch_path        - patch version the Oracle home is supposed to be patched to in Oracle 18c version format (12_2.xx.x, 18.xx.x, ...)
+#  String         $patch_path        - patch version the Oracle home is supposed to be patched to in
+#                                      Oracle 18c version format (12_2.xx.x, 18.xx.x, ...)
 #  String         $version           - version of the base install of the Oracle home (12.2.0.1)
-#  Boolean        $default_detected  - set to true if the db_info_list_db_# array associated to the home being worked on contains any default value 
+#  Boolean        $default_detected  - set to true if the db_info_list_db_# array associated to the home being worked
+#                                      on contains any default value 
 #
 # calls the following manifests:
 #  oradb_fs::dbactions_loop      - start and stop of the database being remediated
 #  oradb_fs::post_patching_tree  - perform post patching actions against the database
-#  oradb_fs::db_security         - deploys security package set into the database and configures the databases based information in the flat fact for this database
+#  oradb_fs::db_security         - deploys security package set into the database and configures the databases based
+#                                  on information in the flat fact for this database
 #
 ####
 define oradb_fs::db_remediation (
@@ -47,15 +50,15 @@ define oradb_fs::db_remediation (
     $sid_action_list.each | String $sid_action | {
 
      $db_sid = [ split($sid_action, '~')[0] ]
-     $action_list = split($sid_action, '~')[1,-1]    
-   
+     $action_list = split($sid_action, '~')[1,-1]
+
      $sid_in_oratab = compare_arrays($oratab_home, $db_sid)
      $sid_in_db_list = compare_arrays($db_home, $db_sid)
      $sid_in_running_ps = compare_arrays($ps_home, $db_sid)
 
      if $sid_in_oratab == 'B' or $sid_in_oratab == 'C' {
      }
-     elsif $sid_in_oratab == 'S' or $sid_in_oratab == 'F' { 
+     elsif $sid_in_oratab == 'S' or $sid_in_oratab == 'F' {
       notify { "Oratab does not contain SID requested for remediation. SID skipped : ${home} : ${db_sid}" :
        loglevel => 'err'
       }
@@ -69,25 +72,25 @@ define oradb_fs::db_remediation (
        }
       }
       else { #$sid_in_db_list == 'T' or $sid_in_db_list == 'P' 
- 
+
        $action_list.each | String $rem_action | {
 
        if $rem_action == 'patch' or $rem_action == 'all' {
         if $sid_in_running_ps == 'P' or $sid_in_running_ps == 'T' {
           oradb_fs::dbactions_loop { "Stop all dbs requiring patch remediation in ${home}" :
-           home           => $home,
-           db_list        => $db_sid,
-           action         => 'stop1',
-           home_path      => $home_path,
+           home      => $home,
+           db_list   => $db_sid,
+           action    => 'stop1',
+           home_path => $home_path,
           }
          }
-    
+
          $version_holding = split($version, '[.]')
-    
-         $short_version = "${version_holding[0]}.${version_holding[1]}" 
-  
+
+         $short_version = "${version_holding[0]}.${version_holding[1]}"
+
          $patch_path_holding = split($patch_path,'[.]')
-  
+
          $patch_path_ru = $patch_path_holding[1] + $patch_path_holding[2]
          $patch_path_adjusted = "${patch_path_holding[0]}.${patch_path_ru}.0"
          $patch_path_lookup_db = regsubst($patch_path, '[.]', '_', 'G')
@@ -95,37 +98,37 @@ define oradb_fs::db_remediation (
 
          $db_patch_num_holding = split($facts["oradb_fs::${patch_path_lookup_db}::db_patch_file"],'_')[0]
          $db_patch_num = inline_template( '<%= @db_patch_num_holding[1..-1] %>' )
- 
+
          $ojvm_patch_num_holding = split($facts["oradb_fs::${patch_path_lookup_other}::ojvm_patch_file"],'_')[0]
          $ojvm_patch_num = inline_template( '<%= @ojvm_patch_num_holding[1..-1] %>' )
-    
+
          oradb_fs::dbactions_loop { "Startup Upgrade for all dbs requiring patch remediation in ${home}" :
-          home           => $home,
-          db_list        => $db_sid,
-          action         => 'upgrade',
-          home_path      => $home_path,
-         } ->
-         oradb_fs::post_patching_tree { "Patch remediation : ${home}" :
-          home                 => $home,
-          home_path            => $home_path,
-          db_list              => $db_sid,
-          db_patch_number      => $db_patch_num,
-          ojvm_patch_number    => $ojvm_patch_num,
-          short_version        => $short_version,
-          patch_path           => $patch_path,
-          ojvm_patch_path      => $patch_path_adjusted,
-         } ->
-         oradb_fs::dbactions_loop { "Stop all dbs requiring patch remediation in ${home} after running post patching" :
-          home           => $home,
-          db_list        => $db_sid,
-          action         => 'stop2',
-          home_path      => $home_path,
-         } ->
-         oradb_fs::dbactions_loop { "Restart all dbs requiring patch remediation in ${home}" :
-          home           => $home,
-          db_list        => $db_sid,
-          action         => 'start',
-          home_path      => $home_path,
+          home      => $home,
+          db_list   => $db_sid,
+          action    => 'upgrade',
+          home_path => $home_path,
+         }
+         -> oradb_fs::post_patching_tree { "Patch remediation : ${home}" :
+          home              => $home,
+          home_path         => $home_path,
+          db_list           => $db_sid,
+          db_patch_number   => $db_patch_num,
+          ojvm_patch_number => $ojvm_patch_num,
+          short_version     => $short_version,
+          patch_path        => $patch_path,
+          ojvm_patch_path   => $patch_path_adjusted,
+         }
+         -> oradb_fs::dbactions_loop { "Stop all dbs requiring patch remediation in ${home} after running post patching" :
+          home      => $home,
+          db_list   => $db_sid,
+          action    => 'stop2',
+          home_path => $home_path,
+         }
+         -> oradb_fs::dbactions_loop { "Restart all dbs requiring patch remediation in ${home}" :
+          home      => $home,
+          db_list   => $db_sid,
+          action    => 'start',
+          home_path => $home_path,
          }
         }
         if $rem_action == 'security' or $rem_action == 'all' {
@@ -135,12 +138,12 @@ define oradb_fs::db_remediation (
 
            $security_options = $holding[3]
 
-           oradb_fs::db_security { "Call to configure security settings: $db_sid[0]" :
-            db_name              => $db_sid[0],
-            working_dir          => "/opt/oracle/sw/working_dir/${home}",
-            home                 => $home,
-            home_path            => $home_path,
-            db_security_options  => $security_options,
+           oradb_fs::db_security { "Call to configure security settings : ${db_sid[0]}" :
+            db_name             => $db_sid[0],
+            working_dir         => "/opt/oracle/sw/working_dir/${home}",
+            home                => $home,
+            home_path           => $home_path,
+            db_security_options => $security_options,
            }
           }
          }
@@ -165,4 +168,4 @@ define oradb_fs::db_remediation (
   notify{"Default value detected in db_info_list : remediation skipped: db_remediation : ${home}" : }
  }
 }
-    
+

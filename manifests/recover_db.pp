@@ -8,7 +8,8 @@
 #  String         $home              - home variable set in use (db_#)
 #  String         $home_path         - full path to the Oracle home
 #  Array[String]  $db_info_list      - flat fact array of information required to build a new database(s) using this module 
-#  Boolean        $default_detected  - set to true if the db_info_list_db_# array associated to the home being patched contains any default value
+#  Boolean        $default_detected  - set to true if the db_info_list_db_# array associated to the home being
+#                                      patched contains any default value
 #
 # removes:
 #  files/directories from the $facts['sid_associated_vestige_list'] fact that are associated to the database being recovered
@@ -24,11 +25,11 @@ define oradb_fs::recover_db (
  if !$default_detected {
 
   $sid_associated_vestige_list  = $facts['sid_associated_vestige_list']
-   
+
   $oratab_entries = $facts['home_associated_db_list']
   $ps_entries = $facts['home_associated_running_db_list']
   $recovery_entries = $facts['recovery_db_list']
- 
+
   if $recovery_entries != [''] {
 
    if $oratab_entries == [''] {
@@ -45,13 +46,13 @@ define oradb_fs::recover_db (
     $ps_all = flatten($ps_entries.map | String $ps_info | { split($ps_info, ':') })
    }
 
-   $recovery_home = return_sid_list($recovery_entries, $home, $home_path) 
+   $recovery_home = return_sid_list($recovery_entries, $home, $home_path)
    $db_home = return_sid_list($db_info_list, $home, $home_path)
- 
+
    $recovery_in_oratab = compare_arrays($oratab_all, $recovery_home)
    $recovery_in_running_ps = compare_arrays($ps_all, $recovery_home)
    $recovery_in_db_list = compare_arrays($db_home, $recovery_home)
- 
+
    if $recovery_in_oratab == 'B' or $recovery_in_oratab == 'C' {
    }
    elsif $recovery_in_oratab == 'T' or $recovery_in_oratab == 'P' {
@@ -59,7 +60,7 @@ define oradb_fs::recover_db (
    }
    else { #elsif $recovery_in_oratab == 'S' or $recovery_in_oratab == 'F' {
     if $recovery_in_running_ps == 'B' or $recovery_in_running_ps == 'C' {
-    } 
+    }
     elsif $recovery_in_running_ps == 'T' or $recovery_in_running_ps == 'P' {
      fail("Ps -ef contains the complete or partial requested recovery list running for home: ${home}")
     }
@@ -81,9 +82,9 @@ define oradb_fs::recover_db (
           if $db_sid == $holding2[0] {
            $holding3.each | String $dir | {
             file { $dir :
-             ensure  => absent,
-             force   => true, 
-             backup  => false,
+             ensure => absent,
+             force  => true,
+             backup => false,
             }
            }
           }

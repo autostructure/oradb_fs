@@ -27,35 +27,35 @@ define oradb_fs::deploy_restart_service (
  if $action == 'deploy' {
   file { "/etc/systemd/system/oracle-rdbms_${home_path_short}.service":
    ensure  => present,
-   content => epp("oradb_fs/oracle-rdbms_home.service.epp",
-                 { 'db_home_short'  => $db_name_short,
-                   'home_path'      => $home_path}),
+   content => epp('oradb_fs/oracle-rdbms_home.service.epp',
+                 { 'db_home_short' => $home_path_short,
+                   'home_path'     => $home_path}),
    mode    => '0644',
    owner   => 'root',
    group   => 'root'
   }
   exec { "Reload systemd : ${home}" :
-   command   => 'systemctl daemon-reload',
-   path      => '/bin'
+   command => 'systemctl daemon-reload',
+   path    => '/bin'
   }
   service { "Start and enable newly added restart service : ${home}" :
+   ensure => running,
    name   => "oracle-rdbms_${home_path_short}",
    enable => true,
-   ensure => running
   }
  }
  elsif $action == 'remove' {
   service { "Start and enable newly added restart service : ${home}" :
+   ensure => stopped,
    name   => "oracle-rdbms_${home_path_short}",
    enable => false,
-   ensure => stopped
   }
   file { "/etc/systemd/system/oracle-rdbms_${home_path_short}.service":
    ensure  => absent,
   }
   exec { "Reload systemd : ${home}" :
-   command   => 'systemctl daemon-reload',
-   path      => '/bin'
+   command => 'systemctl daemon-reload',
+   path    => '/bin'
   }
  }
  else {

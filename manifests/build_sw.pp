@@ -9,14 +9,16 @@
 #  String  $version        - version of the base install of the Oracle home (12.2.0.1)
 #  String  $database_type  - edition of the Oracle software being installed (ee, se)
 #  String  $home_path      - full path to the Oracle home
-#  String  $patch_path     - patch version the Oracle home is supposed to be patched to in Oracle 18c version format (12_2.xx.x, 18.xx.x, ...)
+#  String  $patch_path     - patch version the Oracle home is supposed to be patched to in
+#                            Oracle 18c version format (12_2.xx.x, 18.xx.x, ...)
 #
 # calls the following manifests:
 #  oradb::installdb                  - creates a new Oracle home
 #  oradb::listener                   - start and stop of the listener associated to the home
 #  oradb_fs::listener                - creates listener.ora file
 #  oradb_fs::build_patched_sw        - patches a newly built Oracle home
-#  oradb_fs::oracle_version_actions  - actions to be perfromed against the home based on version. largely a hold over from 11g, but still may be needed
+#  oradb_fs::oracle_version_actions  - actions to be perfromed against the home based on version. largely a hold
+#                                      over from 11g, but still may be needed
 #  oradb_fs::deploy_restart_service  - deploy restart service associated to the new home
 #  oradb_fs::sig_file                - creation of sig file required from creating a new Oracle home
 #
