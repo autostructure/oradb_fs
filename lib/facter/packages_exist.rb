@@ -4,6 +4,7 @@
 ####
 Facter.add(:packages_exist) do
  confine :kernel => 'Linux'
+ confine :"oradb_fs::ora_platform" => [ :oem, :db ]
  setcode do
 
   rpm_array = [ '0', '0', '0', '0' ]

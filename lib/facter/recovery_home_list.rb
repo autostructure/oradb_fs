@@ -1,6 +1,7 @@
 #/tmp/puppet_recoverhome_db_NUM
 Facter.add(:recovery_home_list) do
  confine :kernel => 'Linux'
+ confine :"oradb_fs::ora_platform" => [ :oem, :db ]
  setcode do
   
   command = 'ls -lQ /tmp | grep -E \"puppet_recoverhome_db_[0-9]*\"$ | awk \'$3 == "oracle" {print $9}\' | awk -F_ \'{print $3"_"$4 }\''

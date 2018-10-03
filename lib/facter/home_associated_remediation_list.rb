@@ -10,6 +10,7 @@
 ####
 Facter.add(:home_associated_remediation_list) do
  confine :kernel => 'Linux'
+ confine :"oradb_fs::ora_platform" => [ :oem, :db ]
  setcode do
 
   rem_array = ['']

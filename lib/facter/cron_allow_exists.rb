@@ -8,6 +8,7 @@
 ####
 Facter.add(:cron_allow_exists) do
  confine :kernel => 'Linux'
+ confine :"oradb_fs::ora_platform" => [ :oem, :db ]
  setcode do
 
   command = 'ls /etc/cron.allow 2>/dev/null | wc -l'

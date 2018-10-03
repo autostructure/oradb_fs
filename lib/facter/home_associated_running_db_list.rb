@@ -10,6 +10,7 @@
 ####
 Facter.add(:home_associated_running_db_list) do
  confine :kernel => 'Linux'
+ confine :"oradb_fs::ora_platform" => [ :oem, :db ]
  setcode do
 
   count = 0

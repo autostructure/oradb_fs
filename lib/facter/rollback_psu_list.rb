@@ -1,6 +1,7 @@
 #/tmp/puppet_rollback_db_NUM_PATCH_PATH
 Facter.add(:rollback_psu_list) do
  confine :kernel => 'Linux'
+ confine :"oradb_fs::ora_platform" => [ :oem, :db ]
  setcode do
 
   home_array = ['']

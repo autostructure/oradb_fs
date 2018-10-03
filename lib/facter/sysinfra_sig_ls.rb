@@ -1,5 +1,6 @@
 Facter.add(:sysinfra_sig_ls) do
  confine :kernel => 'Linux'
+ confine :"oradb_fs::ora_platform" => [ :oem, :db ]
  setcode do
 
   ls_array = ['']

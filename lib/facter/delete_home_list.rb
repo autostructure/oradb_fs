@@ -7,6 +7,7 @@
 ####
 Facter.add(:delete_home_list) do
  confine :kernel => 'Linux'
+ confine :"oradb_fs::ora_platform" => [ :oem, :db ]
  setcode do
   
   delete_home_array = ['']

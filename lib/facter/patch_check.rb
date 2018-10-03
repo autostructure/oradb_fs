@@ -1,5 +1,6 @@
 Facter.add(:home_patch_list) do
  confine :kernel => 'Linux'
+ confine :"oradb_fs::ora_platform" => [ :oem, :db ]
  setcode do 
   home_array = ['']
   count = 0 

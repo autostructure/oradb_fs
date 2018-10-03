@@ -1,5 +1,6 @@
 Facter.add(:orapriv_exists) do
   confine :kernel => 'Linux'
+  confine :"oradb_fs::ora_platform" => [ :oem, :db ]
   setcode do
 
   if Facter.value(:domain) == 'wrk.fs.usda.gov'

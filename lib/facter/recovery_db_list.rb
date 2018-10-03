@@ -1,6 +1,7 @@
 #/tmp/puppet_recover_db_NUM_SID
 Facter.add(:recovery_db_list) do
  confine :kernel => 'Linux'
+ confine :"oradb_fs::ora_platform" => [ :oem, :db ]
  setcode do
 
   recover_db_array = ['']
