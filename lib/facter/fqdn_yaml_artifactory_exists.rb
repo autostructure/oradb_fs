@@ -54,7 +54,7 @@ Facter.add(:fqdn_yaml_artifactory_exists) do
      if File.exist?(local_file)
       command = 'md5sum /opt/puppetlabs/facter/facts.d/' + host_fqdn + '.yaml | awk \'{print $1}\''
       md5_local = %x[#{command}]
-      if md5_local.strip != 'a984da2df7791d6dbd114be394ec9a9a'
+      if md5_local.strip != '8afabfeeeb946ae0c2ca8b5db69db0ff'
        -2 #Art. file DNE. Local file is not the default file.
       else #checksum match
        0 #Art. file DNE. Local file exists.

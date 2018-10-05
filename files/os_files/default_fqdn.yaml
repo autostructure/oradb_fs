@@ -2,7 +2,7 @@
 profile::linux_ora_verify::bypass: 'false'
 oradb_fs::ora_platform: ''
 oradb_fs::require_full_orahome_mp: 'false'
-oradb_fs::failover_orahome: 'false' 
+oradb_fs::failover_orahome: 'false'
 
 #### Miscellaneous RN Info
 oradb::ora_bash_db_name: 'yzzzzzzz'
@@ -17,4 +17,4 @@ oradb::ora_patch_path_db_1: 'xx.xx.x'
 oradb::db_port_db_1: 1521
 
 ### Database Variables with a variable line for each Oracle SW Home.
-oradb_fs::ora_db_info_list_db_1: [ 'yzzzzzzz:yyxxg_xk:xx:y~y~y~y~y~y~y:xxxx' ]
+oradb_fs::ora_db_info_list_db_1: [ 'yzzzzzzz:yyxxg_xk:xx:y~y:yyyy' ]
