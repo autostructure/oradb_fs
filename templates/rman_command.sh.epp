@@ -1,0 +1,1 @@
+`echo \"exit\" | rman target / catalog /@<%= $tns_alias %> cmdfile=/opt/oracle/sw/working_dir/<%= $home %>/<%= $sid %>_<%= $tns_alias %>_rman_register_cmdfile.sql > /opt/oracle/sw/<%= $home %>/<%= $sid %>_<%= $tns_alias %>_rman_regstration.log`

@@ -1,0 +1,11 @@
+export TNS_ADMIN=<%= $home_path %>/network/admin
+export ORACLE_HOME=<%= $home_path %>
+export PATH=<%= $home_path %>/bin
+export LD_LIBRARY_PATH=<%= $home_path %>/lib
+
+sqlplus -s /@<%= $tns_alias %> <<-EOF
+SET PAGESIZE 0 FEEDBACK OFF VERIFY OFF HEADING OFF ECHO OFF
+select REG_DB_UNIQUE_NAME from <%= $rman_schema %>.db where REG_DB_UNIQUE_NAME=upper('<%= $sid %>');
+EXIT;
+EOF
+

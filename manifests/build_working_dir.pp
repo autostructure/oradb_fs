@@ -20,7 +20,8 @@ define oradb_fs::build_working_dir (
  String  $version     = undef,
 )
 {
- file { "/opt/oracle/sw/working_dir/${home}" :
+ file { [ "/opt/oracle/sw/${home}",
+          "/opt/oracle/sw/working_dir/${home}" ] :
            ensure => 'directory',
            owner  => 'oracle',
            group  => 'oinstall',

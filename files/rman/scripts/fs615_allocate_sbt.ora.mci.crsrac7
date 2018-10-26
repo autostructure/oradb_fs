@@ -1,0 +1,4 @@
+   allocate channel t1 type 'sbt_tape' connect /@%CDB%3;
+   allocate channel t2 type 'sbt_tape' connect /@%CDB%2;
+   allocate channel t3 type 'sbt_tape' connect /@%CDB%2;
+   allocate channel t4 type 'sbt_tape' connect /@%CDB%3;

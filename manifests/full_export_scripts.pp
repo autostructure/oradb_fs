@@ -15,7 +15,7 @@
 define oradb_fs::full_export_scripts (
 )
 {
- file { [ '/home/oracle/system', '/home/oracle/system/oraexport' ]:
+ file { '/home/oracle/system/oraexport' :
   ensure => 'directory',
   owner  => 'oracle',
   group  => 'oinstall',

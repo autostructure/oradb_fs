@@ -1,0 +1,39 @@
+connect / as sysdba
+
+declare
+lv_count  number;
+lv_text   varchar2(4000);
+pv_schema varchar2(30) := '<%= $user %>';
+
+begin
+
+ select count(*) into lv_count from dba_users where username = upper(pv_schema);
+
+ if lv_count > 0 then
+  lv_text := 'alter user ' || pv_schema || ' temporary tablespace TEMP ' ||
+             'default tablespace USERS quota unlimited on USERS ' ||
+             'profile fs_service_acct';
+
+  execute immediate lv_text;
+
+  lv_text := 'grant connect, resource, recovery_catalog_owner to ' || pv_schema;
+
+  execute immediate lv_text;
+
+ elsif lv_count = 0 then
+  lv_text := 'create user ' || pv_schema || ' identified by <%= $input %>' ||
+             ' temporary tablespace TEMP default tablespace USERS ' ||
+             'quota unlimited on USERS profile fs_service_acct';
+  
+  execute immediate lv_text;
+  
+  lv_text := 'grant connect, resource, recovery_catalog_owner to ' || pv_schema;
+
+  execute immediate lv_text;
+ end if;
+
+end;
+/
+
+exit
+

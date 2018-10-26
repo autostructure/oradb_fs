@@ -40,7 +40,8 @@ define oradb_fs::rhel_build (
               'puppet_delete_db_[0-9]**', 'puppet_remediate_db_[0-9]**',
               'puppet_recover_db_[0-9]**', 'puppet_recoverhome_db_[0-9]**',
               'puppet_rollback_db_[0-9]**', 'puppet_replace_db_[0-9]**',
-              'puppet_remediatehome_db_[0-9]**'],
+              'puppet_remediatehome_db_[0-9]**', 'puppet_rman_db_[0-9]**',
+              'puppet_rmanrepo_db_[0-9]**'],
   recurse => 1,
   rmdirs  => false,
  }
@@ -138,6 +139,16 @@ define oradb_fs::rhel_build (
       default  => return_home($facts['recovery_home_list'], $home, $home_path, 'N'),
      }
 
+     $rman_setup_found = $facts['rman_setup_list'] ? {
+      [ '' ]   => [''],
+      default  => return_sid_list($facts['rman_setup_list'], $home, $home_path),
+     }
+
+     $rman_repo_setup_found = $facts['rman_repo_setup_list'] ? {
+      ['']   => [''],
+      default  => return_sid_list($facts['rman_repo_setup_list'], $home, $home_path),
+     }
+
      oradb_fs::build_working_dir { "Build working dirs for home: ${home}" :
       home       => $home,
       patch_path => $patch_path,
@@ -179,6 +190,25 @@ define oradb_fs::rhel_build (
        patch_path_array => $rollback_found,
        default_detected => $default_detected,
        agent_home       => $agent_home,
+      }
+     }
+     elsif $rman_setup_found != [''] {
+      oradb_fs::configure_rman { "Configure DBs and associated home for RMAN user: ${home}" :
+       home         => $home,
+       home_path    => $home_path,
+       db_info_list => $db_info_list,
+       sid_list     => $rman_setup_found,
+      }
+     }
+     elsif $rman_repo_setup_found != [''] {
+      $rman_repo_home_list = return_sid_list($rman_repo_setup_found, $home, $home_path)
+      $rman_repo_home_list.each | $sid | {
+       oradb_fs::configure_rman_repo { "Configure RMAN Repo DB: ${home} : ${sid}" :
+        home         => $home,
+        home_path    => $home_path,
+        db_info_list => $db_info_list,
+        sid          => $sid,
+       }
       }
      }
      else {

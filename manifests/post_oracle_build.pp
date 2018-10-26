@@ -47,10 +47,60 @@ define oradb_fs::post_oracle_build(
   agent_core   => $facts['oradb_fs::agent_core'],
   agent_home   => $facts['oradb_fs::agent_home'],
  }
- exec { 'Clean up working direcory' :
-  command   => 'rm -rf /opt/oracle/sw/working_dir/*',
+
+# exec { 'Clean up working directory' :
+#  command   => 'rm -rf /opt/oracle/sw/working_dir/*',
+#  path      => '/bin',
+#  logoutput => true,
+# }
+
+ exec { 'Clean up old /tmp Oracle install directories.' :
+  command   => "find /tmp -mtime +5 -name 'OraInstall*[AP]M' -exec rm -rf {} +",
   path      => '/bin',
   logoutput => true,
+  onlyif    => [ 'test `date +"%H"` -gt 20', 'test `date +"%H"` -lt 21' ]
+ }
+
+ exec { 'Clean up old /tmp Oracle deinstall directories.' :
+  command   => "find /tmp -mtime +5 -name 'deinstall*[AP]M' -exec rm -rf {} +",
+  path      => '/bin',
+  logoutput => true,
+  onlyif    => [ 'test `date +"%H"` -gt 20', 'test `date +"%H"` -lt 21' ]
+ }
+
+# exec { 'Clean up old Opatch log files: lspatches' :
+#  command   => "find /opt/oracle/product/12.2.0/*/cfgtoollogs/opatch -mtime +2 -name 'opatch*[AP]M*.log' -exec rm -f {} +",
+#  path      => '/bin',
+#  logoutput => true,
+#  onlyif    => [ 'test -d /opt/oracle/product/12.2.0/*/cfgtoollogs/opatch', 'test `date +"%H"` -gt 20', 'test `date +"%H"` -lt 21' ]
+# }
+
+ exec { 'Clean up old Opatch log files: lock files' :
+  command   => "find /opt/oracle/product/12.2.0/*/cfgtoollogs/opatch -mtime +7 -name 'opatch*[AP]M*.log*.lck' -exec rm -f {} +",
+  path      => '/bin',
+  logoutput => true,
+  onlyif    => [ 'test -d /opt/oracle/product/12.2.0/*/cfgtoollogs/opatch', 'test `date +"%H"` -gt 20', 'test `date +"%H"` -lt 21' ]
+ }
+
+ exec { 'Clean up old Opatch log files: lspatches' :
+  command   => "cat /opt/oracle/product/12.2.0/*/cfgtoollogs/opatch/opatch_history.txt | awk '/lspatches/ {for(i=1; i<=1; i++) {getline; print}}' | awk -F: '{print $2 }' | xargs rm 2>/dev/null | wc -l",
+  path      => '/bin',
+  logoutput => true,
+  onlyif    => [ 'test -d /opt/oracle/product/12.2.0/*/cfgtoollogs/opatch', 'test `date +"%H"` -gt 20', 'test `date +"%H"` -lt 21' ]
+ }
+
+ exec { 'Clean up old Opatch log files: lsinventory' :
+  command   => "cat /opt/oracle/product/12.2.0/*/cfgtoollogs/opatch/opatch_history.txt | awk '/lsinventory/ {for(i=1; i<=1; i++) {getline; print}}' | awk -F: '{print $2 }' | xargs rm 2>/dev/null | wc -l",
+  path      => '/bin',
+  logoutput => true,
+  onlyif    => [ 'test -d /opt/oracle/product/12.2.0/*/cfgtoollogs/opatch', 'test `date +"%H"` -gt 20', 'test `date +"%H"` -lt 21' ]
+ }
+
+ exec { 'Clean up old Opatch output files: lsinventory' :
+  command   => "find /opt/oracle/product/12.2.0/*/cfgtoollogs/opatch/lsinv -mtime +1 -name 'lsinventory*[AP]M.txt' -exec rm -f {} +",
+  path      => '/bin',
+  logoutput => true,
+  onlyif    => [ 'test -d /opt/oracle/product/12.2.0/*/cfgtoollogs/opatch/lsinv', 'test `date +"%H"` -gt 20', 'test `date +"%H"` -lt 21' ]
  }
 }
 

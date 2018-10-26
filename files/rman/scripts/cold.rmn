@@ -1,0 +1,27 @@
+#
+#  @(#)fs615/db/ora/rman/linux/rh/cold.rmn, ora, build6_1, build6_1a,1.1:9/5/11:15:36:10
+#  VERSION:  1.1
+#  DATE:  9/5/11:15:36:10
+#
+#  (C) COPYRIGHT International Business Machines Corp. 2007
+#  All Rights Reserved
+#  Licensed Materials - Property of IBM
+#
+#  US Government Users Restricted Rights - Use, duplication or
+#  disclosure restricted by GSA ADP Schedule Contract with IBM Corp.
+#
+# Purpose:
+#
+
+# Requires: database be in "mount" state
+
+CONFIGURE BACKUP OPTIMIZATION ON;
+CONFIGURE RETENTION POLICY TO REDUNDANCY 1;
+CONFIGURE CONTROLFILE AUTOBACKUP ON;
+CONFIGURE CHANNEL DEVICE TYPE DISK FORMAT '/ora_exports/bkp/arc_%d_%I_%s_%p_%c_%U';
+CONFIGURE CONTROLFILE AUTOBACKUP FORMAT FOR DEVICE TYPE DISK TO '/ora_exports/bkp/cf_%d_%F';
+
+backup format '/ora_exports/bkp/%d_COLD_BKP_%T_%u_s%s_p%p' database;
+
+alter database open;
+

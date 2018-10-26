@@ -1,0 +1,12 @@
+     allocate channel d1 type disk connect /@%CDB%5;
+     allocate channel d2 type disk connect /@%CDB%5;
+     allocate channel d3 type disk connect /@%CDB%5;
+     allocate channel d4 type disk connect /@%CDB%5;
+     allocate channel d5 type disk connect /@%CDB%5;
+     allocate channel d6 type disk connect /@%CDB%5;
+     allocate channel d7 type disk connect /@%CDB%6;
+     allocate channel d8 type disk connect /@%CDB%6;
+     allocate channel d9 type disk connect /@%CDB%6;
+     allocate channel d10 type disk connect /@%CDB%6;
+     allocate channel d11 type disk connect /@%CDB%6;
+     allocate channel d12 type disk connect /@%CDB%6;

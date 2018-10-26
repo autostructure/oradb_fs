@@ -9,7 +9,7 @@ sqlnet.crypto_checksum_types=0
 # Server Data encryption type
 sqlnet.encryption_server=accepted
 sqlnet.crypto_checksum_server=accepted
-sqlnet.authentication_services=(beq,kerberos5pre,kerberos5,none)
+#sqlnet.authentication_services=(beq,kerberos5pre,kerberos5,none)
 sqlnet.authentication_kerberos5_service=aso
 sqlnet.crypto_seed=4fhfguweotcadsfdsafjkdsfqp5f201p45mxskdlfdasf
 sqlnet.kerberos5_clockskew=300

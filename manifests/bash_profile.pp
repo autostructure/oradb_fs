@@ -24,13 +24,17 @@ define oradb_fs::bash_profile (
 )
 {
  if $ora_platform == 'db' {
+  $holding = split($facts['networking']['fqdn'],'[.]')
+  $rman_schema = "rcat_${holding[1]}_${holding[0]}"
+
   if $agent_core == '' {
    file { '/home/oracle/.bash_profile':
     ensure  => present,
     content => epp('oradb_fs/db_12c_bash_profile.epp',
                   { 'db_name'    => $db_name,
                     'db_home'    => $db_home,
-                    'agent_home' => $agent_home}),
+                    'agent_home' => $agent_home,
+                    'rman_schema' => $rman_schema}),
     mode    => '0755',
     owner   => 'oracle',
     group   => 'oinstall',
@@ -41,10 +45,11 @@ define oradb_fs::bash_profile (
    file { '/home/oracle/.bash_profile':
     ensure  => present,
     content => epp('oradb_fs/db_13c_bash_profile.epp',
-                  { 'db_name'    => $db_name,
-                    'db_home'    => $db_home,
-                    'agent_core' => $agent_core,
-                    'agent_home' => $agent_home}),
+                  { 'db_name'     => $db_name,
+                    'db_home'     => $db_home,
+                    'agent_core'  => $agent_core,
+                    'agent_home'  => $agent_home,
+                    'rman_schema' => $rman_schema}),
     mode    => '0755',
     owner   => 'oracle',
     group   => 'oinstall',

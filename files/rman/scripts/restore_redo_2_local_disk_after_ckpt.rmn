@@ -1,0 +1,10 @@
+# Run build_SEND_cmd.sh  to set the envars ($NB_ORA_CLIENT, $NB_ORA_SERV, and $NB_ORA_POLICY)
+# Manually replace these values in this script
+
+run {                                                                           
+   allocate channel t1 type 'sbt_tape';                                         
+   send 'NB_ORA_CLIENT=$NB_ORA_CLIENT, NB_ORA_SERV=$NB_ORA_SERV, NB_ORA_POLICY=$NB_ORA_POLICY';
+   restore archivelog from scn 868564;                                          
+   release channel t1;                                                          
+}                                                                               
+                                                                                

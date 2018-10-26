@@ -1,0 +1,12 @@
+command="su - oracle -c '/opt/oracle/sw/working_dir/<%= $home %>/<%= $sid %>_<%= $tns_alias %>_test_registration.sh'"
+out=`$command`
+if [ ${#out} -gt 8 ] ; then
+ echo "Issue reaching RMAN catalog DB. DB may be down"; exit 1
+elif [ ${#out} -eq 0 ] ; then
+ command="su - oracle -c '/opt/oracle/sw/working_dir/<%= $home %>/<%= $sid %>_<%= $tns_alias %>_rman_command.sh'"
+ out=`$command`
+ if [ $? != 0 ] ; then
+  echo "RMAN catalog DB registration failed."; exit 1
+ fi
+fi
+

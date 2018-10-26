@@ -1,0 +1,66 @@
+echo "..rman_parameters.sh"
+# Separate ORACLE_SIDS by the pipe symbol, for example:  export SID_EXCLUDE_LIST="idb1|ddb1|rdb1"
+export SID_EXCLUDE_LIST=<%= $sid_exclude_list %>
+
+export TMP=/tmp/rman/
+mkdir $TMP 2> /dev/null
+chown oracle:dba $TMP
+chmod 700 $TMP
+if [[ $? != 0 ]]; then echo "ERROR: chmod 700 $TMP"; exit 1; fi
+
+export LOG_DIR=/opt/oracle/diag/bkp/rman/log 
+PATH=/usr/gnu/bin:$PATH
+if [[ ! -d /opt/oracle/diag/bkp ]]; then
+   mkdir /opt/oracle/diag/bkp
+   chmod 755 /opt/oracle/diag/bkp
+fi
+if [[ ! -d /opt/oracle/diag/bkp/rman ]]; then
+   mkdir /opt/oracle/diag/bkp/rman
+   chmod 755 /opt/oracle/diag/bkp/rman
+fi
+if [[ ! -d /opt/oracle/diag/bkp/rman/log ]]; then
+   mkdir /opt/oracle/diag/bkp/rman/log
+   chmod 755 /opt/oracle/diag/bkp/rman/log
+fi
+mkdir $LOG_DIR 2>/dev/null
+chown oracle:dba $LOG_DIR
+chmod 700 $LOG_DIR
+if [[ -z $LOG ]]; then
+   export LOG=$LOG_DIR/${0##*/}.log.$(date "+%Y-%m-%d:%H:%M:%S")
+fi
+touch $LOG
+chown oracle:dba $LOG
+chmod 700 $LOG
+
+export FS615_ORATAB=/etc/oratab
+[[ $(uname) == "SunOS" ]] && export FS615_ORATAB=/var/opt/oracle/oratab
+
+export DB_NAME=$ORACLE_SID
+if grep -q '^+ASM[0-9]' $FS615_ORATAB; then # Set the DB_NAME for RAC
+   export DB_NAME=${ORACLE_SID%[0-9]}
+fi
+
+export DOMAIN=$( host $(hostname) | sed 's|[^\.]*\.||;s|\..*||')
+if [[ -z $MAX_TNS ]]; then
+   export MAX_TNS=2
+fi
+export OLSNODES=$(find $(find /opt/grid -maxdepth 4 -type d -name bin 2> /dev/null) -name olsnodes 2> /dev/null | head -1)
+export CEMUTLO=$(find $(find /opt/grid -maxdepth 4 -type d -name bin 2> /dev/null) -name cemutlo 2> /dev/null | head -1)
+
+export HOSTNAME=$(hostname)
+
+export SYSINFRA=/fslink/sysinfra
+
+echo "DB_NAME=$DB_NAME" | tee -a $LOG
+echo "DOMAIN=$DOMAIN" 2>&1 | tee -a $LOG
+echo "FS615_ORATAB=$FS615_ORATAB" 2>&1 | tee -a $LOG
+echo "OLSNODES=$OLSNODES" >> $LOG
+echo "CEMUTLO=$CEMUTLO" >> $LOG
+echo "DOMAIN=$DOMAIN" 2>&1 | tee -a $LOG
+echo "HOSTNAME=$HOSTNAME" 2>&1 | tee -a $LOG
+echo "SHELL=$SHELL" >> $LOG
+echo "SHELL_dollar_dollar=$(ps $$)" >> $LOG
+echo "SHELL_ps_ef=$(ps -ef | grep "$ID  *$$" )" >> $LOG
+echo "CEMUTLO=$CEMUTLO" >> $LOG
+echo "SYSINFRA=$SYSINFRA" >> $LOG
+echo "MAX_TNS==$MAX_TNS=" >> $LOG
