@@ -8,8 +8,8 @@ Facter.add(:nfs_art_compare) do
  setcode do
   nfs_art_array = [ '' ]
   hour = Time.now.hour
-  if ( hour >= 20 and hour <= 21 ) or ( hour >= 4 and hour <= 5 ) or ( hour >= 12 and hour <= 13 )
-#  if ( hour >= 0 and hour <= 12 ) or ( hour >= 12 and hour <= 23 )
+#  if ( hour >= 20 and hour <= 21 ) or ( hour >= 4 and hour <= 5 ) or ( hour >= 12 and hour <= 13 )
+  if ( hour >= 0 and hour <= 12 ) or ( hour >= 12 and hour <= 23 )
    if Facter.value(:domain) == 'wrk.fs.usda.gov'
     area_domain = 'work'
    elsif Facter.value(:domain) == 'fdc.fs.usda.gov'
