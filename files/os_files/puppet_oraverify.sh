@@ -4354,7 +4354,7 @@ mapfile -t FACT_HOMES < <(cat /opt/puppetlabs/facter/facts.d/${host}.yaml | grep
 
 for i in ${FACT_HOMES[*]}
 do
-  misc_db_var+=`facter -p oradb_fs::$i  | sed 's/\]//g' | sed 's/\[//g' | sed 's/"//g' | sed 's/,//g'`
+  misc_db_var+=`/usr/local/bin/facter -p oradb_fs::$i  | sed 's/\]//g' | sed 's/\[//g' | sed 's/"//g' | sed 's/,//g'`
 done
 
 #######################
@@ -4540,7 +4540,7 @@ if [[ "$2" = "detail" ]] ; then
   printf_header1 "RMANREPO SETUP TO VERIFY" "SETUP TO VERIFY"
 fi
 
-rmanschema=`facter -p  oradb_fs::rman_schemas | sed 's/\]//g' | sed 's/\[//g' | sed 's/"//g' | sed 's/,//g' | awk '{$1=$1}1' | awk 'NF > 0'| awk -F. '{print $1":"$2}'`
+rmanschema=`/usr/local/bin/facter -p  oradb_fs::rman_schemas | sed 's/\]//g' | sed 's/\[//g' | sed 's/"//g' | sed 's/,//g' | awk '{$1=$1}1' | awk 'NF > 0'| awk -F. '{print $1":"$2}'`
 hostname=`hostname -f`
 ORACLE_SID=`cat /opt/puppetlabs/facter/facts.d/$hostname.yaml | grep oradb::ora_bash_db_name  | awk -F: '{print $4}' | sed 's/\x27//g' | awk '{$1=$1}1'`
 
