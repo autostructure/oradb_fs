@@ -28,10 +28,6 @@
 #          /usr/local/bin/puppet_oraverify.sh orabasic detail
 #          /usr/local/bin/puppet_oraverify.sh oraall sum
 #          /usr/local/bin/puppet_oraverify.sh oraall detail
-#          /usr/local/bin/puppet_oraverify.sh rman sum
-#          /usr/local/bin/puppet_oraverify.sh rman detail
-#          /usr/local/bin/puppet_oraverify.sh rmanrepo sum
-#          /usr/local/bin/puppet_oraverify.sh rmanrepo detail
 #          /usr/local/bin/puppet_oraverify.sh extfact sum
 #          /usr/local/bin/puppet_oraverify.sh extfact detail
 #          /usr/local/bin/puppet_oraverify.sh intfact sum
@@ -162,23 +158,6 @@ dbint_verification_total=0
 dbint_verification_pass=0
 dbint_verification_fail=0
 
-########################################
-# RMAN
-########################################
-
-rman_verification_total=0
-rman_verification_pass=0
-rman_verification_fail=0
-
-
-########################################
-# RMANREPO
-########################################
-
-rmanrepo_verification_total=0
-rmanrepo_verification_pass=0
-rmanrepo_verification_fail=0
-
 
 ########################################
 # EXTFACT
@@ -277,19 +256,6 @@ if [[ $1 = 'oem' ]] ; then
  bash_profile_verification "$@"
 
 fi
-
-if [[ $1 = 'rman' ]] ; then
-
- rman_verification "$@"
-
-fi
-
-if [[ $1 = 'rmanrepo' ]] ; then
-
- rmanrepo_verification "$@"
-
-fi
-
 
 if [[ $1 = 'platform' ]] || [[ $1 = 'puppet' ]] ; then
 
@@ -546,7 +512,7 @@ if [ -f /etc/sudoers.d/ora_puppet_perm ] ; then
   echo -e "${GREEN}#`printf " %-54s" "File Existence"`#`printf " %-72s" "/etc/sudoers.d/ora_puppet_perm"`# PASS   #${NC}"
  fi
  ora_bootstrap_verification_pass=$((ora_bootstrap_verification_pass+1))
- if [ $(sha256sum /etc/sudoers.d/ora_puppet_perm | awk '{print $1}') = 'a623bf143bd527868f557bd14f7e22d30c5788d309fc194b7952cad5bcd33121' ] ; then
+ if [ $(sha256sum /etc/sudoers.d/ora_puppet_perm | awk '{print $1}') = '9158a55721c088bf8b92caca0449944f9ae9a3173d1fcd1d8809a48d7a729e68' ] ; then
   if [[ "$2" = "detail" ]] ; then
    echo -e "${GREEN}#`printf " %-54s" "File Checksum"`#`printf " %-72s" "/etc/sudoers.d/ora_puppet_perm"`# PASS   #${NC}"
   fi
@@ -2492,7 +2458,7 @@ if [ -d /home/oracle/system ] ; then
     echo -e "${GREEN}#`printf " %-54s" "Directory Existence"`#`printf " %-72s" "/home/oracle/system"`# PASS   #${NC}"
    fi
    full_export_scripts_verification_pass=$((full_export_scripts_verification_pass+1))
- if [ ! $(stat -c %a:%U:%G /home/oracle/system) = '750:oracle:oinstall' ] ; then
+ if [ ! $(stat -c %a:%U:%G /home/oracle/system) = '775:oracle:oinstall' ] ; then
   if [[ "$2" = "detail" ]] ; then
    echo -e "${RED}#`printf " %-54s" "Directory Permissions: Owner:Group:World"`#`printf " %-72s" "/home/oracle/system"`# FAIL   #${NC}"
   fi
@@ -2636,7 +2602,6 @@ printf_summary "FULL EXPORT FILES TO VERIFY" $full_export_scripts_verification_p
 bash_profile_verification () {
 
 echo -e ""
-
 if [[ "$2" = "detail" ]] ; then
   printf_header1 ".BASH_PROFILE TO VERIFY" "FILE/VALUES TO VERIFY"
 fi
@@ -2668,17 +2633,17 @@ if [[ $ORA_PLATFORM = 'db' ]] ; then
   AGENT_CORE_REAL=`/bin/cat /home/oracle/.bash_profile | grep '^AGENT_CORE' | awk -F '[=;]' '{print $2}'`
   AGENT_HOME_REAL=`/bin/cat /home/oracle/.bash_profile | grep '^AGENT_HOME' | awk -F '[=;]' '{print $2}'`
 
-    if [ $(cat /home/oracle/.bash_profile | grep -v ^AGENT_HOME | grep -v ^AGENT_CORE | grep -v ^ORACLE_SID | grep -v ^ORACLE_HOME | grep -v ^ORACLE_UNQNAME | grep -v ^RMAN_SCHEMA | sed '/^$/d' | sha256sum | awk '{print $1}') = 'a8464763ac206bb728f81bd31200349f948f59f0de49f66724f8482d4c8c1b32' ] ; then
-     if [[ "$2" = "detail" ]] ; then
-      echo -e "${GREEN}#`printf " %-54s" "File Static Checksum"`#`printf " %-72s" "/home/oracle/.bash_profile"`# PASS   #${NC}"
-     fi
-     bash_profile_verification_pass=$((bash_profile_verification_pass+1))
-    else
-     if [[ "$2" = "detail" ]] ; then
-      echo -e "${RED}#`printf " %-54s" "File Static Checksum"`#`printf " %-72s" "/home/oracle/.bash_profile"`# FAIL   #${NC}"
-     fi
-     bash_profile_verification_fail=$((bash_profile_verification_fail+1))
-    fi
+  if [ $(cat /home/oracle/.bash_profile | grep -v ^AGENT_HOME | grep -v ^AGENT_CORE | grep -v ^ORACLE_SID | grep -v ^ORACLE_HOME | grep -v ^ORACLE_UNQNAME | sed '/^$/d' | sha256sum | awk '{print $1}') = '9ec4d449c5ca13d8c0fe6fcd0246bf4f4f7c12ebefa7a4936a1a655c3c15f4a4' ] ; then
+   if [[ "$2" = "detail" ]] ; then
+    echo -e "${GREEN}#`printf " %-54s" "File Static Checksum"`#`printf " %-72s" "/home/oracle/.bash_profile"`# PASS   #${NC}"
+   fi
+   bash_profile_verification_pass=$((bash_profile_verification_pass+1))
+  else
+   if [[ "$2" = "detail" ]] ; then
+    echo -e "${RED}#`printf " %-54s" "File Static Checksum"`#`printf " %-72s" "/home/oracle/.bash_profile"`# FAIL   #${NC}"
+   fi
+   bash_profile_verification_fail=$((bash_profile_verification_fail+1))
+  fi
 ##
   if [[ $ORACLE_SID_REAL != '' || $ORACLE_SID != '' && $ORACLE_SID_REAL = $ORACLE_SID ]] ; then
    if [[ "$2" = "detail" ]] ; then
@@ -3158,31 +3123,16 @@ do
      fi
      sw_verification_fail=$((sw_verification_fail+1))
     fi
-
-    if [ -d /home/oracle/system/rman ] ; then
-      if [ $(/bin/cat $i/network/admin/sqlnet.ora | grep -v sqlnet.kerberos5_conf= | grep -v sqlnet.kerberos5_keytab= | sha256sum | awk '{print $1}') = '59d93e27fc9c6db2b84bebd24d2fe9f1307668812ee433113c28c20abc5d9a37' ]  ; then
-       if [[ "$2" = "detail" ]] ; then
-        echo -e "${GREEN}#`printf " %-54s" "File Checksum for other contents"`#`printf " %-72s" "$i/network/admin/sqlnet.ora"`# PASS   #${NC}"
-       fi
-       sw_verification_pass=$((sw_verification_pass+1))
-      else
-       if [[ "$2" = "detail" ]] ; then
-        echo -e "${RED}#`printf " %-54s" "File Checksum for other contents"`#`printf " %-72s" "$i/network/admin/sqlnet.ora"`# FAIL   #${NC}"
-       fi
-       sw_verification_fail=$((sw_verification_fail+1))
-      fi
+    if [ $(/bin/cat $i/network/admin/sqlnet.ora | grep -v sqlnet.kerberos5_conf= | grep -v sqlnet.kerberos5_keytab= | sha256sum | awk '{print $1}') = '8f592815e63920fb30c44a9123949b8ea3252988cfc956e2d5070e7a79aa7d2b' ]  ; then
+     if [[ "$2" = "detail" ]] ; then
+      echo -e "${GREEN}#`printf " %-54s" "File Checksum for other contents"`#`printf " %-72s" "$i/network/admin/sqlnet.ora"`# PASS   #${NC}"
+     fi
+     sw_verification_pass=$((sw_verification_pass+1))
     else
-      if [ $(/bin/cat $i/network/admin/sqlnet.ora | grep -v sqlnet.kerberos5_conf= | grep -v sqlnet.kerberos5_keytab= | sha256sum | awk '{print $1}') = '8f592815e63920fb30c44a9123949b8ea3252988cfc956e2d5070e7a79aa7d2b' ]  ; then
-       if [[ "$2" = "detail" ]] ; then
-        echo -e "${GREEN}#`printf " %-54s" "File Checksum for other contents"`#`printf " %-72s" "$i/network/admin/sqlnet.ora"`# PASS   #${NC}"
-       fi
-       sw_verification_pass=$((sw_verification_pass+1))
-      else
-       if [[ "$2" = "detail" ]] ; then
-        echo -e "${RED}#`printf " %-54s" "File Checksum for other contents"`#`printf " %-72s" "$i/network/admin/sqlnet.ora"`# FAIL   #${NC}"
-       fi
-       sw_verification_fail=$((sw_verification_fail+1))
-      fi
+     if [[ "$2" = "detail" ]] ; then
+      echo -e "${RED}#`printf " %-54s" "File Checksum for other contents"`#`printf " %-72s" "$i/network/admin/sqlnet.ora"`# FAIL   #${NC}"
+     fi
+     sw_verification_fail=$((sw_verification_fail+1))
     fi
     if [ ! $(stat -c %a:%U:%G $i/network/admin/sqlnet.ora) = '744:oracle:oinstall' ] ; then
      if [[ "$2" = "detail" ]] ; then
@@ -3969,625 +3919,6 @@ printf_summary "ORACLE DB TO ORACLE SW HOME VERIFY" $db_verification_pass $db_ve
 }
 
 ############################################################
-# RMAN
-############################################################
-
-########################################
-# rman_verification
-########################################
-
-rman_verification () {
-
-echo -e ""
-if [[ "$2" = "detail" ]] ; then
-  printf_header1 "RMAN SETUP TO VERIFY" "FILES/DIRECTORIES/SETUP TO VERIFY"
-fi
-
-DIRECTORY_LIST=(/home/oracle/system/rman
-                /home/oracle/system/rman/admin.wallet)
-
-for i in ${DIRECTORY_LIST[*]}
-do
- if [ -d $i ] ; then
-  if [[ "$2" = "detail" ]] ; then
-   echo -e "${GREEN}#`printf " %-54s" "Directory Existence"`#`printf " %-72s" "$i"`# PASS   #${NC}"
-  fi
-  rman_verification_pass=$((rman_verification_pass+1))
-  if [ ! $(stat -c %a:%U:%G $i) = '755:oracle:oinstall' ] ; then
-   if [[ "$2" = "detail" ]] ; then
-    echo -e "${RED}#`printf " %-54s" "Directory Permissions: Owner:Group:World"`#`printf " %-72s" "$i"`# FAIL   #${NC}"
-   fi
-   rman_verification_fail=$((rman_verification_fail+5))
-  else
-   if [[ "$2" = "detail" ]] ; then
-    echo -e "${GREEN}#`printf " %-54s" "Directory Permissions: Owner:Group:World"`#`printf " %-72s" "$i"`# PASS   #${NC}"
-   fi
-   rman_verification_pass=$((rman_verification_pass+5))
-  fi
- else
-  if [[ "$2" = "detail" ]] ; then
-   echo -e "${RED}#`printf " %-54s" "Directory Existence"`#`printf " %-72s" "$i"`# FAIL   #${NC}"
-  fi
-  rman_verification_fail=$((rman_verification_fail+6))
- fi
-done
-
-FILE_LIST=(95b1ba5128fe31fd62f589bf000cf353984b379afd2f1968217d665045f62822:archivelog_mode.sh
-           026e634356d3de7c9c65597bd46fbd4b9d0f8591a0dd01776c63c91425a55967:build_SEND_cmd.sh
-           49498192cb1a162b48e763e69b34afddcb3b17bcd80e3323941a2c2764e4960a:cf_snapshot_in_recovery.sh
-           80d83725b952bc712c7e8c70d74df11e2a7fc5109a5ce3e03277be35680a8f0b:check_recovery_space.sql
-           daff62e6de4e11429f8c583ee00ec29f7e68617bce692493e1177cec6d73e700:choose_a_sid.sh
-           6cece68b7c7c47d2492a5bb62edd46369a996fd616ec5ddd2528e001eb29e904:choose_OH.sh
-           0d82585c8ebb41e1a3cc29cafc3d5ae50da9a2ec7fb25a8ebdd13670d1b5e146:cold.rmn
-           d50bddaee2a6ec4e32a8770adf8c81ecaffafeb4fb5bea974df9526211146a37:cold.sh
-           3ae4546b3fab54e9695528ad403c4e1781896636f9dc6d960e153c8e9d2e9d52:create_catalog.rmn
-           2eca54a1d3abf6dee290b122566232fb534d4616b31ce9a389a6727b681fd650:create_rcat.sql
-           9be657b959aef14641b21da6c8b06b7c03245ca79796f57ae7f98c4939934c62:crosscheck_backup.sh
-           1a96817b62a805d58cb3d0c61318b308d73cbe922ed294c84f81a6745ee71205:dbca.rsp
-           cf3788ef41302c9941caad871e033cef45fcebc3b6dfe98190a04323a11b2135:desc_all_catalogs.sh
-           c0b45b4385d2bb957a58cbd3fb5f8c32462a67c690c17b90aeb280be7437bd24:ebn_oravip.sh
-           335c8dbfc55254c8e9c0a1e6741f0ae3a56134713a38816d1739c875ef73f018:extrapolate_dbid.sh
-           8f7bce50bfd58cd53f2dee5d06129453f359b0dbed46f02364a79951c573255a:find_asm.sh
-           9256a40554bbc312376ba4c64991a7f94c94e1ab0697f55415d49cdac969e922:fs615_allocate_disk.ora.fdc
-           50c6a4df2c2b151adefbe6680fe626a25d4b668d693cc4845ee2312fe4756d70:fs615_allocate_disk.ora.mci
-           d0ad9e8047f3af45b5e9d13500fe5f24eb0647b9c861f474ef9571fda9009a4d:fs615_allocate_disk.ora.mci.crsrac7
-           bcb0428df2b87c8a49666b9a8d03e29ecbdc6ec7196f3243252eb3304bc5e530:fs615_allocate_disk.ora.phe
-           94d45d7c63c947a1367eaa4351556cadc9ffa526814df250652fb0cc084cb96e:fs615_allocate_disk.ora.phe.crsdevxdb
-           bcb0428df2b87c8a49666b9a8d03e29ecbdc6ec7196f3243252eb3304bc5e530:fs615_allocate_disk.ora.prp
-           9256a40554bbc312376ba4c64991a7f94c94e1ab0697f55415d49cdac969e922:fs615_allocate_disk.ora.wrk
-           20f7c9ebbd7cd94ee635a34553730ff6aea0e619ed4f14092dba796376890b1f:fs615_allocate_sbt.ora.fdc
-           0db061a75198e57d295bc369d1d2e4bad915f6fc4bb19d98dbffc2a048d1956e:fs615_allocate_sbt.ora.mci
-           dd6ad98165a823cef04374d9a7ced2f10231961c49c165aaee2568f011818cde:fs615_allocate_sbt.ora.mci.crsrac7
-           b3d2663c113747419a9663841cdff7c80ee559b93cf0ab5fa54996d32112b0f1:fs615_allocate_sbt.ora.phe
-           99b1aa1854de3727dcb0c2a11549a0be03821cba9b53fffa3550d966565e91c2:fs615_allocate_sbt.ora.phe.crsdevxdb
-           b3d2663c113747419a9663841cdff7c80ee559b93cf0ab5fa54996d32112b0f1:fs615_allocate_sbt.ora.prp
-           20f7c9ebbd7cd94ee635a34553730ff6aea0e619ed4f14092dba796376890b1f:fs615_allocate_sbt.ora.wrk
-           e84a721bd43aba1a4fc9f61d6a210441fac6f2278aee3eb579f01d6c0ff9784b:fs615_release_disk.ora.fdc
-           e84a721bd43aba1a4fc9f61d6a210441fac6f2278aee3eb579f01d6c0ff9784b:fs615_release_disk.ora.mci
-           319cf9379ff20409b100379e948b6ee7f7d85262a6b75c7f140108a2c171a410:fs615_release_disk.ora.phe
-           942a31a14625369ce02743976223407f99d3196292f7fd3bd20168fbabd48d0f:fs615_release_disk.ora.phe.crsdevxdb
-           319cf9379ff20409b100379e948b6ee7f7d85262a6b75c7f140108a2c171a410:fs615_release_disk.ora.prp
-           319cf9379ff20409b100379e948b6ee7f7d85262a6b75c7f140108a2c171a410:fs615_release_disk.ora.prp.crsrac7
-           e84a721bd43aba1a4fc9f61d6a210441fac6f2278aee3eb579f01d6c0ff9784b:fs615_release_disk.ora.wrk
-           dfbe1dd5a0ed652b349975e9972ba7a23c6d195c1cdced3b1c67dde898512956:imgcp_parameters.sh
-           f9fb40aaf055aaccfa46e08f8ce4724befa7aff4e7f200d967fb6c19e6a98aba:imgcp.sh
-           df8cb9e7bd92ee54773ee56b78eb0cb935dbade47d61066cee39ec94389f757c:insert_row1.sh
-           bbdb848f93629eb9d9fa8a6b5d44b4d15c5d01f90171f981b6bfe57ff4b1010d:insert_wrong_val.sh
-           8250f3ca4b629458970872642574f3a4c714bcc480707560ff3a1fc7b8992314:install_shield_cron.grid.sh
-           0ecb45f4ec9e360a7b42631739eaacc72897e1cc2306e6ff1ac58c486de8fb23:install_shield_cron.sh
-           2a4b2a241d9e5d8f01f3d18ab27884dacd7ff075f636c34e40ea4e52917bbc90:local_sids.sh
-           301168beeedf4b72b33db94a63fe33da3e917cf6c38314820266d0df7d7a7c38:meta_rpm_after-install.sh
-           0568c99ae147735ad100ceb18b92bba6db4ab3ccdd33eadfbad7217279b6fbfc:meta_rpm_before-remove_4real.sh
-           46ebcd29ace31e4580c5175096d307b36ddda9a108fe9fd4651e63ea73324942:meta_rpm_before-remove_wrapper.sh
-           c3ee7e6f77940cd68ad4c7491e3feb292b3da60af9d69ef07cadc3d61ed35fda:nb_policy_fsx_oracle.txt
-           728a61f42f552f8ed0d73e1663c1fffeed618e5e63a8d42984d2948fefb5b5da:nid.sh
-           8daaf6a29efea60b8e7b736eaa8157bcf2aac922f96f2dab3bc9add4e9263304:oracle_cron_conditional_arch_backup.sh
-           fe6b4cf54f4744419d9d531bd50bbe49ee05e491244028aa2d49dd86016c46ae:oraenv.usfs
-           f4290d7ebf68a94ddfcec4f5c6923fb307ef4428e2c2143079e1623050e481ec:rcat_12.2.0.sh
-           092fb038ef2c19f5fea4dc2cf58fb069eceaee3bfa2103452e2bf6ec27eb6a1e:rcat_wallet.sh
-           13755cc9ec54ba4067720fbc6080fdc9dbbad515ce893b23130c641068e737c9:rc_grant_all.sql
-           d4de7e5b42362bdae7470da5603dcd8cb49382bd441e426fc1507ce8f87ff0fa:ReadMe.txt
-           5515e4f62bf238b1de4de9f3b46ca696d0c9483a65310d1d5af0f31216ea75ee:report_obsolete.sh
-           a7eaa825de22bed38d2934a4fd73ed00f28ef9d961fcf5d45e253d928e3f52e9:repository_vote.sh
-           56a364e82fbae9fbb41d12c585f8b4b001d9ad7c855c92c1677f0c61e651f352:reregister_dbs.sh
-           524d4e9142f1fda863a027f7890ad494a39ac61a847dcebbe9c799aec08bc656:restore_arch.rmn
-           292960d8bb2e0542eb6a84c08852bf22dc0cae74781aabb2c4490489b60bc962:restore_redo_2_local_disk_after_ckpt.rmn
-           8ed3078ffe0ddf7c90d956c49c1c9a2e08fbe9da95e02a72e21f1f7824ba89d0:restore_redo_2_local_disk_after_ckpt.sql
-           3094217d28dbd24c934cf1a9223da767789f8cc0fed0a344a3c7188f199fe7d6:rman_backup.sh
-           2fa11afed6348449d91fe2cfd391f6a13f3a17f33eadb5847f38e4236057fe94:rman_cf_scn.sh
-           1cc0bb00a5ffee89a5fee34e03b49c3268d9e19436e2f9173b2e2d397d9aeaf0:rman_change_archivelog_all_crosscheck.sh
-           48c2d3763f56933fd9725058c21deb3784de005a358b18ecdddf885c4b458069:rman_change_crosscheck.sh
-           a9eef271ddbbc69623f9a1d99f74567f72bbe3626a7528662ee0814af6871a3d:rman_change_del.sh
-           5478785a11d49d9d3f331ee2a4ee7ef57ca92530a48399c0962b8a51f935526f:rman_cron_resync.sh
-           433dc0de5b5aa85010a12b414875f66a0a8bb686d0230b98fa5332288bf570f2:rman_delete.days.sh
-           0236bea23f2063ff64984737541f80036c68ca9a492addd95c3e0a90369b17ae:rman_delete.DISK.krb.sh
-           9fb4bb414259768fa6309c5fc5255cb221a09a3374af1a1501b31cd48832bda4:rman_delete.sh
-           e547d5d10acd57050496acf39e6db4034a69dd76e9c6e0c5781b51527718998c:rman_recover.sh
-           df533db8c6e476f1efef4704d0c77878a233948f41a94745bb84d6e1265c5744:rman_report_need_backup.sh
-           7ea92f9cad497642a4dea449bddf6fb55ed9846e9b5644c6476cb0da4178e4ab:rman_restore_cf.no_shutdown.sh
-           5bb3d9e01e032749cd46a30357a5312b9c6d1ccb6a00d667ff9e464e1a9cf51f:rman_restore_cf.sh
-           d310e7f0ae078f12b8224730a5c8ee994ba67819f983807181175e86f03e004f:rman_restore_df.sh
-           b1b9385b17a6f40554ba3f93afaab45ad8f268865e0c075465b1a2200d58aac6:rman_restore_pitr.preview.3.sh
-           1d0a727abf83f89f412033265a1038b36215925703a7ddd22492d300080cf68b:rman_restore_pitr.preview.sh
-           29c054ee3630fe22b121ba94819e9cfdfeda3325f0517a45e1cb92a24b22f238:rman_restore_pitr.sh
-           f7e940080458bb12d273dbc18e4549d2a87560679c6a01336abcd112d0367116:rman_restore_pitr_spfile_cf.sh
-           3567d8ce716f5419e2d384e1fd9e95d2048236f0a747e0a7c70b84ad517f1598:rman_restore.sh
-           9044eca1d2a6b042a35ab305a78d90e2f91bdbc44d63bcd917a8b15cf96debb3:rman_restore_tbs.sh
-           3fa3d2ff7c4bf33bf3ca342cb97c5c0edce6ba6c0edd5de0ceae0d7a30ae4119:root.ebn_oravip.sh
-           3f0df8dc80331a194ac9d4f7589acb888cd614a5e9a3773c8edaa0a135a2bc64:rpm_post_install.sh
-           93b6d1cc5e04fb856503d369b9b8e00c7dfe0db16d4338db6355a4bb16de53bf:rpm_post_uninstall.sh
-           35a689fb36a6653a023c8ed53ef75a2a474d0de4bc1044d0cfe0bfc297c5e3f7:rpm_prereq.sh
-           0dafcdc911f75f92ea4a1f31be0662a606ecb8b833dcd8c75fd14c182e62cbb1:select_tsm_test.sh
-           c5bde55d4bba4a4d045f12ac9f18f3f78c51e428df4ae50c9222b28d3717f5d9:set_profile_rman_envars.sh
-           9c4ffb69ee99289fbe9f47e5bcbad81e056115d9765f45a52c6f6ddcb7cf7990:show_max_archived_log_scn.sh
-           d55cf30fa448619bce29f7c7f00785061ab9ec10156a165dfb8e12144b0e7309:tnsping_catalogs.sh
-           6a78a0a40cadb2b0e495089dff1dcd3bfa36ea961cfa4dd0e3791fb18a2ed466:usfs_local_sids
-           03bf43a26b87c71c4959e8a08299599e98a94d572a3b9489f1eaaac552d5c748:usfs_local_sids_imgcp
-           aa7e2b5cf7aaa91af0d553dbd7113eab5af658d55581fc442f4068646fd68d9f:vdc_prev.sh
-           ebe4ce3d6c1ba54c67290a1ac50935e56e40b111b5346a0c2f760502589b23d7:voting_disk.sh:archivelog_mode.sh
-          )
-
-for i in ${FILE_LIST[*]}
-do
- SHA_SUM=`echo $i | awk -F ':' '{print $1}'`
- FILE_NAME=`echo $i | awk -F ':' '{print $2}'`
- if [ -f /home/oracle/system/rman/$FILE_NAME ] ; then
-  if [[ "$2" = "detail" ]] ; then
-   echo -e "${GREEN}#`printf " %-54s" "File Existence"`#`printf " %-72s" "$FILE_NAME"`# PASS   #${NC}"
-  fi
-  rman_verification_pass=$((rman_verification_pass+1))
-  if [ $(sha256sum /home/oracle/system/rman/$FILE_NAME | awk '{print $1}') = $SHA_SUM ] ; then
-   if [[ "$2" = "detail" ]] ; then
-    echo -e "${GREEN}#`printf " %-54s" "File Checksum"`#`printf " %-72s" "$FILE_NAME"`# PASS   #${NC}"
-   fi
-   rman_verification_pass=$((rman_verification_pass+1))
-  else
-   if [[ "$2" = "detail" ]] ; then
-    echo -e "${RED}#`printf " %-54s" "File Checksum"`#`printf " %-72s" "$FILE_NAME"`# FAIL   #${NC}"
-   fi
-   rman_verification_fail=$((rman_verification_fail+1))
-  fi
-  if [ ! $(stat -c %a:%U:%G /home/oracle/system/rman/$FILE_NAME) = '754:oracle:oinstall' ] ; then
-   if [[ "$2" = "detail" ]] ; then
-    echo -e "${RED}#`printf " %-54s" "File Permissions:Owner:Group:World"`#`printf " %-72s" "$FILE_NAME"`# FAIL   #${NC}"
-   fi
-   rman_verification_fail=$((rman_verification_fail+5))
-  else
-   if [[ "$2" = "detail" ]] ; then
-    echo -e "${GREEN}#`printf " %-54s" "File Permissions:Owner:Group:World"`#`printf " %-72s" "$FILE_NAME"`# PASS   #${NC}"
-   fi
-   rman_verification_pass=$((rman_verification_pass+5))
-  fi
- else
-  if [[ "$2" = "detail" ]] ; then
-   echo -e "${RED}#`printf " %-54s" "File Existence"`#`printf " %-72s" "$FILE_NAME"`# FAIL   #${NC}"
-  fi
-  rman_verification_fail=$((rman_verification_fail+7))
- fi
-done
-
-FILE_LIST=(d349a799edd76c693492d321f6f11b227190250651c5672d01ea022049b921e6:rman_parameters.sh
-)
-
-for i in ${FILE_LIST[*]}
-do
- SHA_SUM=`echo $i | awk -F ':' '{print $1}'`
- FILE_NAME=`echo $i | awk -F ':' '{print $2}'`
- if [ -f /home/oracle/system/rman/$FILE_NAME ] ; then
-  if [[ "$2" = "detail" ]] ; then
-   echo -e "${GREEN}#`printf " %-54s" "File Existence"`#`printf " %-72s" "$FILE_NAME"`# PASS   #${NC}"
-  fi
-  rman_verification_pass=$((rman_verification_pass+1))
-  if [ $(cat /home/oracle/system/rman/$FILE_NAME | grep -v "export SID_EXCLUDE_LIST=" | sha256sum | awk '{print $1}')  = $SHA_SUM ] ; then
-   if [[ "$2" = "detail" ]] ; then
-    echo -e "${GREEN}#`printf " %-54s" "File Checksum"`#`printf " %-72s" "$FILE_NAME"`# PASS   #${NC}"
-   fi
-   rman_verification_pass=$((rman_verification_pass+1))
-  else
-   if [[ "$2" = "detail" ]] ; then
-    echo -e "${RED}#`printf " %-54s" "File Checksum"`#`printf " %-72s" "$FILE_NAME"`# FAIL   #${NC}"
-   fi
-   rman_verification_fail=$((rman_verification_fail+1))
-  fi
-  if [ ! $(stat -c %a:%U:%G /home/oracle/system/rman/$FILE_NAME) = '754:oracle:oinstall' ] ; then
-   if [[ "$2" = "detail" ]] ; then
-    echo -e "${RED}#`printf " %-54s" "File Permissions:Owner:Group:World"`#`printf " %-72s" "$FILE_NAME"`# FAIL   #${NC}"
-   fi
-   rman_verification_fail=$((rman_verification_fail+5))
-  else
-   if [[ "$2" = "detail" ]] ; then
-    echo -e "${GREEN}#`printf " %-54s" "File Permissions:Owner:Group:World"`#`printf " %-72s" "$FILE_NAME"`# PASS   #${NC}"
-   fi
-   rman_verification_pass=$((rman_verification_pass+5))
-  fi
- else
-  if [[ "$2" = "detail" ]] ; then
-   echo -e "${RED}#`printf " %-54s" "File Existence"`#`printf " %-72s" "$FILE_NAME"`# FAIL   #${NC}"
-  fi
-  rman_verification_fail=$((rman_verification_fail+7))
- fi
-done
-
-FILE_LIST=(cwallet.sso
-           cwallet.sso.lck
-           ewallet.p12
-           ewallet.p12.lck
-          )
-
-for i in ${FILE_LIST[*]}
-do
- FILE_NAME=`echo $i | awk -F ':' '{print $1}'`
- if [ -f /home/oracle/system/rman/admin.wallet/$FILE_NAME ] ; then
-  if [[ "$2" = "detail" ]] ; then
-   echo -e "${GREEN}#`printf " %-54s" "File Existence"`#`printf " %-72s" "$FILE_NAME"`# PASS   #${NC}"
-  fi
-  rman_verification_pass=$((rman_verification_pass+1))
-  if [ ! $(stat -c %a:%U:%G /home/oracle/system/rman/admin.wallet/$FILE_NAME) = '600:oracle:oinstall' ] ; then
-   if [[ "$2" = "detail" ]] ; then
-    echo -e "${RED}#`printf " %-54s" "File Permissions:Owner:Group:World"`#`printf " %-72s" "$FILE_NAME"`# FAIL   #${NC}"
-   fi
-   rman_verification_fail=$((rman_verification_fail+5))
-  else
-   if [[ "$2" = "detail" ]] ; then
-    echo -e "${GREEN}#`printf " %-54s" "File Permissions:Owner:Group:World"`#`printf " %-72s" "$FILE_NAME"`# PASS   #${NC}"
-   fi
-   rman_verification_pass=$((rman_verification_pass+5))
-  fi
- else
-  if [[ "$2" = "detail" ]] ; then
-   echo -e "${RED}#`printf " %-54s" "File Existence"`#`printf " %-72s" "$FILE_NAME"`# FAIL   #${NC}"
-  fi
-  rman_verification_fail=$((rman_verification_fail+7))
- fi
-done
-
-FILE_LIST=(sqlnet.ora
-           tnsnames.ora
-          )
-
-for i in ${FILE_LIST[*]}
-do
- FILE_NAME=`echo $i | awk -F ':' '{print $1}'`
- if [ -L /home/oracle/system/rman/admin.wallet/${FILE_NAME} ] && [ -e /home/oracle/system/rman/admin.wallet/${FILE_NAME} ] ; then
-  if [[ "$2" = "detail" ]] ; then
-   echo -e "${GREEN}#`printf " %-54s" "File Existence"`#`printf " %-72s" "$FILE_NAME is a Valid softlink"`# PASS   #${NC}"
-  fi
-  rman_verification_pass=$((rman_verification_pass+1))
- else
-  if [[ "$2" = "detail" ]] ; then
-   echo -e "${RED}#`printf " %-54s" "File Existence"`#`printf " %-72s" "$FILE_NAME is a Valid softlink"`# FAIL   #${NC}"
-  fi
-  rman_verification_fail=$((rman_verification_fail+7))
- fi
-done
-
-if [[ $(crontab -u oracle -l | grep -v -F "#" | grep -F "10 * * * * /home/oracle/system/rman/oracle_cron_conditional_arch_backup.sh") = "10 * * * * /home/oracle/system/rman/oracle_cron_conditional_arch_backup.sh" ]] ; then
- if [[ "$2" = "detail" ]] ; then
-  echo -e "${GREEN}#`printf " %-54s" "Cron Entry"`#`printf " %-72s" "/home/oracle/system/rman/oracle_cron_conditional_arch_backup.sh"`# PASS   #${NC}"
- fi
- rman_verification_pass=$((rman_verification_pass+3))
-else
- if [[ "$2" = "detail" ]] ; then
-  echo -e "${RED}#`printf " %-54s" "Cron Entry"`#`printf " %-72s" "/home/oracle/system/rman/oracle_cron_conditional_arch_backup.sh"`# FAIL   #${NC}"
- fi
- rman_verification_fail=$((rman_verification_fail+3))
-fi
-
-if [[ $(crontab -u oracle -l | grep -v -F "#" | grep -F "33 19 * * 1,2,3,4,5 /home/oracle/system/rman/rman_backup.sh -l4") = "33 19 * * 1,2,3,4,5 /home/oracle/system/rman/rman_backup.sh -l4" ]] ; then
-  if [[ "$2" = "detail" ]] ; then
-   echo -e "${GREEN}#`printf " %-54s" "Cron Entry"`#`printf " %-72s" "/home/oracle/system/rman/rman_backup.sh -14"`# PASS   #${NC}"
-  fi
-  rman_verification_pass=$((rman_verification_pass+3))
-else
- if [[ "$2" = "detail" ]] ; then
-  echo -e "${RED}#`printf " %-54s" "Cron Entry"`#`printf " %-72s" "/home/oracle/system/rman/rman_backup.sh -14"`# FAIL   #${NC}"
- fi
- rman_verification_fail=$((rman_verification_fail+3))
-fi
-
-if [[ $(crontab -u oracle -l | grep -v -F "#" | grep -F "33 10 * * 6 /home/oracle/system/rman/rman_backup.sh -l0") = "33 10 * * 6 /home/oracle/system/rman/rman_backup.sh -l0" ]] ; then
-  if [[ "$2" = "detail" ]] ; then
-   echo -e "${GREEN}#`printf " %-54s" "Cron Entry"`#`printf " %-72s" "/home/oracle/system/rman/rman_backup.sh -10"`# PASS   #${NC}"
-  fi
-  rman_verification_pass=$((rman_verification_pass+3))
-else
- if [[ "$2" = "detail" ]] ; then
-  echo -e "${RED}#`printf " %-54s" "Cron Entry"`#`printf " %-72s" "/home/oracle/system/rman/rman_backup.sh -10"`# FAIL   #${NC}"
- fi
- rman_verification_fail=$((rman_verification_fail+3))
-fi
-
-if [[ $(crontab -u oracle -l | grep -v -F "#" | grep -F "0 16 * * 1 /home/oracle/system/rman/rman_delete.sh") = "0 16 * * 1 /home/oracle/system/rman/rman_delete.sh" ]] ; then
-  if [[ "$2" = "detail" ]] ; then
-   echo -e "${GREEN}#`printf " %-54s" "Cron Entry"`#`printf " %-72s" "/home/oracle/system/rman/rman_delete.sh"`# PASS   #${NC}"
-  fi
-  rman_verification_pass=$((rman_verification_pass+3))
-else
- if [[ "$2" = "detail" ]] ; then
-  echo -e "${RED}#`printf " %-54s" "Cron Entry"`#`printf " %-72s" "/home/oracle/system/rman/rman_delete.sh"`# FAIL   #${NC}"
- fi
- rman_verification_fail=$((rman_verification_fail+3))
-fi
-
-if [[ $(crontab -u oracle -l | grep -v -F "#" | grep -F "0 0 * * 0 >/var/spool/mail/oracle") = "0 0 * * 0 >/var/spool/mail/oracle" ]] ; then
-  if [[ "$2" = "detail" ]] ; then
-   echo -e "${GREEN}#`printf " %-54s" "Cron Entry"`#`printf " %-72s" ">/var/spool/mail/oracle"`# PASS   #${NC}"
-  fi
-  rman_verification_pass=$((rman_verification_pass+3))
-else
- if [[ "$2" = "detail" ]] ; then
-  echo -e "${RED}#`printf " %-54s" "Cron Entry"`#`printf " %-72s" ">/var/spool/mail/oracle"`# FAIL   #${NC}"
- fi
- rman_verification_fail=$((rman_verification_fail+3))
-fi
-
-RMAN_BA=`/bin/cat /opt/puppetlabs/facter/facts.d/$(hostname -f).yaml | grep -v -F "#"  | grep 'oradb_fs::rman_bihourly_archives' | awk -F: '{print $4}' | sed "s/\r//"  | awk '{$1=$1};1' | sed 's/\x27//g'`
-if [ -z $RMAN_BA ]; then
-  if [[ $(crontab -u oracle -l | grep -F "33 5,7,9,11,13,15,17 * * 1,2,3,4,5 /home/oracle/system/rman/rman_backup.sh -a") = "33 5,7,9,11,13,15,17 * * 1,2,3,4,5 /home/oracle/system/rman/rman_backup.sh -a" ]] ; then
-    if [[ "$2" = "detail" ]] ; then
-    echo -e "${RED}#`printf " %-54s" "Cron Entry Exists"`#`printf " %-72s" "/home/oracle/system/rman/rman_backup.sh -a"`# FAIL   #${NC}"
-    fi
-    rman_verification_fail=$((rman_verification_fail+3))
-  else
-    if [[ "$2" = "detail" ]] ; then
-     echo -e "${GREEN}#`printf " %-54s" "Cron Entry Doesnt Exist"`#`printf " %-72s" "/home/oracle/system/rman/rman_backup.sh -a"`# PASS   #${NC}"
-    fi
-    rman_verification_pass=$((rman_verification_pass+3))
-  fi
-elif [ $RMAN_BA = 'true' ]; then
-  if [[ $(crontab -u oracle -l | grep -v -F "#" | grep -F "33 5,7,9,11,13,15,17 * * 1,2,3,4,5 /home/oracle/system/rman/rman_backup.sh -a") = "33 5,7,9,11,13,15,17 * * 1,2,3,4,5 /home/oracle/system/rman/rman_backup.sh -a" ]] ; then
-    if [[ "$2" = "detail" ]] ; then
-     echo -e "${GREEN}#`printf " %-54s" "Cron Entry Exists"`#`printf " %-72s" "/home/oracle/system/rman/rman_backup.sh -a"`# PASS   #${NC}"
-    fi
-    rman_verification_pass=$((rman_verification_pass+3))
-  else
-   if [[ "$2" = "detail" ]] ; then
-    echo -e "${RED}#`printf " %-54s" "Cron Entry Doesnt Exist"`#`printf " %-72s" "/home/oracle/system/rman/rman_backup.sh -a"`# FAIL   #${NC}"
-   fi
-   rman_verification_fail=$((rman_verification_fail+3))
-  fi
-elif [ $RMAN_BA = 'false' ]; then
-  if [[ $(crontab -u oracle -l | grep -F "33 5,7,9,11,13,15,17 * * 1,2,3,4,5 /home/oracle/system/rman/rman_backup.sh -a") = "33 5,7,9,11,13,15,17 * * 1,2,3,4,5 /home/oracle/system/rman/rman_backup.sh -a" ]] ; then
-    if [[ "$2" = "detail" ]] ; then
-      echo -e "${RED}#`printf " %-54s" "Cron Entry Exists"`#`printf " %-72s" "/home/oracle/system/rman/rman_backup.sh -a"`# FAIL   #${NC}"
-    fi
-    rman_verification_fail=$((rman_verification_fail+3))
-  else
-    if [[ "$2" = "detail" ]] ; then
-      echo -e "${GREEN}#`printf " %-54s" "Cron Entry Doesnt Exist"`#`printf " %-72s" "/home/oracle/system/rman/rman_backup.sh -a"`# PASS   #${NC}"
-    fi
-    rman_verification_pass=$((rman_verification_pass+3))
-  fi
-else 
-  if [[ "$2" = "detail" ]] ; then
-    echo -e "${RED}#`printf " %-54s" "Unknown fqdn.yaml Value"`#`printf " %-72s" "oradb_fs::rman_bihourly_archives"`# FAIL   #${NC}"
-  fi
-  rman_verification_fail=$((rman_verification_fail+3))
-fi
-
-###########################
-# DB Lookup
-###########################
-
-host=`hostname -f`
-mapfile -t FACT_HOMES < <(cat /opt/puppetlabs/facter/facts.d/${host}.yaml | grep oradb_fs::ora_db_info_list | awk -F: '{print $3"\n" }' | awk 'NF > 0')
-
-for i in ${FACT_HOMES[*]}
-do
-  misc_db_var+=`facter -p oradb_fs::$i  | sed 's/\]//g' | sed 's/\[//g' | sed 's/"//g' | sed 's/,//g'`
-done
-
-#######################
-# db that are rman
-#######################
-oracle=`cat /opt/puppetlabs/facter/facts.d/${host}.yaml | grep -F "oradb::ora_bash_home" | awk -F: '{print $4}' | sed 's/,//g' | sed 's/\x27//g' | awk 'NF > 0' | awk '{$1=$1}1'`
-sid=RCAT01P
-  su -c "
-    sqlplus -S /@$sid @/usr/local/bin/sql/rman_verification.sql $sid" - oracle &>/dev/null
-  su -c "
-    sqlplus -S /@$sid @/usr/local/bin/sql/rmanschema_verification.sql $sid" - oracle &>/dev/null
-sid=RCAT02P
-  su -c "
-    sqlplus -S /@$sid @/usr/local/bin/sql/rman_verification.sql $sid" - oracle &>/dev/null
-  su -c "
-    sqlplus -S /@$sid @/usr/local/bin/sql/rmanschema_verification.sql $sid" - oracle &>/dev/null
-
-for i in ${misc_db_var}
-do
-  db_name_list+=`echo $i | awk -F: '$5=="rman" {print $1":\n" }' | awk 'NF > 0'`
-done
-
-OIFS="$IFS"
-IFS=':' db_name_list_arr=($db_name_list)
-IFS="$OIFS"
-
-num=`echo $db_name_list | awk -F: '{print NF-1}'`
-counter=0
-while [  "$counter" -le $num ]
-do
-  the_db=`echo ${db_name_list_arr[$counter]} | awk '{print toupper($0)}'`
-  if [[ ! -z $the_db ]]; then
-    the_count=`cat /opt/oracle/sw/working_dir/rman_reg_db_listRCAT01P.lst | grep -F $the_db | wc -l`
-    if [[ "$the_count" = 1 ]]; then
-      if [[ "$2" = "detail" ]] ; then
-        echo -e "${GREEN}#`printf " %-54s" "Database Registered RCAT01P"`#`printf " %-72s" "$the_db"`# PASS   #${NC}"
-      fi
-      rman_verification_pass=$((rman_verification_pass+1))
-    else
-      if [[ "$2" = "detail" ]] ; then
-        echo -e "${RED}#`printf " %-54s" "Database Registered RCAT01P"`#`printf " %-72s" "$the_db"`# FAIL   #${NC}"
-      fi
-      rman_verification_pass=$((rman_verification_pass+1))
-    fi
-    the_count=`cat /opt/oracle/sw/working_dir/rman_reg_db_listRCAT02P.lst | grep -F $the_db | wc -l`
-    if [[ "$the_count" = 1 ]]; then
-      if [[ "$2" = "detail" ]] ; then
-        echo -e "${GREEN}#`printf " %-54s" "Database Registered RCAT02P"`#`printf " %-72s" "$the_db"`# PASS   #${NC}"
-      fi
-      rman_verification_pass=$((rman_verification_pass+1))
-    else
-      if [[ "$2" = "detail" ]] ; then
-        echo -e "${RED}#`printf " %-54s" "Database Registered RCAT02P"`#`printf " %-72s" "$the_db"`# FAIL   #${NC}"
-      fi
-      rman_verification_pass=$((rman_verification_pass+1))
-    fi
-  fi
-  counter=$((counter+1))
-done
-
-DOMAIN=`dnsdomainname | awk -F. '{print $1 }' | awk '{print toupper($0)}'`
-the_host=`hostname | awk '{print toupper($0)}'`
-the_schema=`cat /opt/oracle/sw/working_dir/rmanschema_listRCAT01P.lst | grep -F RCAT_${DOMAIN}_${the_host} | wc -l`
-if [[ "$the_schema" = 1 ]]; then
-  if [[ "$2" = "detail" ]] ; then
-    echo -e "${GREEN}#`printf " %-54s" "Schema Registered RCAT01P"`#`printf " %-72s" "RCAT_${DOMAIN}_${the_host}"`# PASS   #${NC}"
-  fi
-  rman_verification_pass=$((rman_verification_pass+1))
-else
-  if [[ "$2" = "detail" ]] ; then
-    echo -e "${RED}#`printf " %-54s" "Schema Registered RCAT01P"`#`printf " %-72s" "RCAT_${DOMAIN}_${the_host}"`# FAIL   #${NC}"
-  fi
-  rman_verification_pass=$((rman_verification_pass+1))
-fi
-DOMAIN=`dnsdomainname | awk -F. '{print $1 }' | awk '{print toupper($0)}'`
-the_host=`hostname | awk '{print toupper($0)}'`
-the_schema=`cat /opt/oracle/sw/working_dir/rmanschema_listRCAT02P.lst | grep -F RCAT_${DOMAIN}_${the_host} | wc -l`
-if [[ "$the_schema" = 1 ]]; then
-  if [[ "$2" = "detail" ]] ; then
-    echo -e "${GREEN}#`printf " %-54s" "Schema Registered RCAT02P"`#`printf " %-72s" "RCAT_${DOMAIN}_${the_host}"`# PASS   #${NC}"
-  fi
-  rman_verification_pass=$((rman_verification_pass+1))
-else
-  if [[ "$2" = "detail" ]] ; then
-    echo -e "${RED}#`printf " %-54s" "Schema Registered RCAT02P"`#`printf " %-72s" "RCAT_${DOMAIN}_${the_host}"`# FAIL   #${NC}"
-  fi
-  rman_verification_pass=$((rman_verification_pass+1))
-fi
-
-#######################
-# db that are not rman
-#######################
-for i in ${misc_db_var}
-do
-  db_name_list_no+=`echo $i | awk -F: '$5!="rman" {print $1":\n" }' | awk 'NF > 0'`
-done
-
-OIFS="$IFS"
-IFS=':' db_name_list_arr_no=($db_name_list_no)
-IFS="$OIFS"
-
-num=`echo $db_name_list_no | awk -F: '{print NF-1}'`
-
-excludedb=`cat /home/oracle/system/rman/rman_parameters.sh | grep -v "#" | grep "export SID_EXCLUDE_LIST=" | awk -F= '{print $2 }'| awk '{print toupper($0)}'`
-
-counter=0
-while [  $counter -le $num ]
-do
-  the_db=`echo ${db_name_list_arr_no[$counter]} | awk '{print toupper($0)}'`
-  if [[ ! -z $the_db ]]; then
-    the_count=`echo $excludedb | grep -F $the_db | wc -l`
-    if [[ "$the_count" = 1 ]]; then
-      if [[ "$2" = "detail" ]] ; then
-        echo -e "${GREEN}#`printf " %-54s" "Database In Exclude List"`#`printf " %-72s" "$the_db"`# PASS   #${NC}"
-      fi
-      rman_verification_pass=$((rman_verification_pass+1))
-    else
-      if [[ "$2" = "detail" ]] ; then
-        echo -e "${RED}#`printf " %-54s" "Database In Exclude List"`#`printf " %-72s" "$the_db"`# FAIL   #${NC}"
-      fi
-      rman_verification_pass=$((rman_verification_pass+1))
-    fi
-  fi
-  counter=$((counter+1))
-done
-
-counter=0
-while [  $counter -le $num ]
-do
-  the_db=`echo ${db_name_list_arr_no[$counter]} | awk '{print toupper($0)}'`
-  if [[ ! -z $the_db ]]; then
-  the_count=`cat /opt/oracle/sw/working_dir/rman_reg_db_listRCAT01P.lst | grep -F $the_db | wc -l`
-    if [[ "$the_count" = 0 ]]; then
-      if [[ "$2" = "detail" ]] ; then
-        echo -e "${GREEN}#`printf " %-54s" "Database In Exclude List Not Registered"`#`printf " %-72s" "$the_db"`# PASS   #${NC}"
-      fi
-      rman_verification_pass=$((rman_verification_pass+1))
-    else
-      if [[ "$2" = "detail" ]] ; then
-        echo -e "${RED}#`printf " %-54s" "Database In Exclude List Not Registered"`#`printf " %-72s" "$the_db"`# FAIL   #${NC}"
-      fi
-      rman_verification_pass=$((rman_verification_pass+1))
-    fi
-    the_count=`cat /opt/oracle/sw/working_dir/rman_reg_db_listRCAT02P.lst | grep -F $the_db | wc -l`
-    if [[ "$the_count" = 0 ]]; then
-      if [[ "$2" = "detail" ]] ; then
-        echo -e "${GREEN}#`printf " %-54s" "Database In Exclude List Not Registered"`#`printf " %-72s" "$the_db"`# PASS   #${NC}"
-      fi
-      rman_verification_pass=$((rman_verification_pass+1))
-    else
-      if [[ "$2" = "detail" ]] ; then
-        echo -e "${RED}#`printf " %-54s" "Database In Exclude List Not Registered"`#`printf " %-72s" "$the_db"`# FAIL   #${NC}"
-      fi
-      rman_verification_pass=$((rman_verification_pass+1))
-    fi
-  fi
-  counter=$((counter+1))
-done
-
-if [[ "$2" = "detail" ]] ; then
- printf_repeat "#" 140
- echo -e ""
-fi
-
-printf_summary "RMAN SETUP TO VERIFY" $rman_verification_pass $rman_verification_fail
-
-
-# END rman_verification
-}
-
-############################################################
-# RMANREPO
-############################################################
-
-########################################
-# rmanrepo_verification
-########################################
-
-rmanrepo_verification () {
-
-echo -e ""
-if [[ "$2" = "detail" ]] ; then
-  printf_header1 "RMANREPO SETUP TO VERIFY" "SETUP TO VERIFY"
-fi
-
-rmanschema=`facter -p  oradb_fs::rman_schemas | sed 's/\]//g' | sed 's/\[//g' | sed 's/"//g' | sed 's/,//g' | awk '{$1=$1}1' | awk 'NF > 0'| awk -F. '{print $1":"$2}'`
-hostname=`hostname -f`
-ORACLE_SID=`cat /opt/puppetlabs/facter/facts.d/$hostname.yaml | grep oradb::ora_bash_db_name  | awk -F: '{print $4}' | sed 's/\x27//g' | awk '{$1=$1}1'`
-
-  su -c "
-    . /home/oracle/.bash_profile
-    sqlplus -S / as sysdba @/usr/local/bin/sql/rmanrepo_verification.sql ${ORACLE_SID}" - oracle &>/dev/null 
-
-rmanschema_arr=$(echo $rmanschema | tr " " "\n")
-
-
-num=`echo $rmanschema | awk -F" " '{print NF-1}'`
-counter=0
-for x in $rmanschema_arr
-do
-  the_server=`echo $x | awk '{print toupper($0)}' | awk -F: '{print $1 }'`
-  the_domain=`echo $x | awk '{print toupper($0)}' | awk -F: '{print $2 }'`
-  if [[ ! -z $the_server ]]; then
-    the_cnttext=`ls /opt/oracle/sw/working_dir/rmanschema_list*`
-    the_count=`cat $the_cnttext | grep -F $the_server | wc -l`
-    if [[ "$the_count" = 1 ]]; then
-      if [[ "$2" = "detail" ]] ; then
-        echo -e "${GREEN}#`printf " %-54s" "Server Schema Exists"`#`printf " %-72s" "$the_server"`# PASS   #${NC}"
-      fi
-      rmanrepo_verification_pass=$((rmanrepo_verification_pass+1))
-    else
-      if [[ "$2" = "detail" ]] ; then
-        echo -e "${RED}#`printf " %-54s" "Server Schema Exists"`#`printf " %-72s" "$the_server"`# FAIL   #${NC}"
-      fi
-      rmanrepo_verification_pass=$((rmanrepo_verification_pass+1))
-    fi
-  fi
-  counter=$((counter+1))
-done
-
-
-if [[ "$2" = "detail" ]] ; then
- printf_repeat "#" 140
- echo -e ""
-fi
-
-printf_summary "RMAN SETUP TO VERIFY" $rmanrepo_verification_pass $rmanrepo_verification_fail
-
-
-# END rmanrepo_verification
-}
-
-############################################################
 # PUPPET
 ############################################################
 
@@ -4773,9 +4104,7 @@ sw_verification_pass+
 home_patch_verification_pass+
 listener_verification_pass+
 db_verification_pass+
-dbint_verification_pass+
-rman_verification_pass+
-rmanrepo_verification_pass))
+dbint_verification_pass))
 
 
 
@@ -4794,9 +4123,7 @@ sw_verification_fail+
 home_patch_verification_fail+
 listener_verification_fail+
 db_verification_fail+
-dbint_verification_fail+
-rman_verification_fail+
-rmanrepo_verification_fail))
+dbint_verification_fail))
 
 ora_platform_total=$((ora_platform_pass+ora_platform_fail))
 
@@ -4835,7 +4162,6 @@ printf_repeat "#" 80
 ################################################################################
 # END
 ################################################################################
-
 
 
 

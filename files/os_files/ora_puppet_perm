@@ -34,5 +34,9 @@ oracle ALL=(root)NOPASSWD:/usr/local/bin/puppet_admin.sh agent run, \
       /usr/local/bin/puppet_oraverify.sh extfact detail, \
       /usr/local/bin/puppet_oraverify.sh intfact sum, \
       /usr/local/bin/puppet_oraverify.sh intfact detail, \
+      /usr/local/bin/puppet_oraverify.sh rman sum, \
+      /usr/local/bin/puppet_oraverify.sh rman detail, \
+      /usr/local/bin/puppet_oraverify.sh rmanrepo sum, \
+      /usr/local/bin/puppet_oraverify.sh rmanrepo detail, \
       /usr/local/bin/puppet_oraverify.sh puppet, \
       /usr/local/bin/puppet_oraverify.sh help

@@ -1,1 +1,7 @@
+export TNS_ADMIN=<%= $home_path %>/network/admin
+export ORACLE_HOME=<%= $home_path %>
+export PATH=<%= $home_path %>/bin
+export LD_LIBRARY_PATH=<%= $home_path %>/lib
+export ORACLE_SID=<%= $sid %>
+
 `echo \"exit\" | rman target / catalog /@<%= $tns_alias %> cmdfile=/opt/oracle/sw/working_dir/<%= $home %>/<%= $sid %>_<%= $tns_alias %>_rman_register_cmdfile.sql > /opt/oracle/sw/<%= $home %>/<%= $sid %>_<%= $tns_alias %>_rman_regstration.log`

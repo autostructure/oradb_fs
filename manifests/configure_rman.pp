@@ -63,8 +63,9 @@ define oradb_fs::configure_rman (
     }
     else { #elsif $sid_list_in_exclude == 'S' or $sid_list_in_exclude == 'F' {
 
+notify{"facts['hostname_ebn_exists'] : ${facts['hostname_ebn_exists']}" :}
      if $facts['libobk_so64_exists'] != 0 {
-      if $facts['hostname-ebn_exists'] != 0 {
+      if $facts['hostname_ebn_exists'] == 1 {
        exec {'Move libobk.so file aside if needed: ${home}' :
         command => "/bin/mv ${home_path}/lib/libobk.so ${home_path}/lib/libobk.so.orig",
         user    => 'oracle',
@@ -281,9 +282,10 @@ SQLNET.WALLET_OVERRIDE = TRUE" >> /home/oracle/system/rman/admin.wallet/sqlnet.o
          file { "/opt/oracle/sw/working_dir/${home}/${sid}_${tns_alias}_rman_command.sh" :
           ensure  => 'file',
           content => epp('oradb_fs/rman_command.sh.epp',
-                       { 'home'      => $home,
-                         'sid'       => $sid,
-                         'tns_alias' => $tns_alias }),
+                       { 'home_path'   => $home_path,
+                         'home'        => $home,
+                         'sid'         => $sid,
+                         'tns_alias'   => $tns_alias }),
           owner   => 'oracle',
           group   => 'oinstall',
           mode    => '0754',

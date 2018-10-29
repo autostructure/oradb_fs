@@ -1,21 +1,24 @@
 ####
 # hostname_ebn_exists
 #
-# returns 0 or 1 based on the existence of /usr/openv/netbackup/bin/libobk.so64
-#  >0 exists
-#  0  DNE
-#
 ####
 Facter.add(:hostname_ebn_exists) do
  confine :kernel => 'Linux'
- confine :"oradb_fs::ora_platform" => [ :oem, :db ]
+ confine :"oradb_fs::ora_platform" => [ :db ]
  setcode do
+  if Facter.value(:rman_setup_list) == [ '' ]
+   0 #no touch files exists for rman setup
+  else
+   host_name = Facter.value(:hostname)
+   command = "/bin/ping #{host_name}-ebn -c 1 2>/dev/null"
+   ping_out = %x[#{command}]
 
-  command = 'ping -c 1 ${HOSTNAME}-ebn 2>/dev/null | wc -l'
-  output = %x[#{command}]
-
-  output.strip
-
+   if !ping_out.empty?
+    1 #hostname-ebn ping succeded
+   else
+    -1 #hostname-ebn ping failed
+   end
+  end
  end
 end
 
