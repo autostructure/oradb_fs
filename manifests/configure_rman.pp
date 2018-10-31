@@ -2,7 +2,30 @@
 # oradb_fs::configure_rman
 #  author: Matthew Parker
 #
-# placeholder manifest to configure database/home for rman backups
+# Configures RMAN for the client side server and DBs.
+#  Puts DBs from $sid_list into archivelog mode
+#  Registers DBs from $sid_list with both RMAN repos
+#  Unregisters DBs from the sid_exclude_list fact from both RMAN repos if they are associated to the home being worked on
+#
+# variables
+#  String        $home         - home variable set in use (db_#)
+#  String        $home_path    - full path to the Oracle home
+#  Array[String] $db_info_list - flat fact array of database information
+#  Array[String] $sid_list     - array from the rman_setup_list fact
+#
+# deploys:
+#  /home/oracle/system/rman/${script} - see $scripts for full list
+#  /home/oracle/system/rman/rman_parameters.sh
+#
+# creates:
+#  /home/oracle/system/rman/admin.wallet/cwallet.sso     - output file from oracle mkstore command
+#  /home/oracle/system/rman/admin.wallet/cwallet.sso.lck - output file from oracle mkstore command
+#  /home/oracle/system/rman/admin.wallet/ewallet.p12     - output file from oracle mkstore command
+#  /home/oracle/system/rman/admin.wallet/ewallet.p12.lck - output file from oracle mkstore command
+#
+# updates:
+#  /home/oracle/system/rman/admin.wallet/tnsnames.ora - this is a softlink to tnsnames.ora in the home. Multihome servers may cause issues.
+#  /home/oracle/system/rman/admin.wallet/sqlnet.ora   - this is a softlink to sqlnet.ora in the home. Multihome servers may cause issues.
 #
 ####
 define oradb_fs::configure_rman (
@@ -239,7 +262,55 @@ SQLNET.WALLET_OVERRIDE = TRUE" >> /home/oracle/system/rman/admin.wallet/sqlnet.o
           else {
            notify {"Database already has noarchivelog mode set : ${sid}" : }
           }
-         }
+          $tns_alias_list.each | $tns_alias | {
+           file { "/opt/oracle/sw/working_dir/${home}/${exclude_compare}_${tns_alias}_rman_unregister_cmdfile.sql" :
+            ensure  => 'file',
+            content => 'unregister database;',
+            owner   => 'oracle',
+            group   => 'oinstall',
+            mode    => '0754',
+           }
+           file { "/opt/oracle/sw/working_dir/${home}/${exclude_compare}_${tns_alias}_test_registration.sh" :
+            ensure  => 'file',
+            content => epp('oradb_fs/rman_test_registration.sh.epp',
+                         { 'home_path'   => $home_path,
+                           'tns_alias'   => $tns_alias,
+                           'rman_schema' => $schema,
+                           'sid'         => $exclude_compare }),
+            owner   => 'oracle',
+            group   => 'oinstall',
+            mode    => '0754',
+           }
+           file { "/opt/oracle/sw/working_dir/${home}/${exclude_compare}_${tns_alias}_rman_command_unreg.sh" :
+            ensure  => 'file',
+            content => epp('oradb_fs/rman_command_unreg.sh.epp',
+                         { 'home_path'   => $home_path,
+                           'home'        => $home,
+                           'sid'         => $exclude_compare,
+                           'tns_alias'   => $tns_alias }),
+            owner   => 'oracle',
+            group   => 'oinstall',
+            mode    => '0754',
+           }
+           file { "/opt/oracle/sw/working_dir/${home}/${exclude_compare}_${tns_alias}_rman_unregister.sql" :
+            ensure  => 'file',
+            content => epp('oradb_fs/rman_unregister.sql',
+                         { 'home'      => $home,
+                           'sid'       => $exclude_compare,
+                           'tns_alias' => $tns_alias }),
+            owner   => 'oracle',
+            group   => 'oinstall',
+            mode    => '0754',
+           }
+           exec { "Unregister DB with RMAN catalog: ${exclude_compare} : ${tns_alias}" :
+            command => "/opt/oracle/sw/working_dir/${home}/${exclude_compare}_${tns_alias}_rman_unregister.sql",
+            require => [ File["/opt/oracle/sw/working_dir/${home}/${exclude_compare}_${tns_alias}_rman_unregister.sql"],
+                         File["/opt/oracle/sw/working_dir/${home}/${exclude_compare}_${tns_alias}_test_registration.sh"],
+                         File["/opt/oracle/sw/working_dir/${home}/${exclude_compare}_${tns_alias}_rman_command_unreg.sh"],
+                         File["/opt/oracle/sw/working_dir/${home}/${exclude_compare}_${tns_alias}_rman_unregister_cmdfile.sql"] ]
+           }
+          }
+         }        
         }
        }
 

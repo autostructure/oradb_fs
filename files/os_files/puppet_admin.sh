@@ -1,20 +1,22 @@
 #!/bin/bash
 ################################################################################
-# File   : /usr/local/bin/puppet_admin.sh
-# Author : matthewparker
-# Date   : October 15, 2017
-# Version: 1.0
-# Purpose: This is the admin utility for the Oracle Platform puppet module.
-#          This is used by the OPS/eDBA team to interact with puppet.
-# Command:
-#          These are the commands for the Database and OEM Platform.
+# File     :  /usr/local/bin/puppet_admin.sh
+# Author   : matthewparker
+# Email    : dimensional,dba@comcast.net
+# Date     : October 17, 2017
+# Last Mod : October 31, 2018
+# Version  : 2.2
+# Purpose  : This is the admin utility for the Oracle Platform puppet module.
+#            This is used by the OPS/eDBA team to interact with puppet.
+# Command  :
+#            These are the commands for the Database and OEM Platform.
 #
-#          /usr/local/bin/puppet_admin.sh agent run
-#          /usr/local/bin/puppet_admin.sh agent disable
-#          /usr/local/bin/puppet_admin.sh agent enable
-#          /usr/local/bin/puppet_admin.sh service stop
-#          /usr/local/bin/puppet_admin.sh service start
-#          /usr/local/bin/puppet_admin.sh yaml remove
+#            /usr/local/bin/puppet_admin.sh agent run
+#            /usr/local/bin/puppet_admin.sh agent disable
+#            /usr/local/bin/puppet_admin.sh agent enable
+#            /usr/local/bin/puppet_admin.sh service stop
+#            /usr/local/bin/puppet_admin.sh service start
+#            /usr/local/bin/puppet_admin.sh yaml remove
 #
 ################################################################################
 

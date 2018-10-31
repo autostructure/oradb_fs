@@ -2,7 +2,20 @@
 # oradb_fs::configure_rman_repo
 #  author: Matthew Parker
 #
-# placeholder manifest to configure RMAN repo database
+# Creates users in the RMAN repo database to host RMAN catalog information
+#
+# variables
+#  String         $home         - home variable set in use (db_#)
+#  String         $home_path    - full path to the Oracle home
+#  Array[String]  $db_info_list - flat fact array of database information
+#  String         $sid          - array from the rman_repo_setup_list fact
+#
+# inside REPO DB
+#  creates fs_service_acct profile
+#  creates a repo user for each entry in the oradb_fs::rman_schemas fact from the artifactory yaml file
+#   Usename is in the format 'rcat_[WORK_AREA]_[HOSTNAME]'
+#   I.e An FQDN of fsxopsx0946.wrk.fs.usda.gov becomes rcat_wrk_fsxopsx0946
+#  grants new user profile/rights to host the RMAN catalog for a given server FQDN
 #
 ####
 define oradb_fs::configure_rman_repo (

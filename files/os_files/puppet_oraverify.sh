@@ -1,49 +1,51 @@
 #!/bin/bash
 ################################################################################
-# File   : /usr/local/bin/puppet_oraverify.sh
-# Author : matthewparker
-# Date   : October 31, 2017
-# Version: 2.0
-# Purpose: This is the verification utility for the Oracle Platform
-#          puppet module. This is used by the OPS/eDBA team to
-#          verify that the puppet actions are performed as exepected.
-# Command:
-#          These are the commands for the Database and OEM Platform.
+# File     : /usr/local/bin/puppet_oraverify.sh
+# Author   : matthewparker
+# Email    : dimensional,dba@comcast.net
+# Date     : October 31, 2017
+# Last Mod : October 31, 2018
+# Version  : 2.2
+# Purpose  : This is the verification utility for the Oracle Platform
+#            puppet module. This is used by the OPS/eDBA team to
+#            verify that the puppet actions are performed as exepected.
+# Command  :
+#            These are the commands for the Database and OEM Platform.
 #
-#          /usr/local/bin/puppet_oraverify.sh platform sum
-#          /usr/local/bin/puppet_oraverify.sh platform detail
-#          /usr/local/bin/puppet_oraverify.sh bootstrap sum
-#          /usr/local/bin/puppet_oraverify.sh bootstrap detail
-#          /usr/local/bin/puppet_oraverify.sh prereqs sum
-#          /usr/local/bin/puppet_oraverify.sh prereqs detail
-#          /usr/local/bin/puppet_oraverify.sh postreqs sum
-#          /usr/local/bin/puppet_oraverify.sh postreqs detail
-#          /usr/local/bin/puppet_oraverify.sh oem sum
-#          /usr/local/bin/puppet_oraverify.sh oem detail
-#          /usr/local/bin/puppet_oraverify.sh orahome sum
-#          /usr/local/bin/puppet_oraverify.sh orahome detail
-#          /usr/local/bin/puppet_oraverify.sh oradb sum
-#          /usr/local/bin/puppet_oraverify.sh oradb detail
-#          /usr/local/bin/puppet_oraverify.sh orabasic sum
-#          /usr/local/bin/puppet_oraverify.sh orabasic detail
-#          /usr/local/bin/puppet_oraverify.sh oraall sum
-#          /usr/local/bin/puppet_oraverify.sh oraall detail
-#          /usr/local/bin/puppet_oraverify.sh rman sum
-#          /usr/local/bin/puppet_oraverify.sh rman detail
-#          /usr/local/bin/puppet_oraverify.sh rmanrepo sum
-#          /usr/local/bin/puppet_oraverify.sh rmanrepo detail
-#          /usr/local/bin/puppet_oraverify.sh patch sum
-#          /usr/local/bin/puppet_oraverify.sh patch detail
-#          /usr/local/bin/puppet_oraverify.sh extfact sum
-#          /usr/local/bin/puppet_oraverify.sh extfact detail
-#          /usr/local/bin/puppet_oraverify.sh intfact sum
-#          /usr/local/bin/puppet_oraverify.sh intfact detail
-#          /usr/local/bin/puppet_oraverify.sh puppet
-#          /usr/local/bin/puppet_oraverify.sh help
-#          /usr/local/bin/puppet_oraverify.sh
+#            /usr/local/bin/puppet_oraverify.sh platform sum
+#            /usr/local/bin/puppet_oraverify.sh platform detail
+#            /usr/local/bin/puppet_oraverify.sh bootstrap sum
+#            /usr/local/bin/puppet_oraverify.sh bootstrap detail
+#            /usr/local/bin/puppet_oraverify.sh prereqs sum
+#            /usr/local/bin/puppet_oraverify.sh prereqs detail
+#            /usr/local/bin/puppet_oraverify.sh postreqs sum
+#            /usr/local/bin/puppet_oraverify.sh postreqs detail
+#            /usr/local/bin/puppet_oraverify.sh oem sum
+#            /usr/local/bin/puppet_oraverify.sh oem detail
+#            /usr/local/bin/puppet_oraverify.sh orahome sum
+#            /usr/local/bin/puppet_oraverify.sh orahome detail
+#            /usr/local/bin/puppet_oraverify.sh oradb sum
+#            /usr/local/bin/puppet_oraverify.sh oradb detail
+#            /usr/local/bin/puppet_oraverify.sh orabasic sum
+#            /usr/local/bin/puppet_oraverify.sh orabasic detail
+#            /usr/local/bin/puppet_oraverify.sh oraall sum
+#            /usr/local/bin/puppet_oraverify.sh oraall detail
+#            /usr/local/bin/puppet_oraverify.sh rman sum
+#            /usr/local/bin/puppet_oraverify.sh rman detail
+#            /usr/local/bin/puppet_oraverify.sh rmanrepo sum
+#            /usr/local/bin/puppet_oraverify.sh rmanrepo detail
+#            /usr/local/bin/puppet_oraverify.sh patch sum
+#            /usr/local/bin/puppet_oraverify.sh patch detail
+#            /usr/local/bin/puppet_oraverify.sh extfact sum
+#            /usr/local/bin/puppet_oraverify.sh extfact detail
+#            /usr/local/bin/puppet_oraverify.sh intfact sum
+#            /usr/local/bin/puppet_oraverify.sh intfact detail
+#            /usr/local/bin/puppet_oraverify.sh puppet
+#            /usr/local/bin/puppet_oraverify.sh help
+#            /usr/local/bin/puppet_oraverify.sh
 #
-#Column Display Width For Reports Are 140 characters.
-#Line Display Buffer Length For Reports Are 5000 lines.
+# Info    :  Column Display Width For Reports Are 140 characters.
+#            Line Display Buffer Length For Reports Are 5000 lines.
 #
 ################################################################################
 
