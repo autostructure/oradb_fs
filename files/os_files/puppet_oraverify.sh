@@ -32,6 +32,8 @@
 #          /usr/local/bin/puppet_oraverify.sh rman detail
 #          /usr/local/bin/puppet_oraverify.sh rmanrepo sum
 #          /usr/local/bin/puppet_oraverify.sh rmanrepo detail
+#          /usr/local/bin/puppet_oraverify.sh patch sum
+#          /usr/local/bin/puppet_oraverify.sh patch detail
 #          /usr/local/bin/puppet_oraverify.sh extfact sum
 #          /usr/local/bin/puppet_oraverify.sh extfact detail
 #          /usr/local/bin/puppet_oraverify.sh intfact sum
@@ -181,6 +183,14 @@ rmanrepo_verification_fail=0
 
 
 ########################################
+# PATCH
+########################################
+
+patch_verification_total=0
+patch_verification_pass=0
+patch_verification_fail=0
+
+########################################
 # EXTFACT
 ########################################
 
@@ -290,6 +300,11 @@ if [[ $1 = 'rmanrepo' ]] ; then
 
 fi
 
+if [[ $1 = 'patch' ]] ; then
+
+ patch_verification "$@"
+
+fi
 
 if [[ $1 = 'platform' ]] || [[ $1 = 'puppet' ]] ; then
 
@@ -4489,24 +4504,24 @@ do
   the_count=`cat /opt/oracle/sw/working_dir/rman_reg_db_listRCAT01P.lst | grep -F $the_db | wc -l`
     if [[ "$the_count" = 0 ]]; then
       if [[ "$2" = "detail" ]] ; then
-        echo -e "${GREEN}#`printf " %-54s" "Database In Exclude List Not Registered"`#`printf " %-72s" "$the_db"`# PASS   #${NC}"
+        echo -e "${GREEN}#`printf " %-54s" "Database In Exclude List Not Registered To RCAT01P"`#`printf " %-72s" "$the_db"`# PASS   #${NC}"
       fi
       rman_verification_pass=$((rman_verification_pass+1))
     else
       if [[ "$2" = "detail" ]] ; then
-        echo -e "${RED}#`printf " %-54s" "Database In Exclude List Not Registered"`#`printf " %-72s" "$the_db"`# FAIL   #${NC}"
+        echo -e "${RED}#`printf " %-54s" "Database In Exclude List Not Registered To RCAT01P"`#`printf " %-72s" "$the_db"`# FAIL   #${NC}"
       fi
       rman_verification_pass=$((rman_verification_pass+1))
     fi
     the_count=`cat /opt/oracle/sw/working_dir/rman_reg_db_listRCAT02P.lst | grep -F $the_db | wc -l`
     if [[ "$the_count" = 0 ]]; then
       if [[ "$2" = "detail" ]] ; then
-        echo -e "${GREEN}#`printf " %-54s" "Database In Exclude List Not Registered"`#`printf " %-72s" "$the_db"`# PASS   #${NC}"
+        echo -e "${GREEN}#`printf " %-54s" "Database In Exclude List Not Registered To RCAT02P"`#`printf " %-72s" "$the_db"`# PASS   #${NC}"
       fi
       rman_verification_pass=$((rman_verification_pass+1))
     else
       if [[ "$2" = "detail" ]] ; then
-        echo -e "${RED}#`printf " %-54s" "Database In Exclude List Not Registered"`#`printf " %-72s" "$the_db"`# FAIL   #${NC}"
+        echo -e "${RED}#`printf " %-54s" "Database In Exclude List Not Registered To RCAT02P"`#`printf " %-72s" "$the_db"`# FAIL   #${NC}"
       fi
       rman_verification_pass=$((rman_verification_pass+1))
     fi
@@ -4569,7 +4584,7 @@ do
       if [[ "$2" = "detail" ]] ; then
         echo -e "${RED}#`printf " %-54s" "Server Schema Exists"`#`printf " %-72s" "$the_server"`# FAIL   #${NC}"
       fi
-      rmanrepo_verification_pass=$((rmanrepo_verification_pass+1))
+      rmanrepo_verification_fail=$((rmanrepo_verification_fail+1))
     fi
   fi
   counter=$((counter+1))
@@ -4585,6 +4600,103 @@ printf_summary "RMAN SETUP TO VERIFY" $rmanrepo_verification_pass $rmanrepo_veri
 
 
 # END rmanrepo_verification
+}
+
+############################################################
+# PATCH
+############################################################
+
+patch_verification () {
+
+echo -e ""
+if [[ "$2" = "detail" ]] ; then
+  printf_header1 "PATCHES TO VERIFY" "PATCH SETUP TO VERIFY"
+fi
+
+FACTER=`/usr/local/bin/facter -p`
+mapfile -t AVAILABLE_PATCHES < <(echo "$FACTER" | sed -n '/available_patches => \[/,/]/p' | sed -n 's/.*"\(.*\)"/\1/p' | sed 's/,$//')
+
+for (( i=0; i<=${#AVAILABLE_PATCHES[@]}-1; i++ ))
+do
+ if [[ ${AVAILABLE_PATCHES[$i]} =~ ^12_2.*$ ]] ; then
+  if [[ "$2" = "detail" ]] ; then
+    echo -e "${GREEN}#`printf " %-54s" "Patch Available dbeng.yaml"`#`printf " %-72s" "${AVAILABLE_PATCHES[$i]}"`# PASS   #${NC}"
+  fi
+  version='12.2.0.1'
+ else
+  echo ${AVAILABLE_PATCHES[$i]}
+  echo 'failed' ; exit 1
+ fi
+ yaml_version=`echo ${AVAILABLE_PATCHES[$i]} | sed 's/\./_/g'`
+ if [[ ${AVAILABLE_PATCHES[$i]} =~ ^.*.0$ ]] ; then
+  db_zip=`echo "$FACTER" | grep "oradb_fs::${yaml_version}::db_patch_file" | awk '{print $3}'`
+  db_zip_checksum=`echo "$FACTER" | grep "oradb_fs::${yaml_version}::db_md5sum" | awk '{print $3}'`
+  ojvm_zip=`echo "$FACTER" | grep "oradb_fs::${yaml_version}::ojvm_patch_file" | awk '{print $3}'`
+  ojvm_zip_checksum=`echo "$FACTER" | grep "oradb_fs::${yaml_version}::ojvm_md5sum" | awk '{print $3}'`
+  opatch_zip=`echo "$FACTER" | grep "oradb_fs::${yaml_version}::opatch_file" | awk '{print $3}'`
+  opatch_zip_checksum=`echo "$FACTER" | grep "oradb_fs::${yaml_version}::opatch_md5sum" | awk '{print $3}'`
+  patch_pathes=( "/fslink/sysinfra/oracle/automedia/${version}/db/${AVAILABLE_PATCHES[$i]}/db/${db_zip}"
+                 "/fslink/sysinfra/oracle/automedia/${version}/db/${AVAILABLE_PATCHES[$i]}/ojvm/${ojvm_zip}"
+                 "/fslink/sysinfra/oracle/automedia/${version}/db/${AVAILABLE_PATCHES[$i]}/opatch/${opatch_zip}" )
+  checksums=( $db_zip_checksum
+              $ojvm_zip_checksum
+              $opatch_zip_checksum )
+ else
+  db_zip=`echo "$FACTER" | grep "oradb_fs::${yaml_version}::db_patch_file" | awk '{print $3}'`
+  db_zip_checksum=`echo "$FACTER" | grep "oradb_fs::${yaml_version}::db_md5sum" | awk '{print $3}'`
+  patch_pathes=( "/fslink/sysinfra/oracle/automedia/${version}/db/${AVAILABLE_PATCHES[$i]}/db/${db_zip}" )
+  checksums=( $db_zip_checksum )
+ fi
+ for (( j=0; j<=${#patch_pathes[@]}-1; j++ ))
+ do
+  compare=`md5sum ${patch_pathes[$j]} 2>/dev/null | grep ${checksums[$j]} -c`
+  if [ $compare == 1 ] ; then
+   if [ $j == 0 ] ; then
+    if [[ "$2" = "detail" ]] ; then
+      echo -e "${GREEN}#`printf " %-54s" "Patch Exists In Artifactory And On Disk"`#`printf " %-72s" "${AVAILABLE_PATCHES[$i]} : db"`# PASS   #${NC}"
+    fi
+    patch_verification_pass=$((patch_verification_pass+1))
+   elif [ $j == 1 ] ; then
+    if [[ "$2" = "detail" ]] ; then
+      echo -e "${GREEN}#`printf " %-54s" "Patch Exists In Artifactory And On Disk"`#`printf " %-72s" "${AVAILABLE_PATCHES[$i]} : ojvm"`# PASS   #${NC}"
+    fi
+    patch_verification_pass=$((patch_verification_pass+1))
+   else
+    if [[ "$2" = "detail" ]] ; then
+      echo -e "${GREEN}#`printf " %-54s" "Patch Exists In Artifactory And On Disk"`#`printf " %-72s" "${AVAILABLE_PATCHES[$i]} : opatch"`# PASS   #${NC}"
+    fi
+    patch_verification_pass=$((patch_verification_pass+1))
+   fi
+  else
+   if [ $j == 0 ] ; then
+    if [[ "$2" = "detail" ]] ; then
+      echo -e "${RED}#`printf " %-54s" "Patch Exists In Artifactory And On Disk"`#`printf " %-72s" "${AVAILABLE_PATCHES[$i]} : db"`# FAIL   #${NC}"
+    fi
+    patch_verification_fail=$((patch_verification_fail+1))
+   elif [ $j == 1 ] ; then
+    if [[ "$2" = "detail" ]] ; then
+      echo -e "${RED}#`printf " %-54s" "Patch Exists In Artifactory And On Disk"`#`printf " %-72s" "${AVAILABLE_PATCHES[$i]} : ojvm"`# FAIL   #${NC}"
+    fi
+    patch_verification_fail=$((patch_verification_fail+1))
+   else
+    if [[ "$2" = "detail" ]] ; then
+      echo -e "${RED}#`printf " %-54s" "Patch Exists In Artifactory And On Disk"`#`printf " %-72s" "${AVAILABLE_PATCHES[$i]} : opatch"`# FAIL   #${NC}"
+    fi
+    patch_verification_fail=$((patch_verification_fail+1))
+   fi
+  fi
+ done
+done
+
+if [[ "$2" = "detail" ]] ; then
+ printf_repeat "#" 140
+ echo -e ""
+fi
+
+printf_summary "PATCHES TO VERIFY" $patch_verification_pass $patch_verification_fail
+
+
+# END patch_verification
 }
 
 ############################################################
@@ -4734,6 +4846,12 @@ These are the commands for the Database and OEM Platform.
           /usr/local/bin/puppet_oraverify.sh orabasic detail
           /usr/local/bin/puppet_oraverify.sh oraall sum
           /usr/local/bin/puppet_oraverify.sh oraall detail
+          /usr/local/bin/puppet_oraverify.sh rman sum
+          /usr/local/bin/puppet_oraverify.sh rman detail
+          /usr/local/bin/puppet_oraverify.sh rmanrepo sum
+          /usr/local/bin/puppet_oraverify.sh rmanrepo detail
+          /usr/local/bin/puppet_oraverify.sh patch sum
+          /usr/local/bin/puppet_oraverify.sh patch detail
           /usr/local/bin/puppet_oraverify.sh extfact sum
           /usr/local/bin/puppet_oraverify.sh extfact detail
           /usr/local/bin/puppet_oraverify.sh intfact sum
@@ -4775,7 +4893,8 @@ listener_verification_pass+
 db_verification_pass+
 dbint_verification_pass+
 rman_verification_pass+
-rmanrepo_verification_pass))
+rmanrepo_verification_pass+
+patch_verification_pass))
 
 
 
@@ -4796,7 +4915,8 @@ listener_verification_fail+
 db_verification_fail+
 dbint_verification_fail+
 rman_verification_fail+
-rmanrepo_verification_fail))
+rmanrepo_verification_fail+
+patch_verification_fail))
 
 ora_platform_total=$((ora_platform_pass+ora_platform_fail))
 

@@ -18,7 +18,9 @@ define oradb_fs::configure_rman (
   default => "'${facts['sid_exclude_list']}'"
  }
 
- $sid_exclude_list_comparable = split($sid_exclude_list,'|')
+ $sid_exclude_list_comparable = split(regsubst($sid_exclude_list,'\'','','G'),'\|')
+
+ $archive_mode_list = $facts['db_archive_mode_list']
 
  $oratab_home = return_sid_list($facts['home_associated_db_list'], $home, $home_path)
  $ps_home = return_sid_list($facts['home_associated_running_db_list'], $home, $home_path)
@@ -215,26 +217,33 @@ SQLNET.WALLET_OVERRIDE = TRUE" >> /home/oracle/system/rman/admin.wallet/sqlnet.o
         }
        }
 
+
        $db_home.each | $sid | {
-        if $sid in $sid_exclude_list_comparable and $archive_mode_list["${sid}"] != 'NOARCHIVELOG' {
-         file { "/opt/oracle/sw/working_dir/${home}/disable_archive_log_mode_${sid}.sql" :
-          ensure => 'present',
-          owner  => 'oracle',
-          group  => 'oinstall',
-          mode   => '0644',
-          source => 'puppet:///modules/oradb_fs/rman/disable_archive_log_mode.sql'
-         }
-         -> exec { "Disable archive log mode: ${home} : ${sid}":
-          command     => "sqlplus /nolog @/opt/oracle/sw/working_dir/${home}/disable_archive_log_mode_${sid}.sql",
-          user        => 'oracle',
-          path        => "${home_path}/bin",
-          environment => [ 'ORACLE_BASE=/opt/oracle', "ORACLE_HOME=${home_path}", "ORACLE_SID=${sid}", "LD_LIBRARY_PATH=${home_path}/lib"]
+        $sid_exclude_list_comparable.each | $exclude_compare | {
+         if $sid == $exclude_compare {
+          if $archive_mode_list["${sid}"] != 'NOARCHIVELOG' {
+           file { "/opt/oracle/sw/working_dir/${home}/disable_archive_log_mode_${sid}.sql" :
+            ensure => 'present',
+            owner  => 'oracle',
+            group  => 'oinstall',
+            mode   => '0644',
+            source => 'puppet:///modules/oradb_fs/rman/disable_archive_log_mode.sql'
+           }
+           -> exec { "Disable archive log mode: ${home} : ${sid}":
+            command     => "sqlplus /nolog @/opt/oracle/sw/working_dir/${home}/disable_archive_log_mode_${sid}.sql",
+            user        => 'oracle',
+            path        => "${home_path}/bin",
+            environment => [ 'ORACLE_BASE=/opt/oracle', "ORACLE_HOME=${home_path}", "ORACLE_SID=${sid}", "LD_LIBRARY_PATH=${home_path}/lib"]
+           }
+          }
+          else {
+           notify {"Database already has noarchivelog mode set : ${sid}" : }
+          }
          }
         }
        }
 
        $sid_list.each | $sid | {
-        $archive_mode_list = $facts['db_archive_mode_list']
         if has_key($archive_mode_list, $sid) {
          if $archive_mode_list["${sid}"] == 'NOARCHIVELOG' {
           file { "/opt/oracle/sw/working_dir/${home}/archive_log_mode_${sid}.sql" :
