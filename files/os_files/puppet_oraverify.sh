@@ -457,7 +457,7 @@ if [ -f /usr/local/bin/puppet_admin.sh ] ; then
 
  fi
  ora_bootstrap_verification_pass=$((ora_bootstrap_verification_pass+1))
- if [ $(sha256sum /usr/local/bin/puppet_admin.sh | awk '{print $1}') = 'facfc3a89f0b7b6bc1d505da3f08d9aabb9cdafa51a2596bb217eee3e027fbf1' ] ; then
+ if [ $(sha256sum /usr/local/bin/puppet_admin.sh | awk '{print $1}') = 'f4aa9af40cc6b9901cc6f695b6bca6f3262f818b2a1881686fc8b9e49432f10c' ] ; then
   if [[ "$2" = "detail" ]] ; then
    echo -e "${GREEN}#`printf " %-54s" "File Checksum"`#`printf " %-72s" "/usr/local/bin/puppet_admin.sh"`# PASS   #${NC}"
   fi
@@ -493,7 +493,7 @@ if [ -f /usr/local/bin/puppet_oraverify.sh ] ; then
   echo -e "${GREEN}#`printf " %-54s" "File Existence"`#`printf " %-72s" "/usr/local/bin/puppet_oraverify.sh"`# PASS   #${NC}"
  fi
  ora_bootstrap_verification_pass=$((ora_bootstrap_verification_pass+1))
- if [ $(/bin/cat /usr/local/bin/puppet_oraverify.sh | grep -v '##~DO NOT REMOVE THIS~##' | sha256sum | awk '{print $1}') = '1df058ba31846620c005239cee62bc74de5e84a7d1fa9bac340a884534243173' ] ; then ##~DO NOT REMOVE THIS~##
+ if [ $(/bin/cat /usr/local/bin/puppet_oraverify.sh | grep -v '##~DO NOT REMOVE THIS~##' | sha256sum | awk '{print $1}') = '37d63f98a3f200ac645902277b66f2d0ecd7b38e4e6ca309ae767daac7961aed' ] ; then ##~DO NOT REMOVE THIS~##
   if [[ "$2" = "detail" ]] ; then
     echo -e "${GREEN}#`printf " %-54s" "File Checksum"`#`printf " %-72s" "/usr/local/bin/puppet_oraverify.sh"`# PASS   #${NC}"
   fi
@@ -563,7 +563,7 @@ if [ -f /etc/sudoers.d/ora_puppet_perm ] ; then
   echo -e "${GREEN}#`printf " %-54s" "File Existence"`#`printf " %-72s" "/etc/sudoers.d/ora_puppet_perm"`# PASS   #${NC}"
  fi
  ora_bootstrap_verification_pass=$((ora_bootstrap_verification_pass+1))
- if [ $(sha256sum /etc/sudoers.d/ora_puppet_perm | awk '{print $1}') = 'a623bf143bd527868f557bd14f7e22d30c5788d309fc194b7952cad5bcd33121' ] ; then
+ if [ $(sha256sum /etc/sudoers.d/ora_puppet_perm | awk '{print $1}') = 'd415437df3c0a7d984f423c7d9e20da0f68999ea55494fb0adfca9044f60f19e' ] ; then
   if [[ "$2" = "detail" ]] ; then
    echo -e "${GREEN}#`printf " %-54s" "File Checksum"`#`printf " %-72s" "/etc/sudoers.d/ora_puppet_perm"`# PASS   #${NC}"
   fi
@@ -3177,7 +3177,7 @@ do
     fi
 
     if [ -d /home/oracle/system/rman ] ; then
-      if [ $(/bin/cat $i/network/admin/sqlnet.ora | grep -v sqlnet.kerberos5_conf= | grep -v sqlnet.kerberos5_keytab= | sha256sum | awk '{print $1}') = '59d93e27fc9c6db2b84bebd24d2fe9f1307668812ee433113c28c20abc5d9a37' ]  ; then
+      if [ $(/bin/cat $i/network/admin/sqlnet.ora | grep -v sqlnet.kerberos5_conf= | grep -v sqlnet.kerberos5_keytab= | grep -v "#" | sha256sum | awk '{print $1}') = '02a834e54bbae5ee95d555711cc64f6374aee6018ca480d3d79e0d2285909942' ]  ; then
        if [[ "$2" = "detail" ]] ; then
         echo -e "${GREEN}#`printf " %-54s" "File Checksum for other contents"`#`printf " %-72s" "$i/network/admin/sqlnet.ora"`# PASS   #${NC}"
        fi
@@ -3189,7 +3189,7 @@ do
        sw_verification_fail=$((sw_verification_fail+1))
       fi
     else
-      if [ $(/bin/cat $i/network/admin/sqlnet.ora | grep -v sqlnet.kerberos5_conf= | grep -v sqlnet.kerberos5_keytab= | sha256sum | awk '{print $1}') = '8f592815e63920fb30c44a9123949b8ea3252988cfc956e2d5070e7a79aa7d2b' ]  ; then
+      if [ $(/bin/cat $i/network/admin/sqlnet.ora | grep -v sqlnet.kerberos5_conf= | grep -v sqlnet.kerberos5_keytab= | grep -v "#" | sha256sum | awk '{print $1}') = '8f592815e63920fb30c44a9123949b8ea3252988cfc956e2d5070e7a79aa7d2b' ]  ; then
        if [[ "$2" = "detail" ]] ; then
         echo -e "${GREEN}#`printf " %-54s" "File Checksum for other contents"`#`printf " %-72s" "$i/network/admin/sqlnet.ora"`# PASS   #${NC}"
        fi
